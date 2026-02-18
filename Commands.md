@@ -12,6 +12,8 @@ instalarse Docker
 
 # Para el Frontend
 
+Se uso boostrap
+
 Es solo html estatico entonces copien el index.html (el camino/ruta)
 y lo pegan en su browser como file:///ruta
 
