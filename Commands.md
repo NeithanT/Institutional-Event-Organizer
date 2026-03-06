@@ -69,9 +69,10 @@ Devuelta a node js, igual hay que poner en la documentacion que lo vimos:
 
 Instanlese node js :)
 
-- npm create vite@latest frontend -- --template react
-- npm install bootstrap@5.3.0-alpha1
-- npm run "Ejecutar la wea"
+- npm install -g @angular/cli
+- ng new frontend
+- ng add @ng-bootstrap/ng-bootstrap
+- ng serve
 
 ahora en el localhost que se pone lo abriran en un navegador como 
 http://localhost:<port>/
