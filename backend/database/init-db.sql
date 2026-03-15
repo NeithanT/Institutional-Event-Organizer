@@ -10,11 +10,13 @@ CREATE TABLE [User] (
     Id          INT IDENTITY(1,1) PRIMARY KEY,
 
     UserPas     VARCHAR(50) NOT NULL,
-    UserName        VARCHAR(100) NOT NULL,
+    UserName    VARCHAR(100) NOT NULL,
     Email       VARCHAR(64) NOT NULL,
     Active      BIT NOT NULL,
     RoleId      INT NOT NULL,
-    IdCard      INT
+    IdCard      INT,
+
+    CONSTRAINT FKRoleId FOREIGN KEY (RoleId) REFERENCES Role(Id)
 );
 GO
 
