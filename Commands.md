@@ -1,4 +1,16 @@
+# Pasos de ejecucion
 
+- Se debe ejecutar la base de datos primero:
+- ir a backend/database/
+- docker compose up -d
+
+- ahora el backend
+- backend/api/
+- dotnet run watch
+
+- ahora el frontend
+- frontend/
+- ng serve
 
 # Para el BackEnd
 instalarse SDK .NET
