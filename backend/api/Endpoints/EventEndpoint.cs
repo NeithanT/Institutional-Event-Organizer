@@ -25,7 +25,7 @@ public static class EventEndpoint
             db.Events.Add(ev);
             await db.SaveChangesAsync();
 
-            return Results.Created($"/todoitems/{ev.Id}", ev);
+            return Results.Created($"/events/{ev.Id}", ev);
         });
 
         app.MapPut("/events/{id}", async (int id, Event evInput, EventOrganizerContext db) =>
