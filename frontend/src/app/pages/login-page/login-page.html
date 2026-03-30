@@ -2,41 +2,71 @@
 
   <div class="login-card">
 
-    <!-- IZQUIERDA -->
-    <div class="left-section">
-      <h2><strong>Inicio de Sesión</strong></h2>
+    @if(isRegistering) {
+      <app-login-logo></app-login-logo>
+      <div class="register-section">
+        <h2><strong>Registro de Cuenta</strong></h2>
 
-      <form>
-        <div class="form-group">
-          <label>Usuario</label>
-          <input type="text" placeholder="Ingrese su usuario">
+        <form (ngSubmit)="onLogin()">
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" placeholder="Ingrese su nombre">
+          </div>
+
+          <div class="form-group">
+            <label>Apellidos</label>
+            <input type="text" placeholder="Ingrese sus apellidos">
+          </div>
+
+          <div class="form-group">
+            <label>Carne</label>
+            <input type="text" placeholder="Ingrese su carne">
+          </div>
+
+          <div class="form-group">
+            <label>Correo</label>
+            <input type="text" placeholder="Ingrese su correo">
+          </div>
+
+          <div class="form-group">
+            <label>Contraseña</label>
+            <input type="password" placeholder="Ingrese su contraseña">
+          </div>
+
+        <div class="button-row">
+          <button type="submit" class="btn primary" (click)="toggleRegister()">Registrar Cuenta</button>
+          <button type="button" class="btn primary">Cancelar</button>
         </div>
 
-        <div class="form-group">
-          <label>Contraseña</label>
-          <input type="password" placeholder="Ingrese su contraseña">
+        </form>
+      </div>
+    } @else {
+      <!-- IZQUIERDA -->
+      <div class="left-section">
+        <h2><strong>Inicio de Sesión</strong></h2>
+
+        <form (ngSubmit)="onLogin()">
+          <div class="form-group">
+            <label>Usuario</label>
+            <input type="text" placeholder="Ingrese su usuario">
+          </div>
+
+          <div class="form-group">
+            <label>Contraseña</label>
+            <input type="password" placeholder="Ingrese su contraseña">
+          </div>
+
+        <div class="button-group">
+          <button type="button" class="btn primary" (click)="toggleRegister()">Registrar Cuenta</button>
+          <button type="submit" class="btn primary">Iniciar Sesión</button>
+          <a href="#" class="help-link">¿Tiene problemas para acceder?</a>
         </div>
-
-       <div class="button-group">
-        <button class="btn primary">Registrar Cuenta</button>
-        <button class="btn primary">Iniciar Sesión</button>
-        <a href="#" class="help-link">¿Tiene problemas para acceder?</a>
-      </div>
-      </form>
-    </div>
-
-    <!-- DERECHA -->
-     <div class="right-section text-center">
-
-      <div class="text-container">
-        <h4><strong>Bienvenido al sistema de Gestión de eventos</strong></h4>
+        </form>
       </div>
 
-      <div class="image-container">
-        <img src="https://online.fliphtml5.com/qverk/mfid/files/large/1.webp?1634531280" alt="TEC">
-      </div>
-
-    </div>
+      <!-- DERECHA -->
+      <app-login-logo></app-login-logo>
+    }
 
   </div>
 

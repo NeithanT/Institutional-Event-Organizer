@@ -1,5 +1,6 @@
 .main-container {
   height: 100vh;
+  width: 100vw;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -33,7 +34,7 @@
 .form-group {
   display: flex;
   flex-direction: column;
-  margin-bottom: 15px;
+  margin-bottom: 5px;
 }
 
 input {
@@ -44,9 +45,10 @@ input {
 
 /* BOTONES */
 .button-group {
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px;
 }
 
 .btn {
@@ -75,25 +77,18 @@ input {
   text-decoration: underline;
 }
 
-/* DERECHA */
-.right-section {
+.register-section {
   width: 50%;
-  background-color: #e5e7eb;
+  padding: 30px;
+  background: linear-gradient(to bottom, #3b82f6, #1e3a8a);
+  color: white;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  padding: 20px;
 }
 
-.right-section h4 {
-  margin-top: -70px; 
-  
-
-}
-
-.right-section img {
-  width: 100%;
-  border-radius: 7px;
-  margin-top: 25px; 
+.button-row {
+  margin-top: 20px;
+  display: flex;
+  gap: 25px;
 }
