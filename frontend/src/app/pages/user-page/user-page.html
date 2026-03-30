@@ -1,1 +1,34 @@
-<p>user-page works!</p>
+<div class="page-wrapper">
+  <app-navbar />
+
+  <section class="hero">
+    <div class="hero-content">
+      <h2 class="section-title">ANUNCIOS</h2>
+      <div class="announcements-grid">
+        @for (anuncio of anuncios; track anuncio.titulo) {
+          <div class="announcement-card">
+            <h3>{{ anuncio.titulo }}</h3>
+            <a href="#" class="ver-mas">Ver más</a>
+          </div>
+        }
+      </div>
+    </div>
+    <div class="hero-logo">
+      <img src="assets/tec-55.png" alt="TEC 55 años" />
+    </div>
+  </section>
+
+  <section class="events-section">
+    <h2 class="section-title-dark">Eventos</h2>
+    <div class="events-grid">
+      @for (evento of eventos; track evento.titulo) {
+        <div class="event-card">
+          <img [src]="evento.imagen" [alt]="evento.titulo" class="event-img" />
+          <a href="#" class="ver-mas-dark">Ver más</a>
+        </div>
+      }
+    </div>
+  </section>
+
+  <app-footer />
+</div>
