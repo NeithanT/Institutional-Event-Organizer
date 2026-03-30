@@ -1,3 +1,4 @@
+using api.Endpoints;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,13 +13,10 @@ builder.Services.AddDbContext<EventOrganizerContext>(
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     }
 );
-
-
-
-
 var app = builder.Build();
 
 
+app.UseRouting();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -31,6 +29,7 @@ if (app.Environment.IsDevelopment())
 
 }
 
-app.UseHttpsRedirection();
 
+app.UseHttpsRedirection();
+EventEndpoint.mapEventEndpoints(app);
 app.Run();

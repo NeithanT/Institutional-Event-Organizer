@@ -4,3 +4,42 @@ GET {{api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+GET http://localhost:5053/events
+
+
+###
+POST http://localhost:5053/events
+Content-Type: application/json
+
+{
+
+    "EventDate": "2026-04-15T09:00:00.000",
+    "Place" : "La nave",
+    "Title": "Salida a la Nave",
+    "EventDescription": "Nos llevamos a Jorge a la nave",
+    "CategoryId":1,
+    "OrganizerId":1,
+    "OrganizerEntityId":1,
+    "AvalaibleEntries": 20,
+    "ApprovedState": false
+
+}
+
+###
+PUT http://localhost:5053/events/17
+Content-Type: application/json
+
+{
+
+    "EventDate": "2026-04-15T09:00:00.000",
+    "Place" : "La nave",
+    "Title": "SE CANCELA - JORGE NO QUIZO IR",
+    "EventDescription": "Nos llevamos a Jorge a la nave",
+    "CategoryId":1,
+    "OrganizerId":1,
+    "OrganizerEntityId":1,
+    "AvalaibleEntries": 20,
+    "ApprovedState": false
+
+}
