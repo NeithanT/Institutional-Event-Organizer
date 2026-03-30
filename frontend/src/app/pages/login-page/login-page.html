@@ -4,64 +4,58 @@
 
     @if(isRegistering) {
       <app-login-logo></app-login-logo>
+
       <div class="register-section">
         <h2><strong>Registro de Cuenta</strong></h2>
-
-        <form (ngSubmit)="onLogin()">
-          <div class="form-group">
-            <label>Nombre</label>
-            <input type="text" placeholder="Ingrese su nombre">
-          </div>
-
-          <div class="form-group">
-            <label>Apellidos</label>
-            <input type="text" placeholder="Ingrese sus apellidos">
-          </div>
-
-          <div class="form-group">
-            <label>Carne</label>
-            <input type="text" placeholder="Ingrese su carne">
-          </div>
-
-          <div class="form-group">
-            <label>Correo</label>
-            <input type="text" placeholder="Ingrese su correo">
-          </div>
-
-          <div class="form-group">
-            <label>Contraseña</label>
-            <input type="password" placeholder="Ingrese su contraseña">
-          </div>
-
-        <div class="button-row">
-          <button type="submit" class="btn primary" (click)="toggleRegister()">Registrar Cuenta</button>
-          <button type="button" class="btn primary">Cancelar</button>
+        <div class="form-group">
+          <label>Nombre</label>
+          <input type="text" placeholder="Ingrese su nombre">
         </div>
 
-        </form>
+        <div class="form-group">
+          <label>Apellidos</label>
+          <input type="text" placeholder="Ingrese sus apellidos">
+        </div>
+
+        <div class="form-group">
+          <label>Carne</label>
+          <input type="text" placeholder="Ingrese su carne">
+        </div>
+
+        <div class="form-group">
+          <label>Correo</label>
+          <input type="text" placeholder="Ingrese su correo">
+        </div>
+
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input type="password" placeholder="Ingrese su contraseña">
+        </div>
+
+        <div class="button-row">
+          <button type="button" class="btn primary" (click)="onLogin()">Registrar Cuenta</button>
+          <button type="button" class="btn primary" (click)="onCancel()">Cancelar</button>
+        </div>
       </div>
     } @else {
       <!-- IZQUIERDA -->
       <div class="left-section">
         <h2><strong>Inicio de Sesión</strong></h2>
+        <div class="form-group">
+          <label>Usuario</label>
+          <input type="text" placeholder="Ingrese su usuario">
+        </div>
 
-        <form (ngSubmit)="onLogin()">
-          <div class="form-group">
-            <label>Usuario</label>
-            <input type="text" placeholder="Ingrese su usuario">
-          </div>
-
-          <div class="form-group">
-            <label>Contraseña</label>
-            <input type="password" placeholder="Ingrese su contraseña">
-          </div>
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input type="password" placeholder="Ingrese su contraseña">
+        </div>
 
         <div class="button-group">
           <button type="button" class="btn primary" (click)="toggleRegister()">Registrar Cuenta</button>
-          <button type="submit" class="btn primary">Iniciar Sesión</button>
-          <a href="#" class="help-link">¿Tiene problemas para acceder?</a>
+          <button type="button" class="btn primary" (click)="onLogin()">Iniciar Sesión</button>
+          <a class="help-link">¿Tiene problemas para acceder?</a>
         </div>
-        </form>
       </div>
 
       <!-- DERECHA -->

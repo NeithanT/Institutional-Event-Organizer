@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { LoginLogo } from '../../components/login/login-logo/login-logo';
-
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-login-page',
   imports: [LoginLogo],
@@ -9,6 +9,8 @@ import { LoginLogo } from '../../components/login/login-logo/login-logo';
 })
 export class LoginPage {
 
+  router = inject(Router);
+
   isRegistering: boolean = false;
 
   toggleRegister() {
@@ -16,6 +18,11 @@ export class LoginPage {
   }
 
   onLogin() {
+    // TODO autenticacion
+    this.router.navigate(['/user']);
+  }
 
+  onCancel() {
+    this.isRegistering = false;
   }
 }
