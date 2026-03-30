@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,7 @@ public static class EventEndpoint
 
         app.MapPost("/events", async (Event ev, EventOrganizerContext db) =>
         {
+            ev.ApprovedState = false;
             db.Events.Add(ev);
             await db.SaveChangesAsync();
 
@@ -31,6 +33,7 @@ public static class EventEndpoint
             var ev = await db.Events.FindAsync(id);
 
             if (ev is null) return Results.NotFound();
+            if (evInput.EventDate < DateTime.Now) return Results.BadRequest();
 
             ev.Title = evInput.Title;
             ev.EventDate = evInput.EventDate;

@@ -13,23 +13,34 @@ builder.Services.AddDbContext<EventOrganizerContext>(
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     }
 );
+
+builder.Services.AddEndpointsApiExplorer();
+
+
+builder.Services.AddOpenApiDocument(config =>
+{
+    config.DocumentName = "EventAPI";
+    config.Title = "Event API";
+    config.Version = "v1";
+});
+
 var app = builder.Build();
-
-
-app.UseRouting();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    app.UseSwaggerUi(options =>
+    app.UseOpenApi();
+    app.UseSwaggerUi(config =>
     {
-        options.DocumentPath = "/openapi/v1.json";
+        config.DocumentTitle = "TodoAPI";
+        config.Path = "/swagger";
+        config.DocumentPath = "/swagger/{documentName}/swagger.json";
+        config.DocExpansion = "list";
     });
-
 }
 
 
+app.UseRouting();
 app.UseHttpsRedirection();
 EventEndpoint.mapEventEndpoints(app);
 app.Run();
