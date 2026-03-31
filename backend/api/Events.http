@@ -4,11 +4,17 @@ GET {{api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
-
+//Fetches all the information of the available events
 GET http://localhost:5053/events
+
+###
+//Fetches the information for an specific event
+GET http://localhost:5053/events/7
+
 
 
 ###
+//Creates a new event on the Table Events
 POST http://localhost:5053/events
 Content-Type: application/json
 
@@ -27,6 +33,7 @@ Content-Type: application/json
 }
 
 ###
+//Edits an existing events on the Table Events
 PUT http://localhost:5053/events/17
 Content-Type: application/json
 
