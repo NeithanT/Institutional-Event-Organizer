@@ -14,7 +14,7 @@ public static class EventEndpoint
     public static void mapEventEndpoints(WebApplication app)
     {
         //Get all the events from the Events Table (Doesnt fetch the Canceled Events)
-        app.MapGet("/organizer/events/all", async (EventOrganizerContext db) =>
+        app.MapGet("organizer/events/all", async (EventOrganizerContext db) =>
         {
             return Results.Ok(await db.Events.ToListAsync());
         });
