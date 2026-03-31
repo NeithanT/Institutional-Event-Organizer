@@ -7,55 +7,96 @@
 
       <div class="register-section">
         <h2><strong>Registro de Cuenta</strong></h2>
-        <div class="form-group">
-          <label>Nombre</label>
-          <input type="text" placeholder="Ingrese su nombre">
-        </div>
 
-        <div class="form-group">
-          <label>Apellidos</label>
-          <input type="text" placeholder="Ingrese sus apellidos">
-        </div>
+        <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+          <div class="form-group">
+            <label>
+              Nombre
+              @if(registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched) {
+                <span class="required">*</span>
+              }
+            </label>
+            <input formControlName="nombre" type="text" placeholder="Ingrese su nombre">
+          </div>
 
-        <div class="form-group">
-          <label>Carne</label>
-          <input type="text" placeholder="Ingrese su carne">
-        </div>
+          <div class="form-group">
+            <label>
+              Apellidos
+              @if(registerForm.get('apellidos')?.invalid && registerForm.get('apellidos')?.touched) {
+                <span class="required">*</span>
+              }
+            </label>
+            <input formControlName="apellidos" type="text" placeholder="Ingrese sus apellidos">
+          </div>
 
-        <div class="form-group">
-          <label>Correo</label>
-          <input type="text" placeholder="Ingrese su correo">
-        </div>
+          <div class="form-group">
+            <label>
+              Carne
+              @if(registerForm.get('carne')?.invalid && registerForm.get('carne')?.touched) {
+                <span class="required">*</span>
+              }
+            </label>
+            <input formControlName="carne" type="text" placeholder="Ingrese su carne">
+          </div>
 
-        <div class="form-group">
-          <label>Contraseña</label>
-          <input type="password" placeholder="Ingrese su contraseña">
-        </div>
+          <div class="form-group">
+            <label>
+              Correo
+              @if(registerForm.get('correo')?.invalid && registerForm.get('correo')?.touched) {
+                <span class="required">*</span>
+              }
+            </label>
+            <input formControlName="correo" type="email" placeholder="Ingrese su correo">
+          </div>
 
-        <div class="button-row">
-          <button type="button" class="btn primary" (click)="onLogin()">Registrar Cuenta</button>
-          <button type="button" class="btn primary" (click)="onCancel()">Cancelar</button>
-        </div>
+          <div class="form-group">
+            <label>
+              Contraseña
+              @if(registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+                <span class="required">*</span>
+              }
+            </label>
+            <input formControlName="password" type="password" placeholder="Ingrese su contraseña">
+          </div>
+
+          <div class="button-row">
+            <button type="submit" class="btn primary">Registrar Cuenta</button>
+            <button type="button" class="btn primary" (click)="onCancel()">Cancelar</button>
+          </div>
+        </form>
       </div>
     } @else {
       <!-- IZQUIERDA -->
       <div class="left-section">
         <h2><strong>Inicio de Sesión</strong></h2>
-        <div class="form-group">
-          <label>Usuario</label>
-          <input type="text" placeholder="Ingrese su usuario">
-        </div>
 
-        <div class="form-group">
-          <label>Contraseña</label>
-          <input type="password" placeholder="Ingrese su contraseña">
-        </div>
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+          <div class="form-group">
+            <label>
+              Correo
+              @if(loginForm.get('correo')?.invalid && loginForm.get('correo')?.touched) {
+                <span class="required">*</span>
+              }
+            </label>
+            <input formControlName="correo" type="email" placeholder="Ingrese su correo">
+          </div>
 
-        <div class="button-group">
-          <button type="button" class="btn primary" (click)="toggleRegister()">Registrar Cuenta</button>
-          <button type="button" class="btn primary" (click)="onLogin()">Iniciar Sesión</button>
-          <a class="help-link">¿Tiene problemas para acceder?</a>
-        </div>
+          <div class="form-group">
+            <label>
+              Contraseña
+              @if(loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+                <span class="required">*</span>
+              }
+            </label>
+            <input formControlName="password" type="password" placeholder="Ingrese su contraseña">
+          </div>
+
+          <div class="button-group">
+            <button type="button" class="btn primary" (click)="toggleRegister()">Registrar Cuenta</button>
+            <button type="submit" class="btn primary">Iniciar Sesión</button>
+            <a class="help-link">¿Tiene problemas para acceder?</a>
+          </div>
+        </form>
       </div>
 
       <!-- DERECHA -->

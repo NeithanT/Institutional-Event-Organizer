@@ -55,6 +55,12 @@ input {
   width: 100%;
 }
 
+.required {
+  color: #f87171;
+  font-size: 1.5rem;
+}
+
+
 .help-link {
   font-size: 12px;
   text-decoration: underline;
