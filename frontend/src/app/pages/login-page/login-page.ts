@@ -17,6 +17,7 @@ export class LoginPage {
   private fb = inject(FormBuilder);
 
   isRegistering: boolean = false;
+  loginError = '';
 
   loginForm = this.fb.group({
     correo: ['', Validators.required],
@@ -33,46 +34,43 @@ export class LoginPage {
 
   toggleRegister() {
     this.isRegistering = true;
+    this.loginError = '';
   }
 
-  onLogin() {
+  async onLogin() {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
     }
 
-    if(this.loginForm.get('usuario')?.invalid && this.loginForm.get('usuario')?.touched) {
-      return;
-    }
-
     const credentials = this.loginForm.value;
 
-    let mail = credentials?.correo?.trim();
-    let password = credentials?.password?.trim();
+    const email = credentials?.correo?.trim() ?? '';
+    const password = credentials?.password?.trim() ?? '';
 
-    fetch('http://localhost:5073/user/auth', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ mail, password })
-    })
-    .then(response => {
+    try {
+      const response = await fetch('http://localhost:5073/user/auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
+
       if (!response.ok) {
-        throw new Error('Error en la autenticación');
+        this.loginError = 'Correo o contraseña incorrectos.';
+        return;
       }
-      return response.json();
-    })
-    .then(data => {
-      console.log('Autenticación exitosa', data);
-      // gotta verify the json at rol
-      // to see if it should redirect to admin or user page
 
-      this.authService.setAuthenticationState(data.rol);
-    })
-    .catch(error => {
+      const data = await response.json();
+      this.authService.setAuthenticationState(data.role ?? data.rol);
+      this.loginError = '';
+
+      await this.router.navigate(['/user']);
+    } catch (error) {
       console.error('Error en la autenticación', error);
-    });
+      this.loginError = 'No se pudo conectar con el servidor.';
+    }
   }
 
   onRegister() {
@@ -95,5 +93,6 @@ export class LoginPage {
   onCancel() {
     this.isRegistering = false;
     this.registerForm.reset();
+    this.loginError = '';
   }
 }

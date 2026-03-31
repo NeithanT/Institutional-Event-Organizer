@@ -48,6 +48,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseRouting();
 app.UseHttpsRedirection();
+AuthenticationEndpoint.mapAuthenticationEndpoints(app);
 EventEndpoint.mapEventEndpoints(app);
 AttendanceEndpoint.mapAttendancesEndpoints(app);
 
