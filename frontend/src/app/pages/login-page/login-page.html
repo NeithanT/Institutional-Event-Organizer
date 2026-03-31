@@ -53,6 +53,14 @@
             <button type="submit" class="btn primary">Registrar Cuenta</button>
             <button type="button" class="btn primary" (click)="onCancel()">Cancelar</button>
           </div>
+
+          <div class="error-container">
+            @if (registerError) {
+              <p class="error-message">{{ registerError }}</p>
+            } @else if (registerSuccess) {
+              <p class="success-message">{{ registerSuccess }}</p>
+            }
+          </div>
         </form>
       </div>
     } @else {

@@ -20,6 +20,20 @@ builder.Services.AddDbContext<EventOrganizerContext>(
     }
 );
 
+// CORS: allow Angular frontend at http://localhost:4200
+var corsPolicyName = "AllowAngularDev";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: corsPolicyName,
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        });
+});
+
 builder.Services.AddEndpointsApiExplorer();
 
 
@@ -47,6 +61,29 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseRouting();
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/json";
+
+        var exceptionHandlerPathFeature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>();
+        var error = exceptionHandlerPathFeature?.Error;
+
+        var errorDetail = new
+        {
+            Message = "An internal server error occurred.",
+            Detail = error?.Message,
+            StackTrace = error?.StackTrace
+        };
+
+        await context.Response.WriteAsJsonAsync(errorDetail);
+    });
+});
+
+app.UseCors("AllowAngularDev");
 app.UseHttpsRedirection();
 AuthenticationEndpoint.mapAuthenticationEndpoints(app);
 EventEndpoint.mapEventEndpoints(app);
