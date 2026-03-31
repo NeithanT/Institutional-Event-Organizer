@@ -1,9 +1,15 @@
+using System.Text.Json.Serialization;
 using api.Endpoints;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
+// {
+//     options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+//     options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+// });
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -43,4 +49,6 @@ if (app.Environment.IsDevelopment())
 app.UseRouting();
 app.UseHttpsRedirection();
 EventEndpoint.mapEventEndpoints(app);
+AttendanceEndpoint.mapAttendancesEndpoints(app);
+
 app.Run();

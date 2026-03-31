@@ -1,0 +1,14 @@
+@api_HostAddress = http://localhost:5053
+
+###
+
+GET http://localhost:5053/events/7/check-list
+
+
+###
+//El usuario 9 esta inscrito en el evento 9, pero no esta marcado como "asistio"
+POST http://localhost:5053/events/7/check-list/7
+
+
+###
+DELETE  http://localhost:5053/events/7/check-list/7
