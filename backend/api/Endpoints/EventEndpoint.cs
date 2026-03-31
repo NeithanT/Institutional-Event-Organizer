@@ -1,6 +1,10 @@
 using System;
 using System.Data;
+using api.DTOs;
+using api.Interfaces;
 using api.Models;
+using api.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Endpoints;
@@ -9,45 +13,176 @@ public static class EventEndpoint
 {
     public static void mapEventEndpoints(WebApplication app)
     {
+        //Get all the events from the Events Table (Doesnt fetch the Canceled Events)
+        app.MapGet("/organizer/events/all", async (EventOrganizerContext db) =>
+        {
+            return Results.Ok(await db.Events.ToListAsync());
+        });
 
-        app.MapGet("/events", async (EventOrganizerContext db) =>
-            await db.Events.ToListAsync());
+        //##################################################################################
 
-        app.MapGet("/events/{id}", async (int id, EventOrganizerContext db) =>
+        //Get all the events from the Events Table (Doesnt fetch the Canceled Events)
+        app.MapGet("organizer/events", async (EventOrganizerContext db) =>
+        {
+            var availableEvents = await db.Events
+            .Include(a => a.CanceledEvent)
+            .Where(ev =>
+                !db.CanceledEvents.Any(c => c.EventId == ev.Id)
+                ).
+            ToListAsync();
+            return Results.Ok(availableEvents);
+        });
+
+
+        //##################################################################################
+
+        //Gets the information for an specific event from the Events Table
+        app.MapGet("organizer/events/{id}", async (int id, EventOrganizerContext db) =>
             await db.Events.FindAsync(id)
                 is Event ev
                     ? Results.Ok(ev)
                     : Results.NotFound());
 
-        app.MapPost("/events", async (Event ev, EventOrganizerContext db) =>
+        //##################################################################################
+        //Creates an event on the Events Table
+        app.MapPost("organizer/events", async ([FromForm] DtoCreateEvent createEventDto, IWebHostEnvironment env, EventOrganizerContext db) =>
         {
-            ev.ApprovedState = false;
-            db.Events.Add(ev);
+            string imagePath = "/Images/default.jpg";
+
+
+            if (createEventDto.ImageFileEvent != null
+            &&
+            createEventDto.ImageFileEvent.Length > 0)
+            {
+
+                string uploadsFolder = Path.Combine(env.WebRootPath, "uploads");
+                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + createEventDto.ImageFileEvent.FileName;
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                // 3. Guardar el archivo físicamente
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await createEventDto.ImageFileEvent.CopyToAsync(fileStream);
+                }
+
+                imagePath = "/uploads/" + uniqueFileName;
+            }
+
+            Event ev = new Event
+            {
+                Title = createEventDto.Title,
+                ImageFileEvent = imagePath,
+                EventDescription = createEventDto.EventDescription,
+                EventDate = createEventDto.EventDate,
+                Place = createEventDto.Place,
+                CategoryId = createEventDto.CategoryId,
+                OrganizerId = createEventDto.OrganizerId,
+                OrganizerEntityId = createEventDto.OrganizerEntityId,
+                AvalaibleEntries = createEventDto.AvalaibleEntries,
+                ApprovedState = false
+            };
+
+            await db.Events.AddAsync(ev);
             await db.SaveChangesAsync();
 
             return Results.Created($"/events/{ev.Id}", ev);
-        });
+        }).DisableAntiforgery();
 
-        app.MapPut("/events/{id}", async (int id, Event evInput, EventOrganizerContext db) =>
+
+        //##################################################################################
+        //Cancels an event on the Events Table
+        app.MapPost("organizer/events/{id:int}/cancel", async (
+            [FromRoute] int id,
+            [FromBody] DtoCanceledEvent motive,
+            [FromServices] IEmailService mailService,
+            EventOrganizerContext db
+           ) =>
+
+            {
+
+                bool alreadyCanceled = await db.CanceledEvents.AnyAsync(c => c.EventId == id);
+                if (alreadyCanceled) return Results.BadRequest("Event already canceled");
+
+                Event? ev = await db.Events.FindAsync(id);
+                if (ev == null) return Results.NotFound();
+                if (ev.ApprovedState == false) return Results.BadRequest("Event has not been approved yet (cannot be canceled)");
+
+                CanceledEvent newCanceledEvent = new CanceledEvent
+                {
+                    EventId = id,
+                    Reason = motive.Reason
+                };
+                await db.CanceledEvents.AddAsync(newCanceledEvent);
+                await db.SaveChangesAsync();
+
+                var enrolledPeople = await db.Inscriptions
+                .Where(insc => insc.EventId == id)
+                .Select(u => u.User)
+                .ToListAsync();
+
+                foreach (var user in enrolledPeople)
+                {
+
+                    await mailService.SendEmailAsync(user.Email,
+                    $"The Event {ev.Title} has been CANCELED",
+                    $"{motive.Reason}");
+
+                }
+                return Results.Ok("The event has been canceled succesfully");
+
+
+            });
+
+        //##################################################################################
+        app.MapPost("organizer/events/{id:int}/notice", async (
+        [FromRoute] int id,
+        [FromBody] DtoCanceledEvent motive,
+        [FromServices] IEmailService mailService,
+        EventOrganizerContext db
+        ) =>
+
         {
-            var ev = await db.Events.FindAsync(id);
 
-            if (ev is null) return Results.NotFound();
-            if (evInput.EventDate < DateTime.Now) return Results.BadRequest();
+            bool alreadyCanceled = await db.CanceledEvents.AnyAsync(c => c.EventId == id);
+            if (alreadyCanceled) return Results.BadRequest("Event already canceled");
 
-            ev.Title = evInput.Title;
-            ev.EventDate = evInput.EventDate;
-            ev.Place = evInput.Place;
-            ev.EventDescription = evInput.EventDescription;
-            ev.AvalaibleEntries = evInput.AvalaibleEntries;
-            ev.ApprovedState = evInput.ApprovedState;
+            Event? ev = await db.Events.FindAsync(id);
+            if (ev == null) return Results.NotFound();
+            if (ev.ApprovedState == false) return Results.BadRequest("Event has not been approved yet (cannot be canceled)");
 
+            CanceledEvent newCanceledEvent = new CanceledEvent
+            {
+                EventId = id,
+                Reason = motive.Reason
+            };
+            await db.CanceledEvents.AddAsync(newCanceledEvent);
             await db.SaveChangesAsync();
 
-            return Results.NoContent();
+            var enrolledPeople = await db.Inscriptions
+            .Where(insc => insc.EventId == id)
+            .Select(u => u.User)
+            .ToListAsync();
+
+            foreach (var user in enrolledPeople)
+            {
+
+                await mailService.SendEmailAsync(user.Email,
+                $"The Event {ev.Title} has been CANCELED",
+                $"{motive.Reason}");
+
+            }
+            return Results.Ok("The event has been canceled succesfully");
+
+
         });
 
-        app.MapDelete("/events/{id}", async (int id, EventOrganizerContext db) =>
+
+        //##################################################################################
+        //Deletes an event from the Events Table
+        app.MapDelete("organizer/events/{id}", async (int id, EventOrganizerContext db) =>
         {
             if (await db.Events.FindAsync(id) is Event ev)
             {

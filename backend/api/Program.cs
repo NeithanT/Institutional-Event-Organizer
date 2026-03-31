@@ -1,6 +1,9 @@
 using System.Text.Json.Serialization;
 using api.Endpoints;
+using api.Interfaces;
 using api.Models;
+using api.Services;
+using Google.Apis.Gmail.v1;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +22,8 @@ builder.Services.AddDbContext<EventOrganizerContext>(
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     }
 );
+builder.Services.AddScoped<IEmailService, GmailApiService>();
+
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -46,7 +51,11 @@ if (app.Environment.IsDevelopment())
 }
 
 
+
 app.UseRouting();
+
+app.UseStaticFiles();
+
 app.UseHttpsRedirection();
 EventEndpoint.mapEventEndpoints(app);
 AttendanceEndpoint.mapAttendancesEndpoints(app);
