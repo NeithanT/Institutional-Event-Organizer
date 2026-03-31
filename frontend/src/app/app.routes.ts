@@ -8,6 +8,10 @@ export const routes: Routes = [
   {
     path: 'user',
     loadComponent: () => import('./pages/user-page/user-page').then(m => m.UserPage)
+  },
+  {
+    path: 'organizer/create-event',
+    loadComponent: () => import('./pages/organizer-page/create-event/create-event').then(m => m.CreateEvent)
   }
 
 ];
