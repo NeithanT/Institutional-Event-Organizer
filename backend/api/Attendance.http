@@ -1,14 +1,15 @@
 @api_HostAddress = http://localhost:5053
 
 ###
-
+//Gets all the "Enrolled" users of an event
 GET http://localhost:5053/events/7/check-list
 
 
 ###
-//El usuario 9 esta inscrito en el evento 9, pero no esta marcado como "asistio"
+//Check the user {id} as "hasAssisted" and add him to the Attendance table 
 POST http://localhost:5053/events/7/check-list/7
 
 
 ###
-DELETE  http://localhost:5053/events/7/check-list/7
+//Delete a user from the Attendance table and change his status to "hasAssisted: false"
+DELETE  http://localhost:5053/events/7/check-list/9
