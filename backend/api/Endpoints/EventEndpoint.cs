@@ -139,26 +139,23 @@ public static class EventEndpoint
         //##################################################################################
         app.MapPost("organizer/events/{id:int}/notice", async (
         [FromRoute] int id,
-        [FromBody] DtoCanceledEvent motive,
+        [FromBody] DtoAnnoucement noticeData,
         [FromServices] IEmailService mailService,
         EventOrganizerContext db
         ) =>
 
         {
-
-            bool alreadyCanceled = await db.CanceledEvents.AnyAsync(c => c.EventId == id);
-            if (alreadyCanceled) return Results.BadRequest("Event already canceled");
-
             Event? ev = await db.Events.FindAsync(id);
             if (ev == null) return Results.NotFound();
-            if (ev.ApprovedState == false) return Results.BadRequest("Event has not been approved yet (cannot be canceled)");
 
-            CanceledEvent newCanceledEvent = new CanceledEvent
+            Announcement announcement = new Announcement
             {
-                EventId = id,
-                Reason = motive.Reason
+                WriterId = noticeData.WriterId,
+                Title = noticeData.Title,
+                About = noticeData.About,
+                Body = noticeData.Body,
             };
-            await db.CanceledEvents.AddAsync(newCanceledEvent);
+            await db.Announcements.AddAsync(announcement);
             await db.SaveChangesAsync();
 
             var enrolledPeople = await db.Inscriptions
@@ -168,15 +165,12 @@ public static class EventEndpoint
 
             foreach (var user in enrolledPeople)
             {
-
                 await mailService.SendEmailAsync(user.Email,
-                $"The Event {ev.Title} has been CANCELED",
-                $"{motive.Reason}");
+                $"ANNOUNCEMENT: {announcement.Title}",
+                $"{announcement.Body}");
 
             }
-            return Results.Ok("The event has been canceled succesfully");
-
-
+            return Results.Ok("Announcement send correctly");
         });
 
 

@@ -26,9 +26,6 @@
     <Folder Include="Endpoints/" />
     <Folder Include="Interfaces/" />
     <Folder Include="Services/" />
-    <None Update="client_secrets.json">
-    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

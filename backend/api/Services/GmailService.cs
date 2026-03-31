@@ -51,10 +51,23 @@ public class GmailApiService : IEmailService
 
     private async Task<UserCredential> GetCredentialsAsync()
     {
+        // Support two secret formats:
+        // 1) GmailSettings:ClientId / GmailSettings:ClientSecret
+        // 2) installed:client_id / installed:client_secret (Google downloaded json)
+        var clientId = _config["GmailSettings:ClientId"] ?? _config["installed:client_id"];
+        var clientSecret = _config["GmailSettings:ClientSecret"] ?? _config["installed:client_secret"];
+
+        if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientSecret))
+        {
+            throw new InvalidOperationException(
+                "Missing Gmail OAuth credentials. Configure GmailSettings:ClientId and GmailSettings:ClientSecret " +
+                "or provide installed:client_id and installed:client_secret in user secrets.");
+        }
+
         var secrets = new ClientSecrets
         {
-            ClientId = _config["GmailSettings:ClientId"],
-            ClientSecret = _config["GmailSettings:ClientSecret"]
+            ClientId = clientId,
+            ClientSecret = clientSecret
         };
 
         // Autorizamos usando los strings, no el archivo físico
