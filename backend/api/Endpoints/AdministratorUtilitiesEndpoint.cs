@@ -3,6 +3,9 @@ using api.DTOs;
 using api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 
 namespace api.Endpoints;
 
@@ -122,8 +125,71 @@ public static class AdministratorUtilitiesEndpoint
 
         });
         //##############################################################################################################
+        app.MapPost("/administrator/generate-report", async (DtoReport dates, EventOrganizerContext db) =>
+        {
+            var reportData = await db.Categories
+                .Select(c => new
+                {
+                    Category = c.NameCategory,
+
+                    FilteredEvents = c.Events.Where(e => e.EventDate >= dates.DateStart && e.EventDate <= dates.DateEnd)
+                })
+                .Where(x => x.FilteredEvents.Any()) // Solo categorías con eventos
+                .Select(x => new
+                {
+                    Category = x.Category,
+                    EventsCount = x.FilteredEvents.Count(),
+                    TotalAttendees = x.FilteredEvents.SelectMany(e => e.Attendances).Count(),
+                    Average = x.FilteredEvents.Any()
+                              ? (double)x.FilteredEvents.SelectMany(e => e.Attendances).Count() / x.FilteredEvents.Count()
+                              : 0
+                })
+                .OrderByDescending(x => x.TotalAttendees)
+                .ToListAsync();
+
+            if (!reportData.Any()) return Results.BadRequest("No hay datos en este rango.");
 
 
+            var document = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Margin(1, Unit.Centimetre);
+                    page.Header().Text("Reporte de Asistencia por Categoría").FontSize(22).SemiBold().FontColor("#2563eb");
+
+                    page.Content().PaddingVertical(10).Table(table =>
+                    {
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn(3); // Categoría
+                            columns.RelativeColumn(1); // Eventos
+                            columns.RelativeColumn(2); // Total
+                            columns.RelativeColumn(2); // Promedio
+                        });
+
+                        table.Header(header =>
+                        {
+                            static IContainer Style(IContainer c) => c.BorderBottom(1).Padding(5);
+                            header.Cell().Element(Style).Text("Categoría").SemiBold();
+                            header.Cell().Element(Style).AlignRight().Text("Eventos").SemiBold();
+                            header.Cell().Element(Style).AlignRight().Text("Total").SemiBold();
+                            header.Cell().Element(Style).AlignRight().Text("Promedio").SemiBold();
+                        });
+
+                        foreach (var item in reportData)
+                        {
+                            static IContainer CellStyle(IContainer c) => c.BorderBottom(1).BorderColor("#EEE").Padding(5);
+
+                            table.Cell().Element(CellStyle).Text(item.Category);
+                            table.Cell().Element(CellStyle).AlignRight().Text(item.EventsCount.ToString());
+                            table.Cell().Element(CellStyle).AlignRight().Text(item.TotalAttendees.ToString("N0"));
+                            table.Cell().Element(CellStyle).AlignRight().Text(item.Average.ToString("F2"));
+                        }
+                    });
+                });
+            });
+
+            return Results.File(document.GeneratePdf(), "application/pdf", "ReporteFinal.pdf");
+        });
     }
-
 }
