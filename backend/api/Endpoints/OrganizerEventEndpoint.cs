@@ -11,7 +11,7 @@ namespace api.Endpoints;
 
 public static class EventEndpoint
 {
-    public static void mapEventEndpoints(WebApplication app)
+    public static void mapOrganizerEventEndpoints(WebApplication app)
     {
         //Get all the events from the Events Table (Doesnt fetch the Canceled Events)
         app.MapGet("organizer/events/all", async (EventOrganizerContext db) =>
@@ -102,7 +102,7 @@ public static class EventEndpoint
            ) =>
 
             {
-
+                
                 bool alreadyCanceled = await db.CanceledEvents.AnyAsync(c => c.EventId == id);
                 if (alreadyCanceled) return Results.BadRequest("Event already canceled");
 
