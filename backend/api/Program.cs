@@ -25,6 +25,20 @@ builder.Services.AddDbContext<EventOrganizerContext>(
 builder.Services.AddScoped<IEmailService, GmailApiService>();
 
 
+// CORS: allow Angular frontend at http://localhost:4200
+var corsPolicyName = "AllowAngularDev";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: corsPolicyName,
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        });
+});
+
 builder.Services.AddEndpointsApiExplorer();
 
 
@@ -54,10 +68,36 @@ if (app.Environment.IsDevelopment())
 
 app.UseRouting();
 
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseHttpsRedirection();
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/json";
+
+        var exceptionHandlerPathFeature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>();
+        var error = exceptionHandlerPathFeature?.Error;
+
+        var errorDetail = new
+        {
+            Message = "An internal server error occurred.",
+            Detail = error?.Message,
+            StackTrace = error?.StackTrace
+        };
+
+        await context.Response.WriteAsJsonAsync(errorDetail);
+    });
+});
+
+app.UseCors("AllowAngularDev");
+
+AuthenticationEndpoint.mapAuthenticationEndpoints(app);
+
 EventEndpoint.mapEventEndpoints(app);
+
 AttendanceEndpoint.mapAttendancesEndpoints(app);
 
 app.Run();
