@@ -1,6 +1,9 @@
 using System.Text.Json.Serialization;
 using api.Endpoints;
+using api.Interfaces;
 using api.Models;
+using api.Services;
+using Google.Apis.Gmail.v1;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +22,8 @@ builder.Services.AddDbContext<EventOrganizerContext>(
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     }
 );
+builder.Services.AddScoped<IEmailService, GmailApiService>();
+
 
 // CORS: allow Angular frontend at http://localhost:4200
 var corsPolicyName = "AllowAngularDev";
@@ -60,7 +65,11 @@ if (app.Environment.IsDevelopment())
 }
 
 
+
 app.UseRouting();
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 app.UseExceptionHandler(errorApp =>
 {
@@ -84,9 +93,11 @@ app.UseExceptionHandler(errorApp =>
 });
 
 app.UseCors("AllowAngularDev");
-app.UseHttpsRedirection();
+
 AuthenticationEndpoint.mapAuthenticationEndpoints(app);
+
 EventEndpoint.mapEventEndpoints(app);
+
 AttendanceEndpoint.mapAttendancesEndpoints(app);
 
 app.Run();
