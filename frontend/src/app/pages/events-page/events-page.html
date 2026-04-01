@@ -1,0 +1,87 @@
+<div class="page-wrapper">
+  <app-navbar />
+
+  <!-- HERO CON FILTROS -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1 class="hero-title">Eventos</h1>
+      <div class="filters">
+        <div class="filter-group">
+          <label>Tipo de evento</label>
+          <select (change)="setFiltro('tipo', $any($event.target).value)">
+            <option value="">Todos</option>
+            <option value="academico">Académico</option>
+            <option value="cultural">Cultural</option>
+            <option value="recreativo">Recreativo</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Fecha</label>
+          <select (change)="setFiltro('fecha', $any($event.target).value)">
+            <option value="">Todas</option>
+            <option value="proximos">Próximos</option>
+            <option value="semana">Esta semana</option>
+            <option value="mes">Este mes</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Modalidad</label>
+          <select (change)="setFiltro('modalidad', $any($event.target).value)">
+            <option value="">Todas</option>
+            <option value="virtual">Virtual</option>
+            <option value="presencial">Presencial</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Unidad organizadora</label>
+          <select (change)="setFiltro('unidad', $any($event.target).value)">
+            <option value="">Todas</option>
+            <option value="Deportes">Deportes</option>
+            <option value="CASIE">CASIE</option>
+            <option value="DATIC">DATIC</option>
+          </select>
+        </div>
+        <div class="search-icon">🔍</div>
+      </div>
+    </div>
+    <div class="hero-logo">
+      <img src="assets/tec-55.png" alt="TEC 55 años" />
+    </div>
+  </section>
+
+  <!-- LISTA DE EVENTOS -->
+  <section class="events-list">
+    @if (paginatedEventos().length === 0) {
+      <div class="no-results">No se encontraron eventos con los filtros seleccionados.</div>
+    }
+    @for (evento of paginatedEventos(); track evento.id) {
+      <div class="event-card">
+        <img [src]="evento.imagen" [alt]="evento.titulo" class="event-img" />
+        <div class="event-info">
+          <h2 class="event-title">Título: {{ evento.titulo }}</h2>
+          <div class="event-badges">
+            <span class="badge badge-tipo">{{ evento.tipo }}</span>
+            <span class="badge badge-modalidad">{{ evento.modalidad }}</span>
+          </div>
+          <p class="event-fecha">Fecha de publicación: {{ formatFecha(evento.fecha) }}</p>
+        </div>
+        <button class="btn-ver-mas">Ver más</button>
+      </div>
+    }
+  </section>
+
+  <!-- PAGINACIÓN -->
+  @if (totalPages() > 1) {
+    <div class="pagination">
+      <button class="page-btn" (click)="prevPage()" [disabled]="currentPage() === 1">
+        &#8592; Anterior
+      </button>
+      <span class="page-info">{{ currentPage() }} / {{ totalPages() }}</span>
+      <button class="page-btn" (click)="nextPage()" [disabled]="currentPage() === totalPages()">
+        Siguiente &#8594;
+      </button>
+    </div>
+  }
+
+  <app-footer />
+</div>
