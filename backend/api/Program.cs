@@ -96,8 +96,10 @@ app.UseCors("AllowAngularDev");
 
 AuthenticationEndpoint.mapAuthenticationEndpoints(app);
 
-EventEndpoint.mapEventEndpoints(app);
+EventEndpoint.mapOrganizerEventEndpoints(app);
 
 AttendanceEndpoint.mapAttendancesEndpoints(app);
+
+AdministratorEventEndpoint.mapAdministratorEndpoints(app);
 
 app.Run();
