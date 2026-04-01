@@ -102,4 +102,6 @@ AttendanceEndpoint.mapAttendancesEndpoints(app);
 
 AdministratorEventEndpoint.mapAdministratorEndpoints(app);
 
+AdministratorUtilitiesEndpoint.mapAdministratorUtilitiesEndpoint(app);
+
 app.Run();
