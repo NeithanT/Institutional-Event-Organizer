@@ -97,6 +97,7 @@ app.UseExceptionHandler(errorApp =>
 
 app.UseCors(corsPolicyName);
 app.UseHttpsRedirection();
+
 AuthenticationEndpoint.mapAuthenticationEndpoints(app);
 
 EventEndpoint.mapOrganizerEventEndpoints(app);
@@ -106,5 +107,7 @@ AttendanceEndpoint.mapAttendancesEndpoints(app);
 AdministratorEventEndpoint.mapAdministratorEndpoints(app);
 
 AdministratorUtilitiesEndpoint.mapAdministratorUtilitiesEndpoint(app);
+
+OrganizerEntityEndpoint.mapOrganizerEntityEndpoints(app);
 
 app.Run();
