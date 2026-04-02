@@ -35,7 +35,7 @@ public static class AuthenticationEndpoint
     //######################################################################################################
     private static async Task<bool> studentRoleExist(EventOrganizerContext db)
     {
-        return await db.Roles.AnyAsync(r => r.RolName.ToLower() == "student");
+        return await db.Roles.AnyAsync(r => r.RolName == "Student");
     }
     //######################################################################################################
     private static async void createStudentRole(EventOrganizerContext db)
