@@ -35,14 +35,12 @@ public static class AuthenticationEndpoint
     //######################################################################################################
     private static async Task<bool> studentRoleExist(EventOrganizerContext db)
     {
-        return await db.Roles.AnyAsync(r => r.RolName == "Student");
+        return await db.Roles.AnyAsync(r => r.RolName.ToLower() == "student");
     }
     //######################################################################################################
-    private static async Task createStudentRole(EventOrganizerContext db)
+    private static async void createStudentRole(EventOrganizerContext db)
 
     {
-        if (await db.Roles.AnyAsync(r => r.RolName == "Student")) return;
-
         Role role = new Role { RolName = "Student" };
         await db.Roles.AddAsync(role);
         await db.SaveChangesAsync();
@@ -71,7 +69,7 @@ public static class AuthenticationEndpoint
 
         if (await db.Users.AnyAsync(u => u.Email == email)) return -4;
 
-        if (!await studentRoleExist(db)) await createStudentRole(db);
+        if (!await studentRoleExist(db)) createStudentRole(db);
         return 0;
     }
 
@@ -128,7 +126,7 @@ public static class AuthenticationEndpoint
             switch (await validRegisterData(db, name, lastName, email, password, idCard))
             {
                 case -1:
-                    return Results.BadRequest("User data invalid for register.");
+                    return Results.BadRequest("User data invalid for register." );
                 case -2:
                     return Results.BadRequest("Password must have 1 Uppercase, 1 Lowercase, 1 Number and 1 Special Character and at least 8 characters");
                 case -3:
