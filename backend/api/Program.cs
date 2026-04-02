@@ -1,7 +1,14 @@
 using System.Text.Json.Serialization;
 using api.Endpoints;
+using api.Interfaces;
 using api.Models;
+using api.Services;
+using Google.Apis.Gmail.v1;
 using Microsoft.EntityFrameworkCore;
+
+using QuestPDF.Infrastructure;
+QuestPDF.Settings.License = LicenseType.Community;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +26,8 @@ builder.Services.AddDbContext<EventOrganizerContext>(
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     }
 );
+builder.Services.AddScoped<IEmailService, GmailApiService>();
+
 
 // CORS: allow everything (use only in development / local testing)
 var corsPolicyName = "AllowAll";
@@ -59,7 +68,11 @@ if (app.Environment.IsDevelopment())
 }
 
 
+
 app.UseRouting();
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 app.UseExceptionHandler(errorApp =>
 {
@@ -85,7 +98,13 @@ app.UseExceptionHandler(errorApp =>
 app.UseCors(corsPolicyName);
 app.UseHttpsRedirection();
 AuthenticationEndpoint.mapAuthenticationEndpoints(app);
-EventEndpoint.mapEventEndpoints(app);
+
+EventEndpoint.mapOrganizerEventEndpoints(app);
+
 AttendanceEndpoint.mapAttendancesEndpoints(app);
+
+AdministratorEventEndpoint.mapAdministratorEndpoints(app);
+
+AdministratorUtilitiesEndpoint.mapAdministratorUtilitiesEndpoint(app);
 
 app.Run();

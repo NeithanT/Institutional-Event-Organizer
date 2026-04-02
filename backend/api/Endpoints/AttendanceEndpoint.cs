@@ -12,7 +12,7 @@ public static class AttendanceEndpoint
 
     public static void mapAttendancesEndpoints(WebApplication app)
     {
-        app.MapGet("/events/{id:int}/check-list", async (int id, EventOrganizerContext db) =>
+        app.MapGet("organizer/events/{id:int}/check-list", async (int id, EventOrganizerContext db) =>
         {
             Event? ev = await db.Events.FindAsync(id);
             if (ev == null) return Results.NotFound();
@@ -37,7 +37,7 @@ public static class AttendanceEndpoint
             return Results.Ok(subscriptions);
         });
 
-        app.MapPost("/events/{eventId:int}/check-list/{userId:int}", async (int eventId,
+        app.MapPost("organizer/events/{eventId:int}/check-list/{userId:int}", async (int eventId,
             int userId, EventOrganizerContext db) =>
         {
 
@@ -74,7 +74,7 @@ public static class AttendanceEndpoint
             return Results.Ok(dtoAttendance);
         });
 
-        app.MapDelete("/events/{eventId:int}/check-list/{userId:int}", async (int eventId,
+        app.MapDelete("organizer/events/{eventId:int}/check-list/{userId:int}", async (int eventId,
             int userId, EventOrganizerContext db) =>
         {
             if (await isValidRequest(eventId, userId, db) == false) return Results.NotFound();

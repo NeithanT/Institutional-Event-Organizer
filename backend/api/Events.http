@@ -1,52 +1,52 @@
-@api_HostAddress = http://localhost:5053
+# @api_HostAddress = http://localhost:5053
 
-GET {{api_HostAddress}}/weatherforecast/
-Accept: application/json
+# GET {{api_HostAddress}}/weatherforecast/
+# Accept: application/json
 
-###
-//Fetches all the information of the available events
-GET http://localhost:5053/events
+# ###
+# //Fetches all the information of the available events
+# GET http://localhost:5053/organizer/events
 
-###
-//Fetches the information for an specific event
-GET http://localhost:5053/events/7
+# ###
+# //Fetches the information for an specific event
+# GET http://localhost:5053/organizer/events/7
 
 
 
-###
-//Creates a new event on the Table Events
-POST http://localhost:5053/events
-Content-Type: application/json
+# ###
+# //Creates a new event on the Table Events
+# POST http://localhost:5053/organizer/events
+# Content-Type: application/json
 
-{
+# {
 
-    "EventDate": "2026-04-15T09:00:00.000",
-    "Place" : "La nave",
-    "Title": "Salida a la Nave",
-    "EventDescription": "Nos llevamos a Jorge a la nave",
-    "CategoryId":1,
-    "OrganizerId":1,
-    "OrganizerEntityId":1,
-    "AvalaibleEntries": 20,
-    "ApprovedState": false
+#     "EventDate": "2026-04-15T09:00:00.000",
+#     "Place" : "La nave",
+#     "Title": "Salida a la Nave",
+#     "EventDescription": "Nos llevamos a Jorge a la nave",
+#     "CategoryId":1,
+#     "OrganizerId":1,
+#     "OrganizerEntityId":1,
+#     "AvalaibleEntries": 20,
+#     "ApprovedState": false
 
-}
+# }
 
-###
-//Edits an existing events on the Table Events
-PUT http://localhost:5053/events/17
-Content-Type: application/json
+# ###
+# //Edits an existing events on the Table Events
+# PUT http://localhost:5053/organizer/events/17
+# Content-Type: application/json
 
-{
+# {
 
-    "EventDate": "2026-04-15T09:00:00.000",
-    "Place" : "La nave",
-    "Title": "SE CANCELA - JORGE NO QUIZO IR",
-    "EventDescription": "Nos llevamos a Jorge a la nave",
-    "CategoryId":1,
-    "OrganizerId":1,
-    "OrganizerEntityId":1,
-    "AvalaibleEntries": 20,
-    "ApprovedState": false
+#     "EventDate": "2026-04-15T09:00:00.000",
+#     "Place" : "La nave",
+#     "Title": "SE CANCELA - JORGE NO QUIZO IR",
+#     "EventDescription": "Nos llevamos a Jorge a la nave",
+#     "CategoryId":1,
+#     "OrganizerId":1,
+#     "OrganizerEntityId":1,
+#     "AvalaibleEntries": 20,
+#     "ApprovedState": false
 
-}
+# }
