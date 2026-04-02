@@ -43,7 +43,7 @@ public static class AdministratorUtilitiesEndpoint
 
         });
         //##############################################################################################################
-        app.MapGet("/administrator/search-user-by-idcart/{idCard:int}", async (int idCard, EventOrganizerContext db) =>
+        app.MapGet("/administrator/search-user-by-idcard/{idCard:int}", async (int idCard, EventOrganizerContext db) =>
         {
 
             var user = await db.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.IdCard == idCard);
