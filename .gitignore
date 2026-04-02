@@ -14,5 +14,12 @@
 /backend/api/bin/
 /backend/api/obj/
 
+client_secrets.json
+Tokens.Gmail/
+.env
+
 .vscode/
 .idea/
+
+uploads/
+

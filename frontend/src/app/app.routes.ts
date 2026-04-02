@@ -12,6 +12,11 @@ export const routes: Routes = [
   {
     path: 'organizer/create-event',
     loadComponent: () => import('./pages/organizer-page/create-event/create-event').then(m => m.CreateEvent)
+   
+  },
+  {
+     path: 'events',
+    loadComponent: () => import('./pages/events-page/events-page').then(m => m.EventsPage)
   }
 
 ];

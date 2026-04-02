@@ -25,6 +25,8 @@ public partial class Event
 
     public bool ApprovedState { get; set; }
 
+    public string? ImageFileEvent { get; set; }
+
     public virtual ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
 
     public virtual CanceledEvent? CanceledEvent { get; set; }
