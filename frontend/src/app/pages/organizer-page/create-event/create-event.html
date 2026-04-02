@@ -61,44 +61,15 @@
 
           <div class="col">
             <label class="form-label">Unidad Organizadora</label>
-            <select class="form-select" [(ngModel)]="organizerEntityId"
-              name="organizerEntityId">
-              <option [ngValue]="0" disabled>Seleccione unidad</option>
-              <option [ngValue]="1">FEITEC</option>
-              <option [ngValue]="2">Escuela de Administración de
-                Empresas</option>
-              <option [ngValue]="3">Escuela de Administración de Tecnologías de
-                Información</option>
-              <option [ngValue]="4">Escuela de Agronegocios</option>
-              <option [ngValue]="5">Escuela de Biología</option>
-              <option [ngValue]="6">Escuela de Ciencia e Ingeniería de los
-                Materiales</option>
-              <option [ngValue]="7">Escuela de Ciencias del Lenguaje</option>
-              <option [ngValue]="8">Escuela de Ciencias Sociales</option>
-              <option [ngValue]="9">Escuela de Cultura y Deporte</option>
-              <option [ngValue]="10">Escuela de Diseño Industrial</option>
-              <option [ngValue]="11">Escuela de Física</option>
-              <option [ngValue]="12">Escuela de Ingeniería Agrícola</option>
-              <option [ngValue]="13">Escuela de Ingeniería
-                Electromecánica</option>
-              <option [ngValue]="14">Escuela de Ingeniería Electrónica</option>
-              <option [ngValue]="15">Escuela de Ingeniería en Agronomía</option>
-              <option [ngValue]="16">Escuela de Ingeniería en
-                Computación</option>
-              <option [ngValue]="17">Escuela de Ingeniería en
-                Computadores</option>
-              <option [ngValue]="18">Escuela de Ingeniería en
-                Construcción</option>
-              <option [ngValue]="19">Escuela de Ingeniería en Producción
-                Industrial</option>
-              <option [ngValue]="20">Escuela de Ingeniería en Seguridad Laboral
-                e Higiene Ambiental</option>
-              <option [ngValue]="21">Escuela de Ingeniería Forestal</option>
-              <option [ngValue]="22">Escuela de Ingeniería Mecatrónica</option>
-              <option [ngValue]="23">Escuela de Matemática</option>
-              <option [ngValue]="24">Escuela de Química</option>
-              <option [ngValue]="25">Otro</option>
-            </select>
+           <select [(ngModel)]="organizerEntityId" name="organizerEntityId" class="form-select">
+
+            <option value="">Seleccione unidad</option>
+
+            <option *ngFor="let entity of organizerEntities" [value]="entity.id">
+              {{ entity.entityName }}
+            </option>
+
+          </select>
           </div>
         </div>
 

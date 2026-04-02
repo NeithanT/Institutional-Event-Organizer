@@ -1,15 +1,18 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-create-event',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule], // 👈 AQUÍ
   templateUrl: './create-event.html',
   styleUrl: './create-event.css'
 })
-export class CreateEvent {
+
+export class CreateEvent implements OnInit {
 
   title: string = '';
   description: string = '';
@@ -21,11 +24,34 @@ export class CreateEvent {
   organizerId: number = 1; // ✅ fijo
   organizerEntityId: number = 0;
 
-  selectedFile: File | null = null; // 🔥 ahora sí archivo real
+  selectedFile: File | null = null;
+
+  // 🔥 lista dinámica desde backend
+  organizerEntities: any[] = [];
 
   constructor(private http: HttpClient) {}
 
-  // ✅ captura el archivo real
+  // 🔥 se ejecuta al cargar la página
+ngOnInit() {
+  console.log("INIT FUNCIONANDO");
+  this.loadOrganizerEntities();
+}
+
+  // 🔥 traer unidades organizadoras desde backend
+loadOrganizerEntities() {
+  this.http.get<any[]>('http://localhost:5053/organizer/get-entities')
+    .subscribe({
+      next: (data) => {
+        console.log('DATA LLEGO:', data);
+        this.organizerEntities = data;
+      },
+      error: (err) => {
+        console.error('ERROR:', err);
+      }
+    });
+}
+
+  // 🔥 captura archivo real
   onFileSelected(event: any) {
     const file = event.target.files[0];
 
@@ -46,7 +72,7 @@ export class CreateEvent {
 
     const formData = new FormData();
 
-    // 🔥 IMPORTANTE: nombres EXACTOS del DTO
+    // 🔥 nombres EXACTOS del DTO (C#)
     formData.append('Title', this.title);
     formData.append('EventDate', formattedDate);
     formData.append('Place', this.place);
@@ -57,7 +83,7 @@ export class CreateEvent {
     formData.append('OrganizerId', this.organizerId.toString());
     formData.append('OrganizerEntityId', this.organizerEntityId.toString());
 
-    // 🔥 archivo real
+    // 🔥 archivo real (IFormFile)
     if (this.selectedFile) {
       formData.append('ImageFileEvent', this.selectedFile);
     }
