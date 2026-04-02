@@ -11,72 +11,44 @@ import { FormsModule } from '@angular/forms';
 })
 export class CreateEvent {
 
-  //Variables del formulario
   title: string = '';
   description: string = '';
   date: string = '';
   place: string = '';
   capacity: number = 0;
-  category: string = '';
-  organizer: string = '';
+  categoryId: number = 0;
+  organizerEntityId: number = 0;
   mode: string = '';
+
   constructor(private http: HttpClient) {}
 
-  //Función para guardar evento
-  saveEvent() {
+saveEvent() {
+  const formattedDate = new Date(this.date).toISOString();
 
-  const event = {
+  const eventData = {
     title: this.title,
-    eventDate: this.date,
+    eventDate: formattedDate,
     place: this.place,
     eventDescription: this.description,
-    avalaibleEntries: this.capacity,
+    AvalaibleEntries: this.capacity,
     approvedState: false,
-    category: this.category,
-    organizer: this.organizer,
-    mode: this.mode
+    categoryId: 1, // prueba fijo primero
+    organizerId: 1,
+    organizerEntityId: 1
   };
 
-  console.log('Enviando evento:', event);
+  console.log(eventData);
 
-  this.http.post('https://localhost:5000/events', event)
+  this.http.post('http://localhost:5053/events', eventData)
     .subscribe({
       next: (res) => {
-        console.log('Evento guardado correctamente', res);
+        console.log(res);
         alert('Evento creado con éxito');
-
-        // limpiar formulario
-        this.title = '';
-        this.description = '';
-        this.date = '';
-        this.place = '';
-        this.capacity = 0;
-        this.category = '';
-        this.organizer = '';
-        this.mode = '';
       },
       error: (err) => {
-        console.error('Error al guardar', err);
+        console.error(err); // 🔥 aquí está la clave
         alert('Error al crear el evento');
       }
     });
-}
-
-//Temporales para manejo de imagen
-selectedFile: File | null = null;
-imagePreview: string | null = null;
-
-onFileSelected(event: any) {
-  const file = event.target.files[0];
-
-  if (file) {
-    this.selectedFile = file;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.imagePreview = reader.result as string;
-    };
-    reader.readAsDataURL(file);
-  }
 }
 }

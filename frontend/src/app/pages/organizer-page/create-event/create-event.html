@@ -39,25 +39,52 @@
           <label class="form-label">Descripción Detallada</label>
          <textarea class="form-control" [(ngModel)]="description" name="description"></textarea>
         </div>
-        <div class="mb-3">
+        <!-- <div class="mb-3">
             <label class="form-label">Imagen del Evento</label>
             <input type="file" class="form-control" (change)="onFileSelected($event)">
-        </div>
+        </div> -->
         <div class="row mb-3">
           <div class="col">
-            <label class="form-label">Categoría</label>
-            <select class="form-select" [(ngModel)]="category" name="category">
-            <option disabled selected>Seleccione una categoría</option>
-            <option value="academico">Académico</option>
-            <option value="cultural">Cultural</option>
-            <option value="deportivo">Deportivo</option>
-            <option value="tecnologico">Tecnológico</option>
-            </select>
+          <label class="form-label">Categoría</label>
+          <select class="form-select" [(ngModel)]="categoryId" name="categoryId">
+            <option [ngValue]="0" disabled>Seleccione una categoría</option>
+            <option [ngValue]="1">Académico</option>
+            <option [ngValue]="2">Cultural</option>
+            <option [ngValue]="3">Deportivo</option>
+            <option [ngValue]="4">Tecnológico</option>
+          </select>
           </div>
 
           <div class="col">
             <label class="form-label">Unidad Organizadora</label>
-            <input type="text" class="form-control" [(ngModel)]="organizer" name="organizer">
+         <select class="form-select" [(ngModel)]="organizerEntityId" name="organizerEntityId">
+          <option [ngValue]="0" disabled>Seleccione unidad</option>
+          <option [ngValue]="1">FEITEC</option>
+          <option [ngValue]="2">Escuela de Administración de Empresas</option>
+          <option [ngValue]="3">Escuela de Administración de Tecnologías de Información</option>
+          <option [ngValue]="4">Escuela de Agronegocios</option>
+          <option [ngValue]="5">Escuela de Biología</option>
+          <option [ngValue]="6">Escuela de Ciencia e Ingeniería de los Materiales</option>
+          <option [ngValue]="7">Escuela de Ciencias del Lenguaje</option>
+          <option [ngValue]="8">Escuela de Ciencias Sociales</option>
+          <option [ngValue]="9">Escuela de Cultura y Deporte</option>
+          <option [ngValue]="10">Escuela de Diseño Industrial</option>
+          <option [ngValue]="11">Escuela de Física</option>
+          <option [ngValue]="12">Escuela de Ingeniería Agrícola</option>
+          <option [ngValue]="13">Escuela de Ingeniería Electromecánica</option>
+          <option [ngValue]="14">Escuela de Ingeniería Electrónica</option>
+          <option [ngValue]="15">Escuela de Ingeniería en Agronomía</option>
+          <option [ngValue]="16">Escuela de Ingeniería en Computación</option>
+          <option [ngValue]="17">Escuela de Ingeniería en Computadores</option>
+          <option [ngValue]="18">Escuela de Ingeniería en Construcción</option>
+          <option [ngValue]="19">Escuela de Ingeniería en Producción Industrial</option>
+          <option [ngValue]="20">Escuela de Ingeniería en Seguridad Laboral e Higiene Ambiental</option>
+          <option [ngValue]="21">Escuela de Ingeniería Forestal</option>
+          <option [ngValue]="22">Escuela de Ingeniería Mecatrónica</option>
+          <option [ngValue]="23">Escuela de Matemática</option>
+          <option [ngValue]="24">Escuela de Química</option>
+          <option [ngValue]="25">Otro</option>
+        </select>
           </div>
         </div>
 
@@ -77,7 +104,7 @@
           <label class="form-label">Lugar Físico / Link Virtual</label>
          <input type="text" class="form-control" [(ngModel)]="place" name="place">
         </div>
-
+        <!--
         <div class="mb-3">
           <label class="form-label">Modalidad</label><br>
          <div class="form-check form-check-inline">
@@ -89,6 +116,7 @@
         <label class="form-check-label">Virtual</label>
         </div>
         </div>
+        -->
 
         <div class="text-end">
           <button class="btn btn-primary" (click)="saveEvent()">
