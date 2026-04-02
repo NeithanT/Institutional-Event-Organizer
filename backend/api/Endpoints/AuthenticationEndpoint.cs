@@ -5,26 +5,66 @@ using Microsoft.EntityFrameworkCore;
 
 public static class AuthenticationEndpoint
 {
+    private static bool IsAllowedInstitutionalEmail(string email)
+    {
+        return email.EndsWith("@estudiantec.cr", StringComparison.OrdinalIgnoreCase)
+            || email.EndsWith("@itcr.ac.cr", StringComparison.OrdinalIgnoreCase);
+    }
+
     public static void mapAuthenticationEndpoints(WebApplication app)
     {
         app.MapPost("/user/auth", async (DtoAuthentication auth, EventOrganizerContext db) =>
         {
-            var user = await db.Users
-                .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.Email == auth.Email);
-
-            if (user == null || !user.Active || user.UserPass != auth.Password)
+            if (auth == null)
             {
-                return Results.Unauthorized();
+                return Results.BadRequest(new { Message = "Payload is required." });
             }
 
-            return Results.Ok(new
+            var email = auth.Email?.Trim() ?? string.Empty;
+            var password = auth.Password?.Trim() ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
-                user.Id,
-                user.UserName,
-                user.Email,
-                Role = user.Role.RolName,
-            });
+                return Results.BadRequest(new { Message = "Email and password are required." });
+            }
+
+            if (!IsAllowedInstitutionalEmail(email))
+            {
+                return Results.BadRequest(new { Message = "El correo debe terminar en @estudiantec.cr o @itcr.ac.cr." });
+            }
+
+            try
+            {
+                var user = await db.Users
+                    .FirstOrDefaultAsync(u => u.Email == email);
+
+                if (user == null || !user.Active || user.UserPass != password)
+                {
+                    return Results.Unauthorized();
+                }
+
+                var roleName = "Unknown";
+                if (user.RoleId > 0)
+                {
+                    var role = await db.Roles.FirstOrDefaultAsync(r => r.Id == user.RoleId);
+                    if (role != null)
+                    {
+                        roleName = role.RolName;
+                    }
+                }
+
+                return Results.Ok(new
+                {
+                    user.Id,
+                    user.UserName,
+                    user.Email,
+                    Role = roleName,
+                });
+            }
+            catch (Exception)
+            {
+                return Results.Problem(detail: "Error during authentication.", statusCode: 500);
+            }
         });
 
         app.MapPost("/user/register", async (DtoRegisterUser register, EventOrganizerContext db) =>
@@ -47,6 +87,11 @@ public static class AuthenticationEndpoint
                 idCard < 1950000000 || idCard > 2050000000)
             {
                 return Results.BadRequest(new { Message = "Datos de registro inválidos." });
+            }
+
+            if (!IsAllowedInstitutionalEmail(email))
+            {
+                return Results.BadRequest(new { Message = "El correo debe terminar en @estudiantec.cr o @itcr.ac.cr." });
             }
 
             var exists = await db.Users.AnyAsync(u => u.Email == email);
