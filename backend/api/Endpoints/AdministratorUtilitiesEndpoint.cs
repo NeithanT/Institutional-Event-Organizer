@@ -84,7 +84,7 @@ public static class AdministratorUtilitiesEndpoint
             var organizerRol = await db.Roles.FirstOrDefaultAsync(r => r.RolName == "Organizer");
 
             if (organizerRol == null)
-                return Results.InternalServerError("Organizer rol does not exist in server");
+                return Results.Problem("Organizer rol does not exist in server", statusCode: 500);
 
             if (user.Role.RolName == organizerRol.RolName)
                 return Results.BadRequest("User is already an organizer");
