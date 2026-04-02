@@ -11,27 +11,24 @@ public static class AuthenticationEndpoint
             || email.EndsWith("@itcr.ac.cr", StringComparison.OrdinalIgnoreCase);
     }
 
+    //######################################################################################################
     public static void mapAuthenticationEndpoints(WebApplication app)
     {
         app.MapPost("/user/auth", async (DtoAuthentication auth, EventOrganizerContext db) =>
         {
             if (auth == null)
-            {
                 return Results.BadRequest(new { Message = "Payload is required." });
-            }
+
 
             var email = auth.Email?.Trim() ?? string.Empty;
             var password = auth.Password?.Trim() ?? string.Empty;
 
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
-            {
                 return Results.BadRequest(new { Message = "Email and password are required." });
-            }
 
             if (!IsAllowedInstitutionalEmail(email))
-            {
                 return Results.BadRequest(new { Message = "El correo debe terminar en @estudiantec.cr o @itcr.ac.cr." });
-            }
+
 
             try
             {
@@ -39,26 +36,18 @@ public static class AuthenticationEndpoint
                     .FirstOrDefaultAsync(u => u.Email == email);
 
                 if (user == null || !user.Active || user.UserPass != password)
-                {
                     return Results.Unauthorized();
-                }
 
-                var roleName = "Unknown";
-                if (user.RoleId > 0)
-                {
-                    var role = await db.Roles.FirstOrDefaultAsync(r => r.Id == user.RoleId);
-                    if (role != null)
-                    {
-                        roleName = role.RolName;
-                    }
-                }
+                var role = await db.Roles.FirstOrDefaultAsync(r => r.Id == user.RoleId);
+                if (role == null) return Results.BadRequest("Role not identified by server");
+
 
                 return Results.Ok(new
                 {
                     user.Id,
                     user.UserName,
                     user.Email,
-                    Role = roleName,
+                    Role = role.RolName,
                 });
             }
             catch (Exception)
@@ -66,7 +55,7 @@ public static class AuthenticationEndpoint
                 return Results.Problem(detail: "Error during authentication.", statusCode: 500);
             }
         });
-
+        //######################################################################################################
         app.MapPost("/user/register", async (DtoRegisterUser register, EventOrganizerContext db) =>
         {
             if (register == null)
@@ -86,18 +75,18 @@ public static class AuthenticationEndpoint
                 string.IsNullOrWhiteSpace(password) ||
                 idCard < 1950000000 || idCard > 2050000000)
             {
-                return Results.BadRequest(new { Message = "Datos de registro inválidos." });
+                return Results.BadRequest(new { Message = "User data invalid for register." });
             }
 
             if (!IsAllowedInstitutionalEmail(email))
             {
-                return Results.BadRequest(new { Message = "El correo debe terminar en @estudiantec.cr o @itcr.ac.cr." });
+                return Results.BadRequest(new { Message = "Email must have @estudiantec.cr or @itcr.ac.cr. domain" });
             }
 
             var exists = await db.Users.AnyAsync(u => u.Email == email);
             if (exists)
             {
-                return Results.Conflict(new { Message = "El correo ya está registrado." });
+                return Results.Conflict(new { Message = "The email is already registered." });
             }
 
             var role = await db.Roles.FirstOrDefaultAsync(r =>
@@ -129,7 +118,7 @@ public static class AuthenticationEndpoint
             catch (Exception ex)
             {
                 // Log exception locally if you have logging in place
-                return Results.Problem($"Error al guardar usuario: {ex.Message}", statusCode: 500);
+                return Results.Problem($"Error while saving the user: {ex.Message}", statusCode: 500);
             }
 
             return Results.Created($"/user/{user.Id}", new
