@@ -199,7 +199,7 @@ INSERT INTO dbo.Event (
     AvalaibleEntries,
     ApprovedState,
     ImageFileEvent,
-    isVirtual
+    IsVirtual
 )
 SELECT
     DATEADD(HOUR, (n.N % 10) + 8, DATEADD(DAY, n.N * 2, @BaseDate)),
