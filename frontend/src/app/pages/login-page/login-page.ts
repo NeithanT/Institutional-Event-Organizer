@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { LoginLogo } from '../../components/login/login-logo/login-logo';
 import { Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -15,6 +15,7 @@ export class LoginPage {
   authService = inject(Authentication);
   router = inject(Router);
   private fb = inject(FormBuilder);
+  private cdr = inject(ChangeDetectorRef);
 
   isRegistering: boolean = false;
   loginError = '';
@@ -51,6 +52,7 @@ export class LoginPage {
 
     const email = credentials?.correo?.trim() ?? '';
     const password = credentials?.password?.trim() ?? '';
+    this.loginError = '';
 
     try {
       const response = await fetch('http://localhost:5053/user/auth', {
@@ -63,6 +65,7 @@ export class LoginPage {
 
       if (!response.ok) {
         this.loginError = 'Correo o contraseña incorrectos.';
+        this.cdr.detectChanges();
         return;
       }
 
@@ -74,6 +77,7 @@ export class LoginPage {
     } catch (error) {
       console.error('Error en la autenticación', error);
       this.loginError = 'No se pudo conectar con el servidor.';
+      this.cdr.detectChanges();
     }
   }
 

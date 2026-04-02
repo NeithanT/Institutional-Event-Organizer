@@ -20,17 +20,16 @@ builder.Services.AddDbContext<EventOrganizerContext>(
     }
 );
 
-// CORS: allow Angular frontend at http://localhost:4200
-var corsPolicyName = "AllowAngularDev";
+// CORS: allow everything (use only in development / local testing)
+var corsPolicyName = "AllowAll";
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: corsPolicyName,
         policy =>
         {
-            policy.WithOrigins("http://localhost:4200")
+            policy.AllowAnyOrigin()
                   .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .AllowCredentials();
+                  .AllowAnyMethod();
         });
 });
 
@@ -83,7 +82,7 @@ app.UseExceptionHandler(errorApp =>
     });
 });
 
-app.UseCors("AllowAngularDev");
+app.UseCors(corsPolicyName);
 app.UseHttpsRedirection();
 AuthenticationEndpoint.mapAuthenticationEndpoints(app);
 EventEndpoint.mapEventEndpoints(app);
