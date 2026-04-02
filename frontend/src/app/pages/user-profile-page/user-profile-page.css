@@ -1,0 +1,258 @@
+/* =====================
+   HERO
+===================== */
+.profile-hero {
+  background: linear-gradient(135deg, #1a3a5c 0%, #2563a8 100%);
+  color: white;
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 140px;
+}
+
+.hero-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.profile-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(255,255,255,0.6);
+  background: #1a3a5c;
+}
+
+.profile-name {
+  font-size: 1.8rem;
+  font-weight: 400;
+}
+
+.name-first {
+  font-weight: 400;
+}
+
+.name-last {
+  font-weight: 700;
+  color: #6cb4f5;
+}
+
+.hero-logo img {
+  height: 115px;
+  object-fit: contain;
+  opacity: 0.95;
+}
+
+/* =====================
+   CONTENT
+===================== */
+.profile-content {
+  background: #e8e8e8;
+  min-height: 60vh;
+  padding: 2.5rem 3rem;
+  display: flex;
+  justify-content: center;
+}
+
+/* =====================
+   CARD
+===================== */
+.profile-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem 2.5rem;
+  width: 100%;
+  max-width: 860px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.card-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0;
+  color: #111;
+}
+
+/* =====================
+   INFO VISTA NORMAL
+===================== */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 3rem;
+}
+
+.info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.info-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111;
+}
+
+.info-value {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.bio-text {
+  line-height: 1.5;
+}
+
+/* =====================
+   EDIT GRID
+===================== */
+.edit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem 3rem;
+}
+
+.edit-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+}
+
+/* Avatar upload */
+.avatar-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.edit-avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ccc;
+  background: #ddd;
+}
+
+.upload-label {
+  font-size: 0.85rem;
+  color: #555;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.file-input {
+  display: none;
+}
+
+/* Form elements */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111;
+}
+
+.form-input {
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  padding: 0.55rem 0.8rem;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  border-color: #2563a8;
+}
+
+.form-select {
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  padding: 0.55rem 0.8rem;
+  font-size: 0.9rem;
+  outline: none;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.form-select:focus {
+  border-color: #2563a8;
+}
+
+.form-textarea {
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.88rem;
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+  line-height: 1.5;
+  transition: border-color 0.2s;
+}
+
+.form-textarea:focus {
+  border-color: #2563a8;
+}
+
+/* =====================
+   CARD ACTIONS
+===================== */
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.btn-edit {
+  background: #2ea8e0;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.55rem 1.8rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-edit:hover {
+  background: #1a87be;
+}
+
+.btn-cancel {
+  background: #2ea8e0;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.55rem 1.8rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #1a87be;
+}
