@@ -93,7 +93,7 @@ BEGIN
         AvalaibleEntries    INT NOT NULL,
         ApprovedState       BIT NOT NULL CONSTRAINT DF_Event_ApprovedState DEFAULT (0),
         ImageFileEvent      VARCHAR(MAX),
-        isVirtual           BIT NOT NULL
+        isVirtual           BIT NOT NULL,
 
         CONSTRAINT FK_Event_Category FOREIGN KEY (CategoryId) REFERENCES dbo.Category(Id),
         CONSTRAINT FK_Event_Organizer FOREIGN KEY (OrganizerId) REFERENCES dbo.[User](Id),

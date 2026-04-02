@@ -198,7 +198,8 @@ INSERT INTO dbo.Event (
     OrganizerEntityId,
     AvalaibleEntries,
     ApprovedState,
-    ImageFileEvent
+    ImageFileEvent,
+    isVirtual
 )
 SELECT
     DATEADD(HOUR, (n.N % 10) + 8, DATEADD(DAY, n.N * 2, @BaseDate)),
@@ -210,7 +211,8 @@ SELECT
     @OrganizerEntityId,
     @MinEntriesPerEvent + (ABS(CHECKSUM(NEWID())) % (@MaxEntriesPerEvent - @MinEntriesPerEvent + 1)),
     1,
-    NULL
+    NULL,
+    CASE WHEN (n.N % 5) = 0 THEN 1 ELSE 0 END
 FROM Numbers n
 INNER JOIN @Categories c
     ON c.RowNum = ((n.N - 1) % @CategoryCount) + 1
