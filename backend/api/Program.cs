@@ -108,4 +108,6 @@ AdministratorEventEndpoint.mapAdministratorEndpoints(app);
 
 AdministratorUtilitiesEndpoint.mapAdministratorUtilitiesEndpoint(app);
 
+OrganizerEntityEndpoint.mapOrganizerEntityEndpoints(app);
+
 app.Run();
