@@ -15,6 +15,7 @@ public class DtoCreateEvent
     public int AvalaibleEntries { get; set; }
 
     public bool ApprovedState { get; set; }
+    public bool IsVirtual { get; set; }
 
     public DateTime EventDate { get; set; }
 

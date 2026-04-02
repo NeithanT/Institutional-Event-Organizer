@@ -24,6 +24,7 @@ public partial class Event
     public int AvalaibleEntries { get; set; }
 
     public bool ApprovedState { get; set; }
+    public bool IsVirtual { get; set; }
 
     public string? ImageFileEvent { get; set; }
 

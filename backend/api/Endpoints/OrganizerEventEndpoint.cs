@@ -82,7 +82,8 @@ public static class EventEndpoint
                 OrganizerId = createEventDto.OrganizerId,
                 OrganizerEntityId = createEventDto.OrganizerEntityId,
                 AvalaibleEntries = createEventDto.AvalaibleEntries,
-                ApprovedState = false
+                ApprovedState = false,
+                IsVirtual = createEventDto.IsVirtual
             };
 
             await db.Events.AddAsync(ev);
@@ -102,7 +103,7 @@ public static class EventEndpoint
            ) =>
 
             {
-                
+
                 bool alreadyCanceled = await db.CanceledEvents.AnyAsync(c => c.EventId == id);
                 if (alreadyCanceled) return Results.BadRequest("Event already canceled");
 
