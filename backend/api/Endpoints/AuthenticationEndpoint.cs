@@ -1,6 +1,9 @@
+using System.Net;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using api.DTOs;
 using api.Models;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using YamlDotNet.Serialization;
 
@@ -22,6 +25,13 @@ public static class AuthenticationEndpoint
         || string.IsNullOrWhiteSpace(password)
         || idCard < 1950000000 || idCard > 2050000000;
     }
+
+    private static bool isValidPassword(string password)
+    {
+        var regex = new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$");
+        return regex.IsMatch(password);
+    }
+
     //######################################################################################################
     private static async Task<bool> studentRoleExist(EventOrganizerContext db)
     {
@@ -34,6 +44,33 @@ public static class AuthenticationEndpoint
         Role role = new Role { RolName = "Student" };
         await db.Roles.AddAsync(role);
         await db.SaveChangesAsync();
+    }
+    //######################################################################################################
+    /*
+        //Every value except 0 indicates an error 
+        //0: valid data
+        //-1: Data has spaces
+        //-2: Password is not valid (Doesnt match required specifications)
+        //-3: Email is not estudiantec.cr or itcr.ac.cr domain
+        //-4: User is already registered
+        //Also validates is Student role exists in DB - If not it creates it    
+    */
+    private static async Task<int> validRegisterData(
+        EventOrganizerContext db, string name, string lastName, string email, string password, int idCard)
+    {
+
+        if (dataHasSpaces(name, lastName, email, password, idCard)) return -1;
+
+
+        if (!isValidPassword(password)) return -2;
+
+        if (!IsAllowedInstitutionalEmail(email)) return -3;
+
+
+        if (await db.Users.AnyAsync(u => u.Email == email)) return -4;
+
+        if (!await studentRoleExist(db)) createStudentRole(db);
+        return 0;
     }
 
     //######################################################################################################
@@ -80,28 +117,26 @@ public static class AuthenticationEndpoint
         app.MapPost("/student/register", async (DtoRegisterUser register, EventOrganizerContext db) =>
         {
 
-            var name = register.Name?.Trim() ?? string.Empty;
-            var lastName = register.LastName?.Trim() ?? string.Empty;
-            var email = register.Email?.Trim() ?? string.Empty;
-            var password = register.Password?.Trim() ?? string.Empty;
-            var idCard = register.IdCard;
+            string name = register.Name?.Trim() ?? string.Empty;
+            string lastName = register.LastName?.Trim() ?? string.Empty;
+            string email = register.Email?.Trim() ?? string.Empty;
+            string password = register.Password?.Trim() ?? string.Empty;
+            int idCard = register.IdCard;
 
-            if (dataHasSpaces(name, lastName, email, password, idCard))
-                return Results.BadRequest(new { Message = "User data invalid for register." });
-
-
-            if (!IsAllowedInstitutionalEmail(email))
-                return Results.BadRequest(new { Message = "Email must have @estudiantec.cr or @itcr.ac.cr. domain" });
-
-
-            if (await db.Users.AnyAsync(u => u.Email == email))
-                return Results.Conflict(new { Message = "The email is already registered." });
-
-            if (!await studentRoleExist(db)) createStudentRole(db);
+            switch (await validRegisterData(db, name, lastName, email, password, idCard))
+            {
+                case -1:
+                    return Results.BadRequest("User data invalid for register." );
+                case -2:
+                    return Results.BadRequest("Password must have 1 Uppercase, 1 Lowercase, 1 Number and 1 Special Character and at least 8 characters");
+                case -3:
+                    return Results.BadRequest("Email must have @estudiantec.cr or @itcr.ac.cr. domain");
+                case -4:
+                    return Results.Conflict("The email is already registered.");
+            }
 
             Role? role = await db.Roles.FirstOrDefaultAsync(r => r.RolName.ToLower() == "student");
-            if (role == null) return Results.Problem("Student role could not be found in Server");
-
+            if (role == null) return Results.Problem("Student role not found in Server");
 
             User user = new User
             {
