@@ -10,7 +10,12 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/user-page/user-page').then(m => m.UserPage)
   },
   {
-    path: 'events',
+    path: 'organizer/create-event',
+    loadComponent: () => import('./pages/organizer-page/create-event/create-event').then(m => m.CreateEvent)
+   
+  },
+  {
+     path: 'events',
     loadComponent: () => import('./pages/events-page/events-page').then(m => m.EventsPage)
   },
   { path: 'inscripciones', loadComponent: () => import('./pages/inscriptions-page/inscriptions-page').then(m => m.InscriptionsPage) }

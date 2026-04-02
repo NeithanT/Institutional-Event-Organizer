@@ -1,0 +1,64 @@
+/* SIDEBAR */
+.sidebar {
+  background: #0d3b66;
+  color: white;
+  min-height: 100vh;
+}
+
+/* LOGO */
+.logo-img {
+  max-width: 80px;
+}
+
+/* MAIN */
+.main {
+  background: #e6e6e6;
+}
+
+/* RESUMEN */
+.card-resumen {
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.pendiente {
+  background: #ffd600;
+}
+
+.aprobado {
+  background: #4caf50;
+  color: white;
+}
+
+.concluido {
+  background: #2196f3;
+  color: white;
+}
+
+/* CONTENEDOR EVENTOS */
+.event-container {
+  background: #d9d9d9;
+  border-radius: 5px;
+}
+
+/* TARJETA EVENTO */
+.event-card {
+  background: #0d3b66;
+  color: white;
+  border-radius: 10px;
+}
+
+/* IMAGEN EVENTO */
+.event-img {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* BADGE */
+.estado {
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 10px;
+}

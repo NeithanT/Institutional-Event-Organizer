@@ -1,0 +1,73 @@
+<div class="container-fluid">
+  <div class="row">
+
+    <!-- SIDEBAR -->
+    <div class="col-md-2 sidebar d-flex flex-column">
+      <div class="text-center mt-3">
+        <img src="assets/logo.png" class="img-fluid logo-img mb-2">
+        <h6>Sistema de Gestión<br>de eventos</h6>
+      </div>
+
+      <nav class="mt-4">
+        <a class="d-block mb-3 text-white" href="#">Crear Eventos</a>
+        <a class="d-block text-white fw-bold text-decoration-underline" href="#">Mis Eventos</a>
+      </nav>
+    </div>
+
+    <!-- MAIN -->
+    <div class="col-md-10 p-4 main">
+
+      <h4 class="mb-4">Mis Eventos Creados</h4>
+
+      <!-- RESUMEN -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="card-resumen pendiente text-center p-2">
+            🟡 PENDIENTES DE APROBACIÓN 2
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card-resumen aprobado text-center p-2">
+            🟢 APROBADOS 5
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card-resumen concluido text-center p-2">
+            🔵 CONCLUIDOS 5
+          </div>
+        </div>
+      </div>
+
+      <!-- LISTA -->
+      <div class="event-container p-3">
+
+        <div class="event-card d-flex align-items-center mb-3 p-2">
+
+          <img src="assets/event1.jpg" class="event-img">
+
+          <div class="flex-grow-1 ms-3">
+            <h6 class="mb-0">Título: Super Soccer</h6>
+          </div>
+
+          <div class="text-end">
+            <span class="badge estado pendiente mb-2">Pendiente</span><br>
+            <button class="btn btn-dark btn-sm">Ver más</button>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- PAGINACIÓN -->
+      <div class="text-center mt-3">
+        <span class="me-3">← Previous</span>
+        <span class="me-3">1</span>
+        <span>Next →</span>
+      </div>
+
+    </div>
+
+  </div>
+</div>
