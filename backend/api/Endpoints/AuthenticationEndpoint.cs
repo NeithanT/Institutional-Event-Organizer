@@ -1,6 +1,8 @@
+using System.Runtime.InteropServices;
 using api.DTOs;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
+using YamlDotNet.Serialization;
 
 
 public static class AuthenticationEndpoint
@@ -10,15 +12,35 @@ public static class AuthenticationEndpoint
         return email.EndsWith("@estudiantec.cr", StringComparison.OrdinalIgnoreCase)
             || email.EndsWith("@itcr.ac.cr", StringComparison.OrdinalIgnoreCase);
     }
+    //######################################################################################################
+    private static bool dataHasSpaces(string name, string lastName,
+                                                string email, string password, int idCard)
+    {
+        return string.IsNullOrWhiteSpace(name)
+        || string.IsNullOrWhiteSpace(lastName)
+        || string.IsNullOrWhiteSpace(email)
+        || string.IsNullOrWhiteSpace(password)
+        || idCard < 1950000000 || idCard > 2050000000;
+    }
+    //######################################################################################################
+    private static async Task<bool> studentRoleExist(EventOrganizerContext db)
+    {
+        return await db.Roles.AnyAsync(r => r.RolName.ToLower() == "student");
+    }
+    //######################################################################################################
+    private static async void createStudentRole(EventOrganizerContext db)
+
+    {
+        Role role = new Role { RolName = "Student" };
+        await db.Roles.AddAsync(role);
+        await db.SaveChangesAsync();
+    }
 
     //######################################################################################################
     public static void mapAuthenticationEndpoints(WebApplication app)
     {
         app.MapPost("/user/auth", async (DtoAuthentication auth, EventOrganizerContext db) =>
         {
-            if (auth == null)
-                return Results.BadRequest(new { Message = "Payload is required." });
-
 
             var email = auth.Email?.Trim() ?? string.Empty;
             var password = auth.Password?.Trim() ?? string.Empty;
@@ -27,18 +49,17 @@ public static class AuthenticationEndpoint
                 return Results.BadRequest(new { Message = "Email and password are required." });
 
             if (!IsAllowedInstitutionalEmail(email))
-                return Results.BadRequest(new { Message = "El correo debe terminar en @estudiantec.cr o @itcr.ac.cr." });
-
+                return Results.BadRequest(new { Message = "Email must have @estudiantec.cr o @itcr.ac.cr. domain" });
 
             try
             {
-                var user = await db.Users
+                User? user = await db.Users
                     .FirstOrDefaultAsync(u => u.Email == email);
 
                 if (user == null || !user.Active || user.UserPass != password)
                     return Results.Unauthorized();
 
-                var role = await db.Roles.FirstOrDefaultAsync(r => r.Id == user.RoleId);
+                var role = await db.Roles.FindAsync(user.RoleId);
                 if (role == null) return Results.BadRequest("Role not identified by server");
 
 
@@ -47,7 +68,7 @@ public static class AuthenticationEndpoint
                     user.Id,
                     user.UserName,
                     user.Email,
-                    Role = role.RolName,
+                    user.RoleId,
                 });
             }
             catch (Exception)
@@ -56,12 +77,8 @@ public static class AuthenticationEndpoint
             }
         });
         //######################################################################################################
-        app.MapPost("/user/register", async (DtoRegisterUser register, EventOrganizerContext db) =>
+        app.MapPost("/student/register", async (DtoRegisterUser register, EventOrganizerContext db) =>
         {
-            if (register == null)
-            {
-                return Results.BadRequest(new { Message = "Payload is required." });
-            }
 
             var name = register.Name?.Trim() ?? string.Empty;
             var lastName = register.LastName?.Trim() ?? string.Empty;
@@ -69,38 +86,24 @@ public static class AuthenticationEndpoint
             var password = register.Password?.Trim() ?? string.Empty;
             var idCard = register.IdCard;
 
-            if (string.IsNullOrWhiteSpace(name) ||
-                string.IsNullOrWhiteSpace(lastName) ||
-                string.IsNullOrWhiteSpace(email) ||
-                string.IsNullOrWhiteSpace(password) ||
-                idCard < 1950000000 || idCard > 2050000000)
-            {
+            if (dataHasSpaces(name, lastName, email, password, idCard))
                 return Results.BadRequest(new { Message = "User data invalid for register." });
-            }
+
 
             if (!IsAllowedInstitutionalEmail(email))
-            {
                 return Results.BadRequest(new { Message = "Email must have @estudiantec.cr or @itcr.ac.cr. domain" });
-            }
 
-            var exists = await db.Users.AnyAsync(u => u.Email == email);
-            if (exists)
-            {
+
+            if (await db.Users.AnyAsync(u => u.Email == email))
                 return Results.Conflict(new { Message = "The email is already registered." });
-            }
 
-            var role = await db.Roles.FirstOrDefaultAsync(r =>
-                r.RolName.ToLower() == "student" || r.RolName.ToLower() == "user");
+            if (!await studentRoleExist(db)) createStudentRole(db);
 
-            if (role == null)
-            {
-                // No Student/User role exists yet; create a default Student role for registration.
-                role = new Role { RolName = "Student" };
-                db.Roles.Add(role);
-                await db.SaveChangesAsync();
-            }
+            Role? role = await db.Roles.FirstOrDefaultAsync(r => r.RolName.ToLower() == "student");
+            if (role == null) return Results.Problem("Student role could not be found in Server");
 
-            var user = new User
+
+            User user = new User
             {
                 UserName = $"{name} {lastName}".Trim(),
                 Email = email,
@@ -112,7 +115,7 @@ public static class AuthenticationEndpoint
 
             try
             {
-                db.Users.Add(user);
+                await db.Users.AddAsync(user);
                 await db.SaveChangesAsync();
             }
             catch (Exception ex)
@@ -121,12 +124,12 @@ public static class AuthenticationEndpoint
                 return Results.Problem($"Error while saving the user: {ex.Message}", statusCode: 500);
             }
 
-            return Results.Created($"/user/{user.Id}", new
+            return Results.Created($"/student/{user.Id}", new
             {
                 user.Id,
                 user.UserName,
                 user.Email,
-                Role = role.RolName,
+                user.RoleId,
             });
         });
     }
