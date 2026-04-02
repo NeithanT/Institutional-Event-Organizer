@@ -1,0 +1,92 @@
+<app-navbar />
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>Inscripciones</h1>
+    <div class="tabs">
+      <button
+        class="tab-btn"
+        [class.active]="activeTab() === 'proximos'"
+        (click)="setTab('proximos')"
+      >
+        Eventos Próximos
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab() === 'pasados'"
+        (click)="setTab('pasados')"
+      >
+        Eventos Pasados
+      </button>
+    </div>
+  </div>
+  <div class="hero-logo">
+    <img src="assets/logos/tec55.png" alt="TEC 55 años" />
+  </div>
+</section>
+
+<!-- Event list -->
+<main class="content">
+
+  @if (pagedEvents().length === 0) {
+    <div class="empty-state">
+      <p>No tienes inscripciones {{ activeTab() === 'proximos' ? 'próximas' : 'pasadas' }}.</p>
+    </div>
+  }
+
+  @for (event of pagedEvents(); track event.id) {
+    <article class="event-card">
+      <img class="event-img" [src]="event.image" [alt]="event.title" />
+      <div class="event-info">
+        <div class="event-header">
+          <h2 class="event-title">{{ event.title }}</h2>
+          @if (activeTab() === 'proximos') {
+            <button class="btn-unsubscribe" (click)="openModal(event.id)">Desinscribir</button>
+          }
+        </div>
+        <p class="event-date">Fecha: {{ event.date }}</p>
+        <div class="event-actions">
+          <a class="btn-ver-mas" [routerLink]="['/events', event.id]">Ver más</a>
+        </div>
+      </div>
+    </article>
+  }
+
+  <!-- Paginación -->
+  @if (totalPages() > 1) {
+    <div class="pagination">
+      <button class="page-btn" (click)="prevPage()" [disabled]="currentPage() === 1">
+        &#8592; Anterior
+      </button>
+      <span class="page-info">{{ currentPage() }} / {{ totalPages() }}</span>
+      <button class="page-btn" (click)="nextPage()" [disabled]="currentPage() === totalPages()">
+        Siguiente &#8594;
+      </button>
+    </div>
+  }
+
+</main>
+
+<!-- Modal desinscripción — overlay bloquea toda interacción -->
+@if (showModal()) {
+  <div class="modal-overlay">
+    <div class="modal">
+      <div class="alert-circle">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <h3 class="modal-title">¡Alerta!</h3>
+      <p class="modal-message">¿Estás seguro que te quieres desinscribir?</p>
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="closeModal()">Cancelar</button>
+        <button class="btn-accept" (click)="confirmUnsubscribe()">Aceptar</button>
+      </div>
+    </div>
+  </div>
+}
+
+<app-footer />

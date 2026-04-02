@@ -30,7 +30,7 @@ export class EventsPage {
   eventos: Event[] = [
     { id: 1, titulo: 'Swimming Pool', imagen: 'events/swimmingpool.jpg', fecha: '2026-02-19', tipo: 'recreativo', modalidad: 'presencial', unidad: 'Deportes' },
     { id: 2, titulo: 'BasketTeam', imagen: 'events/evento2.jpg', fecha: '2026-02-19', tipo: 'recreativo', modalidad: 'presencial', unidad: 'Deportes' },
-    { id: 3, titulo: 'Karaoke-Chan', imagen: 'events/evento3.jpg', fecha: '2026-02-19', tipo: 'cultural', modalidad: 'presencial', unidad: 'CASIE' },
+    { id: 3, titulo: 'Karaoke-Chan', imagen: 'events/onichan.jpg', fecha: '2026-02-19', tipo: 'cultural', modalidad: 'presencial', unidad: 'CASIE' },
     { id: 4, titulo: 'Congreso IA', imagen: 'events/evento4.jpg', fecha: '2026-04-10', tipo: 'academico', modalidad: 'virtual', unidad: 'DATIC' },
     { id: 5, titulo: 'Festival Arte', imagen: 'events/evento1.jpg', fecha: '2026-04-15', tipo: 'cultural', modalidad: 'presencial', unidad: 'CASIE' },
   ];
