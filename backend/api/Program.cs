@@ -6,6 +6,10 @@ using api.Services;
 using Google.Apis.Gmail.v1;
 using Microsoft.EntityFrameworkCore;
 
+using QuestPDF.Infrastructure;
+QuestPDF.Settings.License = LicenseType.Community;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
@@ -101,5 +105,7 @@ EventEndpoint.mapOrganizerEventEndpoints(app);
 AttendanceEndpoint.mapAttendancesEndpoints(app);
 
 AdministratorEventEndpoint.mapAdministratorEndpoints(app);
+
+AdministratorUtilitiesEndpoint.mapAdministratorUtilitiesEndpoint(app);
 
 app.Run();
