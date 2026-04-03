@@ -110,4 +110,6 @@ AdministratorUtilitiesEndpoint.mapAdministratorUtilitiesEndpoint(app);
 
 OrganizerEntityEndpoint.mapOrganizerEntityEndpoints(app);
 
+OrganizerCategoriesEndpoint.mapOrganizerCategoriesEndpoint(app);
+
 app.Run();
