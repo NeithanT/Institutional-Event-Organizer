@@ -22,8 +22,10 @@ export const routes: Routes = [
   ,
   { path: 'profile', loadComponent: () => import('./pages/user-profile-page/user-profile-page').then(m => m.UserProfilePage) }
   ,
-  { path: 'events/:id', loadComponent: () => import('./pages/event-detail-page/event-detail-page').then(m => m.EventDetailPage) }
-  
+  { path: 'events/:id', loadComponent: () => import('./pages/event-detail-page/event-detail-page').then(m => m.EventDetailPage) },
+  { path: 'announcements', loadComponent: () => import('./pages/announcements-page/announcements-page').then(m => m.AnnouncementsPage) },
+  { path: 'announcements/:id', loadComponent: () => import('./pages/announcement-detail-page/announcement-detail-page').then(m => m.AnnouncementDetailPage) },
+
 
 ];
 
