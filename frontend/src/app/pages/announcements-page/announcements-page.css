@@ -142,3 +142,49 @@
 .page-btn:hover:not(:disabled) { background-color: #2a5f8f; }
 .page-btn:disabled { background-color: #aaa; cursor: not-allowed; }
 .page-info { font-size: 15px; font-weight: 600; color: #1a3a5c; }
+
+.hero-filters {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.8rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.filter-group label {
+  color: white;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.date-input {
+  padding: 0.5rem 0.8rem;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.9rem;
+  color: #111;
+  background: #e8edf2;
+  height: 38px;
+  min-width: 200px;
+}
+
+.date-input:focus { outline: none; background: #dce3ea; }
+
+.clear-date {
+  background: transparent;
+  border: 1.5px solid rgba(255,255,255,0.6);
+  color: white;
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+  margin-bottom: 2px;
+}
+
+.clear-date:hover { background: rgba(255,255,255,0.15); }

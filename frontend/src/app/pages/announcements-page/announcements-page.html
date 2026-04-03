@@ -12,18 +12,18 @@
   </div>
   <div class="hero-right">
     <div class="hero-filters">
-      <label>Fecha</label>
-      <select (change)="setDate($any($event.target).value)">
-        <option value="">Todas</option>
-        <option value="19 de febrero 2026">19 de febrero 2026</option>
-        <option value="01 de marzo 2026">01 de marzo 2026</option>
-        <option value="05 de marzo 2026">05 de marzo 2026</option>
-        <option value="10 de marzo 2026">10 de marzo 2026</option>
-        <option value="15 de marzo 2026">15 de marzo 2026</option>
-      </select>
-      <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
+      <div class="filter-group">
+        <label>Fecha</label>
+        <input
+          type="datetime-local"
+          class="date-input"
+          [(ngModel)]="selectedDate"
+          (change)="onDateChange($any($event.target).value)"
+        />
+      </div>
+      @if (selectedDate) {
+        <button class="clear-date" (click)="clearDate()">✕ Limpiar</button>
+      }
     </div>
   </div>
 </section>
@@ -31,13 +31,13 @@
 <main class="content">
 
   @if (pagedAnnouncements().length === 0) {
-    <div class="empty-state">No hay anuncios disponibles.</div>
+    <div class="empty-state">No hay anuncios disponibles para la fecha seleccionada.</div>
   }
 
   @for (ann of pagedAnnouncements(); track ann.id) {
     <article class="ann-card">
       <h2 class="ann-title">{{ ann.title }}</h2>
-      <p class="ann-date">Fecha de publicación: {{ ann.date }}</p>
+      <p class="ann-date">Fecha de publicación: {{ formatFecha(ann.date) }}</p>
       <a class="btn-ver-mas" [routerLink]="['/announcements', ann.id]">Ver más</a>
     </article>
   }

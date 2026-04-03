@@ -6,6 +6,7 @@
   padding: 12px 32px;
   width: 100%;
   box-sizing: border-box;
+  position: relative;
 }
 .navbar-left {
   display: flex;
@@ -26,11 +27,14 @@
 .navbar-links {
   display: flex;
   gap: 28px;
+  position: absolute;  
+  left: 50%;           
+  transform: translateX(-50%);
 }
 .navbar-links a {
   color: white;
   text-decoration: none;
-  font-size: 15px;
+  font-size: 20px;
   font-weight: 500;
   border-bottom: 2px solid transparent;
   padding-bottom: 2px;

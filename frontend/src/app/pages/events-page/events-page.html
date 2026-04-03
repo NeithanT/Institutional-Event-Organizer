@@ -17,12 +17,15 @@
         </div>
         <div class="filter-group">
           <label>Fecha</label>
-          <select (change)="setFiltro('fecha', $any($event.target).value)">
-            <option value="">Todas</option>
-            <option value="proximos">Próximos</option>
-            <option value="semana">Esta semana</option>
-            <option value="mes">Este mes</option>
-          </select>
+          <input
+            type="datetime-local"
+            class="date-input"
+            [(ngModel)]="selectedDate"
+            (change)="onDateChange($any($event.target).value)"
+          />
+          @if (selectedDate) {
+            <button class="clear-date" (click)="clearDate()">✕</button>
+          }
         </div>
         <div class="filter-group">
           <label>Modalidad</label>
@@ -41,7 +44,6 @@
             <option value="DATIC">DATIC</option>
           </select>
         </div>
-        <div class="search-icon">🔍</div>
       </div>
     </div>
   </section>
@@ -60,7 +62,7 @@
             <span class="badge badge-tipo">{{ evento.tipo }}</span>
             <span class="badge badge-modalidad">{{ evento.modalidad }}</span>
           </div>
-          <p class="event-fecha">Fecha de publicación: {{ formatFecha(evento.fecha) }}</p>
+          <p class="event-fecha">Fecha: {{ formatFecha(evento.fecha) }}</p>
         </div>
         <a class="btn-ver-mas" [routerLink]="['/events', evento.id]">Ver más</a>
       </div>
