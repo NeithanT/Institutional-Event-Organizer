@@ -49,13 +49,13 @@ public static class AuthenticationEndpoint
     }
     //######################################################################################################
     /*
-        //Every value except 0 indicates an error 
+        //Every value except 0 indicates an error
         //0: valid data
         //-1: Data has spaces
         //-2: Password is not valid (Doesnt match required specifications)
         //-3: Email is not estudiantec.cr or itcr.ac.cr domain
         //-4: User is already registered
-        //Also validates is Student role exists in DB - If not it creates it    
+        //Also validates is Student role exists in DB - If not it creates it
     */
     private static async Task<int> validRegisterData(
         EventOrganizerContext db, string name, string lastName, string email, string password, int idCard)
@@ -85,21 +85,24 @@ public static class AuthenticationEndpoint
             var password = auth.Password?.Trim() ?? string.Empty;
 
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
-                return Results.BadRequest(new { Message = "Email and password are required." });
+                return Results.BadRequest(new { Message = "Se requiere email y contraseña." });
 
             if (!IsAllowedInstitutionalEmail(email))
-                return Results.BadRequest(new { Message = "Email must have @estudiantec.cr o @itcr.ac.cr. domain" });
+                return Results.BadRequest(new { Message = "Email debe ser @estudiantec.cr o @itcr.ac.cr." });
 
             try
             {
                 User? user = await db.Users
                     .FirstOrDefaultAsync(u => u.Email == email);
 
-                if (user == null || !user.Active || user.UserPass != password)
-                    return Results.Unauthorized();
+                if (user == null || user.UserPass != password)
+                    return Results.Json(new { message = "Correo o contraseña incorrectos." }, statusCode: 401);
+
+                if (!user.Active)
+                    return Results.Json(new { message = "El usuario no está activo." }, statusCode: 401);
 
                 var role = await db.Roles.FindAsync(user.RoleId);
-                if (role == null) return Results.BadRequest("Role not identified by server");
+                if (role == null) return Results.BadRequest(new { message = "No se encontro el Rol" });
 
 
                 return Results.Ok(new
@@ -108,15 +111,17 @@ public static class AuthenticationEndpoint
                     user.UserName,
                     user.Email,
                     user.RoleId,
+                    RoleName = role.RolName
                 });
             }
             catch (Exception)
             {
-                return Results.Problem(detail: "Error during authentication.", statusCode: 500);
+                return Results.Problem(detail: "Error durante autenticación", statusCode: 500);
             }
         });
+
         //######################################################################################################
-        app.MapPost("/student/register", async (DtoRegisterUser register, EventOrganizerContext db) =>
+        app.MapPost("/user/register", async (DtoRegisterUser register, EventOrganizerContext db) =>
         {
 
             string name = register.Name?.Trim() ?? string.Empty;
@@ -128,17 +133,17 @@ public static class AuthenticationEndpoint
             switch (await validRegisterData(db, name, lastName, email, password, idCard))
             {
                 case -1:
-                    return Results.BadRequest("User data invalid for register." );
+                    return Results.BadRequest(new { message = "Carne inválido o faltan datos" });
                 case -2:
-                    return Results.BadRequest("Password must have 1 Uppercase, 1 Lowercase, 1 Number and 1 Special Character and at least 8 characters");
+                    return Results.BadRequest(new { message = "La contraseña debe tener 1 Mayúscula, 1 minúscula, 1 número y un 1 caracter especial y al menos 8 caracteres" });
                 case -3:
-                    return Results.BadRequest("Email must have @estudiantec.cr or @itcr.ac.cr. domain");
+                    return Results.BadRequest(new { message = "Email debe ser @estudiantec.cr o @itcr.ac.cr." });
                 case -4:
-                    return Results.Conflict("The email is already registered.");
+                    return Results.Conflict(new { message = "El email ya está registrado." });
             }
 
             Role? role = await db.Roles.FirstOrDefaultAsync(r => r.RolName.ToLower() == "student");
-            if (role == null) return Results.Problem("Student role not found in Server");
+            if (role == null) return Results.Problem("No se encontro el Rol de estudiante", statusCode: 500);
 
             User user = new User
             {
@@ -157,8 +162,7 @@ public static class AuthenticationEndpoint
             }
             catch (Exception ex)
             {
-                // Log exception locally if you have logging in place
-                return Results.Problem($"Error while saving the user: {ex.Message}", statusCode: 500);
+                return Results.Problem($"Error agregando al usuario: {ex.Message}", statusCode: 500);
             }
 
             return Results.Created($"/student/{user.Id}", new
