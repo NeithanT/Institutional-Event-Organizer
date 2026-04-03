@@ -29,6 +29,8 @@ public static class AuthenticationEndpoint
     private static bool isValidPassword(string password)
     {
         var regex = new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$");
+        // an example of a password that matches this
+        // is "Password1!Password1!" (at least 8 characters, contains uppercase, lowercase, number and special character)
         return regex.IsMatch(password);
     }
 

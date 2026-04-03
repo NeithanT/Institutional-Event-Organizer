@@ -23,7 +23,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<EventOrganizerContext>(
     options =>
     {
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
     }
 );
 builder.Services.AddScoped<IEmailService, GmailApiService>();

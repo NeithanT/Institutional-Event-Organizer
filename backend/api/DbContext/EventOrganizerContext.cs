@@ -36,8 +36,12 @@ public partial class EventOrganizerContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-
-        => optionsBuilder.UseSqlServer("Server=localhost;Database=EventOrganizer;User Id=sa;Password=YourStrong1Pass;TrustServerCertificate=True");
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=EventOrganizer;Username=postgres;Password=postgres123");
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -109,7 +113,7 @@ public partial class EventOrganizerContext : DbContext
         {
             entity.ToTable("Event");
 
-            entity.Property(e => e.EventDate).HasColumnType("datetime");
+            entity.Property(e => e.EventDate).HasColumnType("timestamp without time zone");
             entity.Property(e => e.EventDescription)
                 .HasMaxLength(300)
                 .IsUnicode(false);
@@ -202,7 +206,7 @@ public partial class EventOrganizerContext : DbContext
 
             entity.HasIndex(e => e.Email, "UQ_User_Email").IsUnique();
 
-            entity.Property(e => e.Active).HasDefaultValue(true, "DF_User_Active");
+            entity.Property(e => e.Active).HasDefaultValue(true);
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
                 .IsUnicode(false);

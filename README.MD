@@ -33,7 +33,7 @@ The Institutional Event Organizer is a full-stack application designed to stream
 ### Backend
 
 - **Framework**: ASP.NET Core 10.0
-- **Database**: SQL Server
+- **Database**: PostgreSQL
 - **ORM**: Entity Framework Core
 - **API Documentation**: OpenAPI/Swagger
 - **Email Service**: Gmail API integration
@@ -47,7 +47,7 @@ The Institutional Event Organizer is a full-stack application designed to stream
 
 ### Database
 
-- **DBMS**: SQL Server
+- **DBMS**: PostgreSQL
 - **Containerization**: Docker & Docker Compose
 - **Deployment**: Docker container setup with initialization and seed scripts
 
@@ -84,7 +84,7 @@ Institutional-Event-Organizer/
 
 - .NET 10.0 SDK
 - Node.js and npm
-- SQL Server
+- PostgreSQL
 - Docker and Docker Compose (for containerized setup)
 
 ### Installation

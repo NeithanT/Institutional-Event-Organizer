@@ -2,7 +2,6 @@ using System;
 using api.DTOs;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client.Extensibility;
 
 namespace api.Endpoints;
 

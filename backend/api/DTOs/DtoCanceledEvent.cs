@@ -1,5 +1,3 @@
-using Microsoft.Identity.Client;
-
 namespace api.DTOs;
 
 public class DtoCanceledEvent
