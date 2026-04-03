@@ -1,0 +1,32 @@
+<app-navbar />
+
+@if (announcement(); as ann) {
+  <section class="hero">
+    <div class="hero-content">
+      <h1>{{ ann.title }}</h1>
+      <a class="back-link" routerLink="/announcements">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </a>
+    </div>
+    <div class="hero-logo">
+      <img src="logos/logotec55.jpg" alt="TEC 55 años" />
+    </div>
+  </section>
+
+  <main class="content">
+    <div class="ann-card">
+      @for (line of getLines(ann.content); track $index) {
+        @if (line.trim() === '') {
+          <br />
+        } @else {
+          <p class="ann-text">{{ line }}</p>
+        }
+      }
+      <p class="ann-organizer">{{ ann.organizer }}</p>
+    </div>
+  </main>
+}
+
+<app-footer />
