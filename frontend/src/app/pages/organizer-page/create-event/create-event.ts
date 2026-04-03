@@ -19,7 +19,7 @@ export class CreateEvent implements OnInit {
   date: string = '';
   place: string = '';
   capacity: number = 0;
-
+  isVirtual: boolean = false;
   categoryId: number = 0;
   organizerId: number = 1; 
   organizerEntityId: number = 0;
@@ -79,6 +79,7 @@ loadOrganizerEntities() {
     formData.append('EventDescription', this.description);
     formData.append('AvalaibleEntries', this.capacity.toString());
     formData.append('ApprovedState', 'false');
+    formData.append('IsVirtual', this.isVirtual.toString());
     formData.append('CategoryId', this.categoryId.toString());
     formData.append('OrganizerId', this.organizerId.toString());
     formData.append('OrganizerEntityId', this.organizerEntityId.toString());
