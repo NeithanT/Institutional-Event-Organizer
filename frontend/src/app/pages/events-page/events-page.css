@@ -132,6 +132,8 @@
   cursor: pointer;
   transition: background-color 0.2s;
   white-space: nowrap;
+  text-decoration: none;
+  display: inline-block;
 }
 .btn-ver-mas:hover { background-color: #2a5f8f; }
 

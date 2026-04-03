@@ -65,7 +65,7 @@
           </div>
           <p class="event-fecha">Fecha de publicación: {{ formatFecha(evento.fecha) }}</p>
         </div>
-        <button class="btn-ver-mas">Ver más</button>
+        <a class="btn-ver-mas" [routerLink]="['/events', evento.id]">Ver más</a>
       </div>
     }
   </section>

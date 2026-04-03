@@ -1,0 +1,77 @@
+<app-navbar />
+
+<!-- Hero -->
+<section class="detail-hero">
+  <div class="hero-content">
+    <h1>{{ event()?.title ?? 'Evento' }}</h1>
+    <a class="back-link" routerLink="/events">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Regresar a la lista
+    </a>
+  </div>
+  <div class="hero-logo">
+    <img src="assets/logos/tec55.png" alt="TEC 55 años" />
+  </div>
+</section>
+
+<!-- Content -->
+@if (event(); as ev) {
+  <main class="detail-content">
+    <div class="event-card">
+
+      <!-- Líneas del contenido -->
+      @for (line of getLines(ev.content); track $index) {
+        @if (line.trim() === '') {
+          <br />
+        } @else if (line.startsWith('•')) {
+          <p class="bullet">{{ line }}</p>
+        } @else if ($index === 0) {
+          <h2 class="event-main-title">{{ line }}</h2>
+        } @else {
+          <p class="event-text">{{ line }}</p>
+        }
+      }
+
+      <p class="organizer">{{ ev.organizer }}</p>
+
+      <!-- Footer del card -->
+      <div class="card-footer">
+        @if (ev.isPast) {
+          <span class="past-label">Este evento ya ocurrió</span>
+        } @else if (ev.isInscribed) {
+          <span class="inscribed-label">✓ Ya estás inscrito</span>
+        } @else {
+          <div class="inscribe-row">
+            <span class="cupos">Cupos disponibles: {{ ev.cupos }}</span>
+            @if (ev.cupos > 0) {
+              <button class="btn-inscribir" (click)="inscribir()">Inscribir</button>
+            } @else {
+              <span class="sin-cupos">Sin cupos disponibles</span>
+            }
+          </div>
+        }
+      </div>
+
+    </div>
+  </main>
+}
+
+<!-- Modal éxito -->
+@if (showSuccessModal()) {
+  <div class="modal-overlay">
+    <div class="modal-success">
+      <div class="success-circle">
+        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <h3 class="success-title">¡ÉXITO!</h3>
+      <p class="success-message">Te has inscrito al evento!</p>
+      <button class="btn-continuar" (click)="closeModal()">Continuar</button>
+    </div>
+  </div>
+}
+
+<app-footer />

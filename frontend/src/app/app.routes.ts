@@ -21,6 +21,9 @@ export const routes: Routes = [
   { path: 'inscripciones', loadComponent: () => import('./pages/inscriptions-page/inscriptions-page').then(m => m.InscriptionsPage) }
   ,
   { path: 'profile', loadComponent: () => import('./pages/user-profile-page/user-profile-page').then(m => m.UserProfilePage) }
+  ,
+  { path: 'events/:id', loadComponent: () => import('./pages/event-detail-page/event-detail-page').then(m => m.EventDetailPage) }
+  
 
 ];
 
