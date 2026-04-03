@@ -1,30 +1,35 @@
 <div class="page-wrapper">
   <app-navbar />
 
+  <!-- ANUNCIOS -->
   <section class="hero">
     <div class="hero-content">
       <h2 class="section-title">ANUNCIOS</h2>
       <div class="announcements-grid">
-        @for (anuncio of anuncios; track anuncio.titulo) {
+        @for (anuncio of anuncios; track anuncio.id) {
           <div class="announcement-card">
-            <h3>{{ anuncio.titulo }}</h3>
-            <a href="#" class="ver-mas">Ver más</a>
+            <h3 class="ann-title">{{ anuncio.titulo }}</h3>
+            <div class="ann-footer">
+              <span class="ann-fecha">Fecha de publicación: {{ anuncio.fecha }}</span>
+              <a class="btn-ver-mas" [routerLink]="['/announcements', anuncio.id]">Ver más</a>
+            </div>
           </div>
         }
       </div>
     </div>
-    <div class="hero-logo">
-      <img src="logos/logotec55.jpg" alt="TEC 55 años" />
-    </div>
   </section>
 
+  <!-- EVENTOS -->
   <section class="events-section">
     <h2 class="section-title-dark">Eventos</h2>
     <div class="events-grid">
-      @for (evento of eventos; track evento.titulo) {
+      @for (evento of eventos; track evento.id) {
         <div class="event-card">
           <img [src]="evento.imagen" [alt]="evento.titulo" class="event-img" />
-          <a href="#" class="ver-mas-dark">Ver más</a>
+          <div class="event-overlay">
+            <span class="event-titulo">{{ evento.titulo }}</span>
+            <a class="btn-ver-mas-event" [routerLink]="['/events', evento.id]">Ver más</a>
+          </div>
         </div>
       }
     </div>
