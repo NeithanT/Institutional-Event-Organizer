@@ -2,7 +2,7 @@
    HERO
 ===================== */
 .profile-hero {
-  background: linear-gradient(135deg, #1a3a5c 0%, #2563a8 100%);
+  background: #2a5f8f;
   color: white;
   padding: 1.5rem 2rem;
   display: flex;

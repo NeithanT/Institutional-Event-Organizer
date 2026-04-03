@@ -1,6 +1,7 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed} from '@angular/core';
 import { Navbar } from '../../components/navbar/navbar';
 import { Footer } from '../../components/footer/footer';
+import { RouterLink } from '@angular/router';
 
 interface Event {
   id: number;
@@ -15,7 +16,7 @@ interface Event {
 @Component({
   selector: 'app-events-page',
   standalone: true,
-  imports: [Navbar, Footer],
+  imports: [Navbar, Footer,RouterLink],
   templateUrl: './events-page.html',
   styleUrl: './events-page.css',
 })
