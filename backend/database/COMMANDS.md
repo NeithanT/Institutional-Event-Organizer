@@ -2,10 +2,15 @@ Run docker with everything:
 
 docker compose up -d
 
-Run the container alone
+Run the container alone:
 
-docker run -e "ACCEPT_EULA=Y"     -e "MSSQL_SA_PASSWORD=YourStrong1Pass"       -p 1433:1433            --name sqlserver2022            -d mcr.microsoft.com/mssql/server:2022-latest
+docker run --name eventorganizer-postgres \
+	-e POSTGRES_USER=postgres \
+	-e POSTGRES_PASSWORD=postgres123 \
+	-e POSTGRES_DB=EventOrganizer \
+	-p 127.0.0.1:5432:5432 \
+	-d postgres:17-alpine
 
 Connect to the container:
 
-docker exec -it sqlserver2022 bash
+docker exec -it eventorganizer-postgres psql -U postgres -d EventOrganizer

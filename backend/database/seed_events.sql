@@ -1,188 +1,140 @@
-SET ANSI_NULLS ON;
-GO
+INSERT INTO "Role" ("RolName") VALUES ('Organizer')
+ON CONFLICT ("RolName") DO NOTHING;
 
-SET QUOTED_IDENTIFIER ON;
-GO
+INSERT INTO "User" ("UserPass", "UserName", "Email", "Active", "RoleId", "IdCard")
+SELECT 'SeedPass123', 'Seed Organizer', 'organizer.seed@event.local', TRUE, r."Id", 10000001
+FROM "Role" r
+WHERE r."RolName" = 'Organizer'
+  AND NOT EXISTS (
+      SELECT 1 FROM "User" u WHERE u."Email" = 'organizer.seed@event.local'
+  );
 
-IF DB_ID(N'EventOrganizer') IS NULL
-BEGIN
-    RAISERROR('Database EventOrganizer does not exist. Run initdb.sql first.', 16, 1);
-    RETURN;
-END
-GO
+INSERT INTO "OrganizerEntity" ("EntityName") VALUES ('Institutional Events Office')
+ON CONFLICT ("EntityName") DO NOTHING;
 
-USE EventOrganizer;
-GO
+INSERT INTO "Category" ("NameCategory") VALUES ('Academic') ON CONFLICT ("NameCategory") DO NOTHING;
+INSERT INTO "Category" ("NameCategory") VALUES ('Culture') ON CONFLICT ("NameCategory") DO NOTHING;
+INSERT INTO "Category" ("NameCategory") VALUES ('Sports') ON CONFLICT ("NameCategory") DO NOTHING;
+INSERT INTO "Category" ("NameCategory") VALUES ('Technology') ON CONFLICT ("NameCategory") DO NOTHING;
 
--- Base data required by Event foreign keys.
-IF NOT EXISTS (SELECT 1 FROM dbo.Role WHERE RolName = 'Organizer')
-BEGIN
-    INSERT INTO dbo.Role (RolName) VALUES ('Organizer');
-END
-GO
+INSERT INTO "Event" (
+    "EventDate", "Place", "Title", "EventDescription", "CategoryId",
+    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
+)
+SELECT TIMESTAMP '2026-04-15 09:00:00', 'Main Auditorium', 'Orientation Day 2026', 'Welcome event for new students with institutional resources overview.',
+       c."Id", u."Id", oe."Id", 300, TRUE, FALSE
+FROM "Category" c
+JOIN "User" u ON u."Email" = 'organizer.seed@event.local'
+JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Institutional Events Office'
+WHERE c."NameCategory" = 'Academic'
+  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'Orientation Day 2026');
 
-DECLARE @OrganizerRoleId INT = (
-    SELECT TOP (1) Id
-    FROM dbo.Role
-    WHERE RolName = 'Organizer'
-    ORDER BY Id
-);
+INSERT INTO "Event" (
+    "EventDate", "Place", "Title", "EventDescription", "CategoryId",
+    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
+)
+SELECT TIMESTAMP '2026-04-22 14:00:00', 'Building B - Room 204', 'Research Methods Workshop', 'Practical workshop on qualitative and quantitative research methods.',
+       c."Id", u."Id", oe."Id", 80, TRUE, TRUE
+FROM "Category" c
+JOIN "User" u ON u."Email" = 'organizer.seed@event.local'
+JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Institutional Events Office'
+WHERE c."NameCategory" = 'Academic'
+  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'Research Methods Workshop');
 
-IF @OrganizerRoleId IS NULL
-BEGIN
-    RAISERROR('Could not resolve Organizer role.', 16, 1);
-    RETURN;
-END;
+INSERT INTO "Event" (
+    "EventDate", "Place", "Title", "EventDescription", "CategoryId",
+    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
+)
+SELECT TIMESTAMP '2026-05-03 16:00:00', 'Central Plaza', 'Spring Cultural Festival', 'Open festival featuring music, dance, and student art displays.',
+       c."Id", u."Id", oe."Id", 500, TRUE, FALSE
+FROM "Category" c
+JOIN "User" u ON u."Email" = 'organizer.seed@event.local'
+JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Institutional Events Office'
+WHERE c."NameCategory" = 'Culture'
+  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'Spring Cultural Festival');
 
-IF NOT EXISTS (SELECT 1 FROM dbo.[User] WHERE Email = 'organizer.seed@event.local')
-BEGIN
-    INSERT INTO dbo.[User] (UserPass, UserName, Email, Active, RoleId, IdCard)
-    VALUES ('SeedPass123', 'Seed Organizer', 'organizer.seed@event.local', 1, @OrganizerRoleId, 10000001);
-END;
+INSERT INTO "Event" (
+    "EventDate", "Place", "Title", "EventDescription", "CategoryId",
+    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
+)
+SELECT TIMESTAMP '2026-05-10 10:00:00', 'Library Hall', 'University Book Fair', 'Book fair with publishers, talks, and reading activities.',
+       c."Id", u."Id", oe."Id", 250, TRUE, FALSE
+FROM "Category" c
+JOIN "User" u ON u."Email" = 'organizer.seed@event.local'
+JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Institutional Events Office'
+WHERE c."NameCategory" = 'Culture'
+  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'University Book Fair');
 
-DECLARE @OrganizerId INT = (
-    SELECT TOP (1) Id
-    FROM dbo.[User]
-    WHERE Email = 'organizer.seed@event.local'
-    ORDER BY Id
-);
+INSERT INTO "Event" (
+    "EventDate", "Place", "Title", "EventDescription", "CategoryId",
+    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
+)
+SELECT TIMESTAMP '2026-05-18 08:30:00', 'Campus Stadium', 'Interfaculty Soccer Cup', 'Tournament between faculty teams with semifinal and final matches.',
+       c."Id", u."Id", oe."Id", 400, TRUE, FALSE
+FROM "Category" c
+JOIN "User" u ON u."Email" = 'organizer.seed@event.local'
+JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Institutional Events Office'
+WHERE c."NameCategory" = 'Sports'
+  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'Interfaculty Soccer Cup');
 
-IF @OrganizerId IS NULL
-BEGIN
-    RAISERROR('Could not resolve organizer user.', 16, 1);
-    RETURN;
-END;
+INSERT INTO "Event" (
+    "EventDate", "Place", "Title", "EventDescription", "CategoryId",
+    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
+)
+SELECT TIMESTAMP '2026-05-25 07:00:00', 'South Gate', '5K Campus Run', 'Community 5K run with hydration points and medals.',
+       c."Id", u."Id", oe."Id", 600, TRUE, FALSE
+FROM "Category" c
+JOIN "User" u ON u."Email" = 'organizer.seed@event.local'
+JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Institutional Events Office'
+WHERE c."NameCategory" = 'Sports'
+  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = '5K Campus Run');
 
-IF NOT EXISTS (SELECT 1 FROM dbo.OrganizerEntity WHERE EntityName = 'Institutional Events Office')
-BEGIN
-    INSERT INTO dbo.OrganizerEntity (EntityName) VALUES ('Institutional Events Office');
-END;
+INSERT INTO "Event" (
+    "EventDate", "Place", "Title", "EventDescription", "CategoryId",
+    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
+)
+SELECT TIMESTAMP '2026-06-05 09:30:00', 'Innovation Center', 'AI for Education Summit', 'Talks and demos on responsible AI applications in education.',
+       c."Id", u."Id", oe."Id", 220, TRUE, TRUE
+FROM "Category" c
+JOIN "User" u ON u."Email" = 'organizer.seed@event.local'
+JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Institutional Events Office'
+WHERE c."NameCategory" = 'Technology'
+  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'AI for Education Summit');
 
-DECLARE @OrganizerEntityId INT = (
-    SELECT TOP (1) Id
-    FROM dbo.OrganizerEntity
-    WHERE EntityName = 'Institutional Events Office'
-    ORDER BY Id
-);
+INSERT INTO "Event" (
+    "EventDate", "Place", "Title", "EventDescription", "CategoryId",
+    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
+)
+SELECT TIMESTAMP '2026-06-12 11:00:00', 'Building C - Lab 3', 'Cybersecurity Awareness Day', 'Hands-on sessions on password security and phishing prevention.',
+       c."Id", u."Id", oe."Id", 120, TRUE, TRUE
+FROM "Category" c
+JOIN "User" u ON u."Email" = 'organizer.seed@event.local'
+JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Institutional Events Office'
+WHERE c."NameCategory" = 'Technology'
+  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'Cybersecurity Awareness Day');
 
-IF @OrganizerEntityId IS NULL
-BEGIN
-    RAISERROR('Could not resolve organizer entity.', 16, 1);
-    RETURN;
-END;
+INSERT INTO "Event" (
+    "EventDate", "Place", "Title", "EventDescription", "CategoryId",
+    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
+)
+SELECT TIMESTAMP '2026-06-20 15:00:00', 'North Courtyard', 'Community Volunteering Fair', 'NGOs and student groups present volunteering opportunities.',
+       c."Id", u."Id", oe."Id", 180, TRUE, FALSE
+FROM "Category" c
+JOIN "User" u ON u."Email" = 'organizer.seed@event.local'
+JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Institutional Events Office'
+WHERE c."NameCategory" = 'Culture'
+  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'Community Volunteering Fair');
 
-IF NOT EXISTS (SELECT 1 FROM dbo.Category WHERE NameCategory = 'Academic')
-BEGIN
-    INSERT INTO dbo.Category (NameCategory) VALUES ('Academic');
-END;
+INSERT INTO "Event" (
+    "EventDate", "Place", "Title", "EventDescription", "CategoryId",
+    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
+)
+SELECT TIMESTAMP '2026-06-28 10:00:00', 'Engineering Pavilion', 'Final Projects Expo', 'Showcase of capstone projects and innovation prototypes.',
+       c."Id", u."Id", oe."Id", 350, TRUE, FALSE
+FROM "Category" c
+JOIN "User" u ON u."Email" = 'organizer.seed@event.local'
+JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Institutional Events Office'
+WHERE c."NameCategory" = 'Academic'
+  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'Final Projects Expo');
 
-IF NOT EXISTS (SELECT 1 FROM dbo.Category WHERE NameCategory = 'Culture')
-BEGIN
-    INSERT INTO dbo.Category (NameCategory) VALUES ('Culture');
-END;
-
-IF NOT EXISTS (SELECT 1 FROM dbo.Category WHERE NameCategory = 'Sports')
-BEGIN
-    INSERT INTO dbo.Category (NameCategory) VALUES ('Sports');
-END;
-
-IF NOT EXISTS (SELECT 1 FROM dbo.Category WHERE NameCategory = 'Technology')
-BEGIN
-    INSERT INTO dbo.Category (NameCategory) VALUES ('Technology');
-END;
-GO
-
-DECLARE @CategoryAcademic INT = (
-    SELECT TOP (1) Id FROM dbo.Category WHERE NameCategory = 'Academic' ORDER BY Id
-);
-DECLARE @CategoryCulture INT = (
-    SELECT TOP (1) Id FROM dbo.Category WHERE NameCategory = 'Culture' ORDER BY Id
-);
-DECLARE @CategorySports INT = (
-    SELECT TOP (1) Id FROM dbo.Category WHERE NameCategory = 'Sports' ORDER BY Id
-);
-DECLARE @CategoryTech INT = (
-    SELECT TOP (1) Id FROM dbo.Category WHERE NameCategory = 'Technology' ORDER BY Id
-);
-DECLARE @OrganizerId INT = (
-    SELECT TOP (1) Id FROM dbo.[User] WHERE Email = 'organizer.seed@event.local' ORDER BY Id
-);
-DECLARE @OrganizerEntityId INT = (
-    SELECT TOP (1) Id FROM dbo.OrganizerEntity WHERE EntityName = 'Institutional Events Office' ORDER BY Id
-);
-
-IF @CategoryAcademic IS NULL OR @CategoryCulture IS NULL OR @CategorySports IS NULL OR @CategoryTech IS NULL
-BEGIN
-    RAISERROR('Could not resolve one or more categories.', 16, 1);
-    RETURN;
-END;
-
-IF @OrganizerId IS NULL OR @OrganizerEntityId IS NULL
-BEGIN
-    RAISERROR('Could not resolve organizer references.', 16, 1);
-    RETURN;
-END;
-
--- Insert at least 10 events. Safe to re-run: each INSERT checks Title.
-IF NOT EXISTS (SELECT 1 FROM dbo.Event WHERE Title = 'Orientation Day 2026')
-BEGIN
-    INSERT INTO dbo.Event (EventDate, Place, Title, EventDescription, CategoryId, OrganizerId, OrganizerEntityId, AvalaibleEntries, ApprovedState, IsVirtual)
-    VALUES ('2026-04-15T09:00:00', 'Main Auditorium', 'Orientation Day 2026', 'Welcome event for new students with institutional resources overview.', @CategoryAcademic, @OrganizerId, @OrganizerEntityId, 300, 1, 0);
-END;
-
-IF NOT EXISTS (SELECT 1 FROM dbo.Event WHERE Title = 'Research Methods Workshop')
-BEGIN
-    INSERT INTO dbo.Event (EventDate, Place, Title, EventDescription, CategoryId, OrganizerId, OrganizerEntityId, AvalaibleEntries, ApprovedState, IsVirtual)
-    VALUES ('2026-04-22T14:00:00', 'Building B - Room 204', 'Research Methods Workshop', 'Practical workshop on qualitative and quantitative research methods.', @CategoryAcademic, @OrganizerId, @OrganizerEntityId, 80, 1, 1);
-END;
-
-IF NOT EXISTS (SELECT 1 FROM dbo.Event WHERE Title = 'Spring Cultural Festival')
-BEGIN
-    INSERT INTO dbo.Event (EventDate, Place, Title, EventDescription, CategoryId, OrganizerId, OrganizerEntityId, AvalaibleEntries, ApprovedState, IsVirtual)
-    VALUES ('2026-05-03T16:00:00', 'Central Plaza', 'Spring Cultural Festival', 'Open festival featuring music, dance, and student art displays.', @CategoryCulture, @OrganizerId, @OrganizerEntityId, 500, 1, 0);
-END;
-
-IF NOT EXISTS (SELECT 1 FROM dbo.Event WHERE Title = 'University Book Fair')
-BEGIN
-    INSERT INTO dbo.Event (EventDate, Place, Title, EventDescription, CategoryId, OrganizerId, OrganizerEntityId, AvalaibleEntries, ApprovedState, IsVirtual)
-    VALUES ('2026-05-10T10:00:00', 'Library Hall', 'University Book Fair', 'Book fair with publishers, talks, and reading activities.', @CategoryCulture, @OrganizerId, @OrganizerEntityId, 250, 1, 0);
-END;
-
-IF NOT EXISTS (SELECT 1 FROM dbo.Event WHERE Title = 'Interfaculty Soccer Cup')
-BEGIN
-    INSERT INTO dbo.Event (EventDate, Place, Title, EventDescription, CategoryId, OrganizerId, OrganizerEntityId, AvalaibleEntries, ApprovedState, IsVirtual)
-    VALUES ('2026-05-18T08:30:00', 'Campus Stadium', 'Interfaculty Soccer Cup', 'Tournament between faculty teams with semifinal and final matches.', @CategorySports, @OrganizerId, @OrganizerEntityId, 400, 1, 0);
-END;
-
-IF NOT EXISTS (SELECT 1 FROM dbo.Event WHERE Title = '5K Campus Run')
-BEGIN
-    INSERT INTO dbo.Event (EventDate, Place, Title, EventDescription, CategoryId, OrganizerId, OrganizerEntityId, AvalaibleEntries, ApprovedState, IsVirtual)
-    VALUES ('2026-05-25T07:00:00', 'South Gate', '5K Campus Run', 'Community 5K run with hydration points and medals.', @CategorySports, @OrganizerId, @OrganizerEntityId, 600, 1, 0);
-END;
-
-IF NOT EXISTS (SELECT 1 FROM dbo.Event WHERE Title = 'AI for Education Summit')
-BEGIN
-    INSERT INTO dbo.Event (EventDate, Place, Title, EventDescription, CategoryId, OrganizerId, OrganizerEntityId, AvalaibleEntries, ApprovedState, IsVirtual)
-    VALUES ('2026-06-05T09:30:00', 'Innovation Center', 'AI for Education Summit', 'Talks and demos on responsible AI applications in education.', @CategoryTech, @OrganizerId, @OrganizerEntityId, 220, 1, 1);
-END;
-
-IF NOT EXISTS (SELECT 1 FROM dbo.Event WHERE Title = 'Cybersecurity Awareness Day')
-BEGIN
-    INSERT INTO dbo.Event (EventDate, Place, Title, EventDescription, CategoryId, OrganizerId, OrganizerEntityId, AvalaibleEntries, ApprovedState, IsVirtual)
-    VALUES ('2026-06-12T11:00:00', 'Building C - Lab 3', 'Cybersecurity Awareness Day', 'Hands-on sessions on password security and phishing prevention.', @CategoryTech, @OrganizerId, @OrganizerEntityId, 120, 1, 1);
-END;
-
-IF NOT EXISTS (SELECT 1 FROM dbo.Event WHERE Title = 'Community Volunteering Fair')
-BEGIN
-    INSERT INTO dbo.Event (EventDate, Place, Title, EventDescription, CategoryId, OrganizerId, OrganizerEntityId, AvalaibleEntries, ApprovedState, IsVirtual)
-    VALUES ('2026-06-20T15:00:00', 'North Courtyard', 'Community Volunteering Fair', 'NGOs and student groups present volunteering opportunities.', @CategoryCulture, @OrganizerId, @OrganizerEntityId, 180, 1, 0);
-END;
-
-IF NOT EXISTS (SELECT 1 FROM dbo.Event WHERE Title = 'Final Projects Expo')
-BEGIN
-    INSERT INTO dbo.Event (EventDate, Place, Title, EventDescription, CategoryId, OrganizerId, OrganizerEntityId, AvalaibleEntries, ApprovedState, IsVirtual)
-    VALUES ('2026-06-28T10:00:00', 'Engineering Pavilion', 'Final Projects Expo', 'Showcase of capstone projects and innovation prototypes.', @CategoryAcademic, @OrganizerId, @OrganizerEntityId, 350, 1, 0);
-END;
-
-SELECT COUNT(*) AS TotalEvents FROM dbo.Event;
-GO
+SELECT COUNT(*) AS "TotalEvents" FROM "Event";

@@ -1,38 +1,28 @@
 services:
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sqlserver2022
+  postgres:
+    image: postgres:17-alpine
+    container_name: eventorganizer-postgres
     ports:
-      - "1433:1433"
+      - "127.0.0.1:5432:5432"
 
     environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=YourStrong1Pass
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres123
+      - POSTGRES_DB=EventOrganizer
 
     volumes:
-      - ./initdb.sql:/usr/src/app/initdb.sql:ro
-      - ./seed_events.sql:/usr/src/app/seed_events.sql:ro
-      - ./seed_users_inscriptions_attendance.sql:/usr/src/app/seed_users_inscriptions_attendance.sql:ro
-      - ./seed_massive_participation.sql:/usr/src/app/seed_massive_participation.sql:ro
-      - ./setup.sh:/usr/src/app/setup.sh
+      - postgres_data:/var/lib/postgresql/data
+      - ./initdb.sql:/docker-entrypoint-initdb.d/01_initdb.sql:ro
+      - ./seed_events.sql:/docker-entrypoint-initdb.d/02_seed_events.sql:ro
+      - ./seed_users_inscriptions_attendance.sql:/docker-entrypoint-initdb.d/03_seed_users_inscriptions_attendance.sql:ro
+      - ./seed_massive_participation.sql:/docker-entrypoint-initdb.d/04_seed_massive_participation.sql:ro
 
-    entrypoint: ["/bin/bash", "/usr/src/app/setup.sh"]
     healthcheck:
-      test:
-        [
-          "CMD",
-          "/opt/mssql-tools18/bin/sqlcmd",
-          "-S",
-          "127.0.0.1",
-          "-U",
-          "sa",
-          "-P",
-          "YourStrong1Pass",
-          "-C",
-          "-Q",
-          "SELECT 1",
-        ]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d EventOrganizer"]
       interval: 10s
       timeout: 5s
       retries: 15
       start_period: 30s
+
+volumes:
+  postgres_data:

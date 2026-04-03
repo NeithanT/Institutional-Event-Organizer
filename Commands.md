@@ -18,13 +18,13 @@ instalarse Docker
 
 Primero, tener la imagen de docker
 
-- docker pull mcr.microsoft.com/mssql/server:2022-latest
+- docker pull postgres:17-alpine
 
 Ejecutar la base de datos sin nada:
 
-- docker run -e "ACCEPT_EULA=Y"            -p 1433:1433            --name sqlserver2022            -d mcr.microsoft.com/mssql/server:2022-latest
+- docker run --name eventorganizer-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres123 -e POSTGRES_DB=EventOrganizer -p 127.0.0.1:5432:5432 -d postgres:17-alpine
 
-"Esto crea un contenedor con esa imagen, y tiene el nombre de sqlserver2022"
+"Esto crea un contenedor PostgreSQL con el nombre eventorganizer-postgres"
 
 Pueden ver los contenedores activos con:
 
@@ -32,26 +32,26 @@ Pueden ver los contenedores activos con:
 
 Entonces para detenerlo o borrar la instancia se puede:
 
-- docker stop sqlserver2022
-- docker rm sqlserver2022
+- docker stop eventorganizer-postgres
+- docker rm eventorganizer-postgres
 
 Ejecutarla con Volumes/Bind Mounts(Que se guarden los datos entre sesiones)
 
 Primero se creo, el volume(un espacio en su compu):
 
 - cd backend/database
-- docker volume create sqlservervol
+- docker volume create postgresvol
 - docker volume ls "Ver los volumen"
 
-Ahorra correr sqlserver
+Ahora correr postgres con volumen:
 
-- docker run -e "ACCEPT_EULA=Y"            -p 1433:1433            --name sqlserver2022            -d             --mount source=sqlservervol,target=/var/lib/sqlserver mcr.microsoft.com/mssql/server:2022-latest 
+- docker run --name eventorganizer-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres123 -e POSTGRES_DB=EventOrganizer -p 127.0.0.1:5432:5432 -d --mount source=postgresvol,target=/var/lib/postgresql/data postgres:17-alpine
 
 Ahora cosas para la DB:
 
 CREATE DATABASE users;
 
-USE users;
+\c users;
 
 CREATE TABLE test_table (
     somevalue VARCHAR(50)

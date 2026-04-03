@@ -1,8 +1,12 @@
-FROM mcr.microsoft.com/mssql/server:latest
+FROM postgres:17-alpine
 
-ENV ACCEPT_EULA=Y
-ENV SA_PASSWORD=YourPassword123!
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=postgres123
+ENV POSTGRES_DB=EventOrganizer
 
-EXPOSE 1433
+COPY initdb.sql /docker-entrypoint-initdb.d/01_initdb.sql
+COPY seed_events.sql /docker-entrypoint-initdb.d/02_seed_events.sql
+COPY seed_users_inscriptions_attendance.sql /docker-entrypoint-initdb.d/03_seed_users_inscriptions_attendance.sql
+COPY seed_massive_participation.sql /docker-entrypoint-initdb.d/04_seed_massive_participation.sql
 
-CMD ["/opt/mssql/bin/sqlservr"]
+EXPOSE 5432
