@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS "User" (
     "Active" BOOLEAN NOT NULL DEFAULT TRUE,
     "RoleId" INTEGER NOT NULL,
     "IdCard" INTEGER NULL,
+    "ImageFileUser" TEXT,
     CONSTRAINT "UQ_User_Email" UNIQUE ("Email"),
     CONSTRAINT "FK_User_Role" FOREIGN KEY ("RoleId") REFERENCES "Role"("Id"),
     CONSTRAINT "CK_User_UserPass_NotBlank" CHECK (LENGTH(BTRIM("UserPass")) > 0),

@@ -2,14 +2,14 @@ INSERT INTO "Role" ("RolName") VALUES ('Organizer')
 ON CONFLICT ("RolName") DO NOTHING;
 
 INSERT INTO "User" ("UserPass", "UserName", "Email", "Active", "RoleId", "IdCard")
-SELECT 'SeedPass123', 'Seed Organizer', 'organizer.seed@event.local', TRUE, r."Id", 10000001
+SELECT 'SeedPass123', 'Seed Organizer', 'organizer@itcr.ac.cr', TRUE, r."Id", 10000001
 FROM "Role" r
 WHERE r."RolName" = 'Organizer'
   AND NOT EXISTS (
-      SELECT 1 FROM "User" u WHERE u."Email" = 'organizer.seed@event.local'
+      SELECT 1 FROM "User" u WHERE u."Email" = 'organizer@itcr.ac.cr'
   );
 
-INSERT INTO "OrganizerEntity" ("EntityName") VALUES ('Institutional Events Office')
+INSERT INTO "OrganizerEntity" ("EntityName") VALUES ('Oficina de Eventos ITCR')
 ON CONFLICT ("EntityName") DO NOTHING;
 
 INSERT INTO "Category" ("NameCategory") VALUES ('Academic') ON CONFLICT ("NameCategory") DO NOTHING;
@@ -21,120 +21,70 @@ INSERT INTO "Event" (
     "EventDate", "Place", "Title", "EventDescription", "CategoryId",
     "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
 )
-SELECT TIMESTAMP '2026-04-15 09:00:00', 'Main Auditorium', 'Orientation Day 2026', 'Welcome event for new students with institutional resources overview.',
+SELECT TIMESTAMP '2026-02-16 09:00:00', 'Centro de las Artes', 'Bienvenida 2026', 'Evento de bienvenida para nuevos estudiantes con una visión general de los recursos institucionales.',
        c."Id", u."Id", oe."Id", 300, TRUE, FALSE
 FROM "Category" c
-JOIN "User" u ON u."Email" = 'organizer.seed@event.local'
-JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Institutional Events Office'
+JOIN "User" u ON u."Email" = 'organizer@itcr.ac.cr'
+JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Oficina de Eventos ITCR'
 WHERE c."NameCategory" = 'Academic'
-  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'Orientation Day 2026');
+  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'Bienvenida 2026');
 
 INSERT INTO "Event" (
     "EventDate", "Place", "Title", "EventDescription", "CategoryId",
     "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
 )
-SELECT TIMESTAMP '2026-04-22 14:00:00', 'Building B - Room 204', 'Research Methods Workshop', 'Practical workshop on qualitative and quantitative research methods.',
+SELECT TIMESTAMP '2026-04-22 14:00:00', 'B3', 'Taller Hackathon', 'Taller sobre ciberseguridad',
        c."Id", u."Id", oe."Id", 80, TRUE, TRUE
 FROM "Category" c
-JOIN "User" u ON u."Email" = 'organizer.seed@event.local'
-JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Institutional Events Office'
+JOIN "User" u ON u."Email" = 'organizer@itcr.ac.cr'
+JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Oficina de Eventos ITCR'
 WHERE c."NameCategory" = 'Academic'
-  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'Research Methods Workshop');
+  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'Taller Hackathon');
 
 INSERT INTO "Event" (
     "EventDate", "Place", "Title", "EventDescription", "CategoryId",
     "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
 )
-SELECT TIMESTAMP '2026-05-03 16:00:00', 'Central Plaza', 'Spring Cultural Festival', 'Open festival featuring music, dance, and student art displays.',
-       c."Id", u."Id", oe."Id", 500, TRUE, FALSE
-FROM "Category" c
-JOIN "User" u ON u."Email" = 'organizer.seed@event.local'
-JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Institutional Events Office'
-WHERE c."NameCategory" = 'Culture'
-  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'Spring Cultural Festival');
-
-INSERT INTO "Event" (
-    "EventDate", "Place", "Title", "EventDescription", "CategoryId",
-    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
-)
-SELECT TIMESTAMP '2026-05-10 10:00:00', 'Library Hall', 'University Book Fair', 'Book fair with publishers, talks, and reading activities.',
+SELECT TIMESTAMP '2026-05-10 10:00:00', 'Salón de la Biblioteca', 'Feria del Libro', 'Feria del libro con editoriales, charlas y actividades de lectura.',
        c."Id", u."Id", oe."Id", 250, TRUE, FALSE
 FROM "Category" c
-JOIN "User" u ON u."Email" = 'organizer.seed@event.local'
-JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Institutional Events Office'
+JOIN "User" u ON u."Email" = 'organizer@itcr.ac.cr'
+JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Oficina de Eventos ITCR'
 WHERE c."NameCategory" = 'Culture'
-  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'University Book Fair');
+  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'Feria del Libro');
 
 INSERT INTO "Event" (
     "EventDate", "Place", "Title", "EventDescription", "CategoryId",
     "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
 )
-SELECT TIMESTAMP '2026-05-18 08:30:00', 'Campus Stadium', 'Interfaculty Soccer Cup', 'Tournament between faculty teams with semifinal and final matches.',
+SELECT TIMESTAMP '2026-05-18 08:30:00', 'Cancha Campus Cartago', 'Copa de Fútbol', 'Torneo entre equipos de facultades.',
        c."Id", u."Id", oe."Id", 400, TRUE, FALSE
 FROM "Category" c
-JOIN "User" u ON u."Email" = 'organizer.seed@event.local'
-JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Institutional Events Office'
+JOIN "User" u ON u."Email" = 'organizer@itcr.ac.cr'
+JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Oficina de Eventos ITCR'
 WHERE c."NameCategory" = 'Sports'
-  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'Interfaculty Soccer Cup');
+  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'Copa de Fútbol');
 
 INSERT INTO "Event" (
     "EventDate", "Place", "Title", "EventDescription", "CategoryId",
     "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
 )
-SELECT TIMESTAMP '2026-05-25 07:00:00', 'South Gate', '5K Campus Run', 'Community 5K run with hydration points and medals.',
+SELECT TIMESTAMP '2026-05-25 07:00:00', 'Puerta Sur', 'Carrera Campus 5Km', 'Carrera alrededor del campus de 5Km.',
        c."Id", u."Id", oe."Id", 600, TRUE, FALSE
 FROM "Category" c
-JOIN "User" u ON u."Email" = 'organizer.seed@event.local'
-JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Institutional Events Office'
+JOIN "User" u ON u."Email" = 'organizer@itcr.ac.cr'
+JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Oficina de Eventos ITCR'
 WHERE c."NameCategory" = 'Sports'
-  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = '5K Campus Run');
+  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'Carrera Campus 5Km');
 
 INSERT INTO "Event" (
     "EventDate", "Place", "Title", "EventDescription", "CategoryId",
     "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
 )
-SELECT TIMESTAMP '2026-06-05 09:30:00', 'Innovation Center', 'AI for Education Summit', 'Talks and demos on responsible AI applications in education.',
+SELECT TIMESTAMP '2026-06-05 09:30:00', 'Centro de Investigacion de Computacion', 'Charla sobre IA', 'Charlas y demostraciones sobre aplicaciones de IA en educación.',
        c."Id", u."Id", oe."Id", 220, TRUE, TRUE
 FROM "Category" c
-JOIN "User" u ON u."Email" = 'organizer.seed@event.local'
-JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Institutional Events Office'
+JOIN "User" u ON u."Email" = 'organizer@itcr.ac.cr'
+JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Oficina de Eventos ITCR'
 WHERE c."NameCategory" = 'Technology'
-  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'AI for Education Summit');
-
-INSERT INTO "Event" (
-    "EventDate", "Place", "Title", "EventDescription", "CategoryId",
-    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
-)
-SELECT TIMESTAMP '2026-06-12 11:00:00', 'Building C - Lab 3', 'Cybersecurity Awareness Day', 'Hands-on sessions on password security and phishing prevention.',
-       c."Id", u."Id", oe."Id", 120, TRUE, TRUE
-FROM "Category" c
-JOIN "User" u ON u."Email" = 'organizer.seed@event.local'
-JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Institutional Events Office'
-WHERE c."NameCategory" = 'Technology'
-  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'Cybersecurity Awareness Day');
-
-INSERT INTO "Event" (
-    "EventDate", "Place", "Title", "EventDescription", "CategoryId",
-    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
-)
-SELECT TIMESTAMP '2026-06-20 15:00:00', 'North Courtyard', 'Community Volunteering Fair', 'NGOs and student groups present volunteering opportunities.',
-       c."Id", u."Id", oe."Id", 180, TRUE, FALSE
-FROM "Category" c
-JOIN "User" u ON u."Email" = 'organizer.seed@event.local'
-JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Institutional Events Office'
-WHERE c."NameCategory" = 'Culture'
-  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'Community Volunteering Fair');
-
-INSERT INTO "Event" (
-    "EventDate", "Place", "Title", "EventDescription", "CategoryId",
-    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
-)
-SELECT TIMESTAMP '2026-06-28 10:00:00', 'Engineering Pavilion', 'Final Projects Expo', 'Showcase of capstone projects and innovation prototypes.',
-       c."Id", u."Id", oe."Id", 350, TRUE, FALSE
-FROM "Category" c
-JOIN "User" u ON u."Email" = 'organizer.seed@event.local'
-JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Institutional Events Office'
-WHERE c."NameCategory" = 'Academic'
-  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'Final Projects Expo');
-
-SELECT COUNT(*) AS "TotalEvents" FROM "Event";
+  AND NOT EXISTS (SELECT 1 FROM "Event" e WHERE e."Title" = 'Charla sobre IA');

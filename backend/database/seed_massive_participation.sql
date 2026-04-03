@@ -1,12 +1,12 @@
 DO $$
 DECLARE
-    students_to_create INTEGER := 1200;
-    events_to_create INTEGER := 350;
+    students_to_create INTEGER := 300;
+    events_to_create INTEGER := 50;
     min_entries_per_event INTEGER := 80;
     max_entries_per_event INTEGER := 450;
 
-    organizer_email VARCHAR(100) := 'organizer.massive@event.local';
-    organizer_entity_name VARCHAR(50) := 'Institutional Events Office';
+    organizer_email VARCHAR(100) := 'organizer@itcr.ac.cr';
+    organizer_entity_name VARCHAR(50) := 'Oficina de Eventos ITCR';
     base_date TIMESTAMP := TIMESTAMP '2026-04-01 08:00:00';
 
     student_role_id INTEGER;
@@ -20,9 +20,11 @@ DECLARE
 BEGIN
     INSERT INTO "Role" ("RolName") VALUES ('Student') ON CONFLICT ("RolName") DO NOTHING;
     INSERT INTO "Role" ("RolName") VALUES ('Organizer') ON CONFLICT ("RolName") DO NOTHING;
+    INSERT INTO "Role" ("RolName") VALUES ('Admin') ON CONFLICT ("RolName") DO NOTHING;
 
     SELECT "Id" INTO student_role_id FROM "Role" WHERE "RolName" = 'Student' LIMIT 1;
     SELECT "Id" INTO organizer_role_id FROM "Role" WHERE "RolName" = 'Organizer' LIMIT 1;
+    SELECT "Id" INTO admin_role_id FROM "Role" WHERE "RolName" = 'Admin' LIMIT 1;
 
     INSERT INTO "OrganizerEntity" ("EntityName") VALUES (organizer_entity_name)
     ON CONFLICT ("EntityName") DO NOTHING;
@@ -33,7 +35,11 @@ BEGIN
     LIMIT 1;
 
     INSERT INTO "User" ("UserPass", "UserName", "Email", "Active", "RoleId", "IdCard")
-    SELECT 'OrganizerPass123', 'Massive Organizer', organizer_email, TRUE, organizer_role_id, 91000001
+    VALUES ('admin123!', 'admin', 'admin@itcr.ac.cr', TRUE, admin_role_id, 2000000000)
+    ON CONFLICT ("Email") DO NOTHING;
+
+    INSERT INTO "User" ("UserPass", "UserName", "Email", "Active", "RoleId", "IdCard")
+    SELECT 'Organizer123!', 'Main Organizer', organizer_email, TRUE, organizer_role_id, 91000001
     WHERE NOT EXISTS (
         SELECT 1 FROM "User" u WHERE u."Email" = organizer_email
     );
@@ -51,8 +57,8 @@ BEGIN
         INSERT INTO "User" ("UserPass", "UserName", "Email", "Active", "RoleId", "IdCard")
         VALUES (
             'StudentPass123',
-            'Load Student ' || i,
-            'load.student.' || i || '@event.local',
+            'Student ' || i,
+            'student' || i || '@estudiantec.cr',
             TRUE,
             student_role_id,
             93000000 + i
@@ -113,7 +119,7 @@ BEGIN
         INSERT INTO "Inscriptions" ("EventId", "UserId")
         SELECT event_row."Id", u."Id"
         FROM "User" u
-        WHERE u."Email" LIKE 'load.student.%@event.local'
+        WHERE u."Email" LIKE 'student.%@estudiantec.cr'
         ORDER BY md5(event_row."Id"::TEXT || '-' || u."Id"::TEXT)
         LIMIT target_inscriptions
         ON CONFLICT ("EventId", "UserId") DO NOTHING;
@@ -144,15 +150,6 @@ BEGIN
           FROM "Announcement" a
           WHERE a."Title" = 'Massive bulletin #' || e."Id"
       );
-    
-    INSERT INTO "User" ("UserPass", "UserName", "Email", "Active", "RoleId", "IdCard")
-    VALUES ('admin123!', 'admin', 'admin@itcr.ac.cr', TRUE, organizer_role_id, 2000000000)
-    ON CONFLICT ("Email") DO NOTHING;
+
 END
 $$;
-
-SELECT COUNT(*) AS "TotalUsers" FROM "User";
-SELECT COUNT(*) AS "TotalEvents" FROM "Event";
-SELECT COUNT(*) AS "TotalInscriptions" FROM "Inscriptions";
-SELECT COUNT(*) AS "TotalAttendance" FROM "Attendance";
-SELECT COUNT(*) AS "TotalAnnouncements" FROM "Announcement";
