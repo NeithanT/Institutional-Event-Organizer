@@ -1,0 +1,57 @@
+<app-navbar />
+
+<section class="hero">
+  <div class="hero-content">
+    <h1>ANUNCIOS</h1>
+    <a class="back-link" routerLink="/user">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </a>
+  </div>
+  <div class="hero-right">
+    <div class="hero-filters">
+      <label>Fecha</label>
+      <select (change)="setDate($any($event.target).value)">
+        <option value="">Todas</option>
+        <option value="19 de febrero 2026">19 de febrero 2026</option>
+        <option value="01 de marzo 2026">01 de marzo 2026</option>
+        <option value="05 de marzo 2026">05 de marzo 2026</option>
+        <option value="10 de marzo 2026">10 de marzo 2026</option>
+        <option value="15 de marzo 2026">15 de marzo 2026</option>
+      </select>
+      <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </div>
+    <div class="hero-logo">
+      <img src="logos/logotec55.jpg" alt="TEC 55 años" />
+    </div>
+  </div>
+</section>
+
+<main class="content">
+
+  @if (pagedAnnouncements().length === 0) {
+    <div class="empty-state">No hay anuncios disponibles.</div>
+  }
+
+  @for (ann of pagedAnnouncements(); track ann.id) {
+    <article class="ann-card">
+      <h2 class="ann-title">{{ ann.title }}</h2>
+      <p class="ann-date">Fecha de publicación: {{ ann.date }}</p>
+      <a class="btn-ver-mas" [routerLink]="['/announcements', ann.id]">Ver más</a>
+    </article>
+  }
+
+  @if (totalPages() > 1) {
+    <div class="pagination">
+      <button class="page-btn" (click)="prevPage()" [disabled]="currentPage() === 1">&#8592; Anterior</button>
+      <span class="page-info">{{ currentPage() }} / {{ totalPages() }}</span>
+      <button class="page-btn" (click)="nextPage()" [disabled]="currentPage() === totalPages()">Siguiente &#8594;</button>
+    </div>
+  }
+
+</main>
+
+<app-footer />
