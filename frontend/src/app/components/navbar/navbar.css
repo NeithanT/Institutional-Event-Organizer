@@ -46,3 +46,11 @@
   cursor: pointer;
   color: white;
 }
+.navbar-icons a {
+  color: white;
+  transition: opacity 0.2s;
+}
+
+.navbar-icons a:hover {
+  opacity: 0.7;
+}

@@ -1,0 +1,134 @@
+<app-navbar />
+
+<!-- Hero -->
+<section class="profile-hero">
+  <div class="hero-left">
+    <img
+      class="profile-avatar"
+      [src]="editMode() ? previewFoto() : user().foto"
+      [alt]="user().nombre"
+      onerror="this.src='https://ui-avatars.com/api/?name=User&background=1a3a5c&color=fff&size=128'"
+    />
+    <div class="profile-name">
+      <span class="name-first">{{ user().nombre }} {{ user().apellidos.split(' ')[0] }}</span>
+      <span class="name-last"> {{ user().apellidos.split(' ')[1] }}</span>
+    </div>
+  </div>
+  <div class="hero-logo">
+    <img src="logos/logotec55.jpg" alt="TEC 55 años" />
+  </div>
+</section>
+
+<!-- Card vista normal -->
+@if (!editMode()) {
+  <main class="profile-content">
+    <div class="profile-card">
+      <h2 class="card-title">Mi cuenta</h2>
+
+      <div class="info-grid">
+        <div class="info-col">
+          <div class="info-item">
+            <span class="info-label">Correo</span>
+            <span class="info-value">{{ user().correo }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Carnet</span>
+            <span class="info-value">{{ user().carnet }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Contraseña</span>
+            <span class="info-value">{{ user().contrasena }}</span>
+          </div>
+        </div>
+
+        <div class="info-col">
+          <div class="info-item">
+            <span class="info-label">Lenguaje</span>
+            <span class="info-value">{{ user().lenguaje }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Biografia</span>
+            <span class="info-value bio-text">{{ user().biografia }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn-edit" (click)="startEdit()">Editar</button>
+      </div>
+    </div>
+  </main>
+}
+
+<!-- Card vista editar -->
+@if (editMode()) {
+  <main class="profile-content">
+    <div class="profile-card">
+      <h2 class="card-title">Mi cuenta</h2>
+
+      <div class="edit-grid">
+        <!-- Columna izquierda -->
+        <div class="edit-col">
+          <div class="avatar-upload">
+            <img
+              class="edit-avatar"
+              [src]="previewFoto()"
+              alt="foto perfil"
+              onerror="this.src='https://ui-avatars.com/api/?name=User&background=1a3a5c&color=fff&size=128'"
+            />
+            <label class="upload-label" for="fotoInput">Subir una imagen</label>
+            <input
+              id="fotoInput"
+              type="file"
+              accept="image/*"
+              class="file-input"
+              (change)="onFotoChange($event)"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Contraseña</label>
+            <input
+              type="password"
+              class="form-input"
+              placeholder="Nueva contraseña"
+              (input)="updateField('contrasena', $any($event.target).value)"
+            />
+          </div>
+        </div>
+
+        <!-- Columna derecha -->
+        <div class="edit-col">
+          <div class="form-group">
+            <label class="form-label">Lenguaje</label>
+            <select
+              class="form-select"
+              [value]="editData().lenguaje"
+              (change)="updateField('lenguaje', $any($event.target).value)"
+            >
+              <option>Español</option>
+              <option>English</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Biografia</label>
+            <textarea
+              class="form-textarea"
+              [value]="editData().biografia"
+              (input)="updateField('biografia', $any($event.target).value)"
+              rows="8"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn-cancel" (click)="cancelEdit()">Cancelar</button>
+        <button class="btn-edit" (click)="saveEdit()">Editar</button>
+      </div>
+    </div>
+  </main>
+}
+
+<app-footer />
