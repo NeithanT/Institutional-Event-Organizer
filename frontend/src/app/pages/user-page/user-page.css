@@ -18,9 +18,7 @@
   min-height: 280px;
 }
 
-.hero-content {
-  flex: 1;
-}
+.hero-content { flex: 1; }
 
 .hero-logo img {
   height: 120px;
@@ -28,7 +26,11 @@
   opacity: 0.95;
 }
 
-.section-title {
+/* =====================
+   TÍTULOS NAVEGABLES
+===================== */
+a.section-title {
+  display: block;
   text-align: center;
   font-size: 1.4rem;
   font-weight: 700;
@@ -36,7 +38,26 @@
   text-decoration: underline;
   margin-bottom: 1.2rem;
   letter-spacing: 1px;
+  cursor: pointer;
+  transition: color 0.2s;
 }
+
+a.section-title:hover { color: #a8d4f5; }
+
+a.section-title-dark {
+  display: block;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a3a5c;
+  text-decoration: underline;
+  margin: 0 0 1.2rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+a.section-title-dark:hover { color: #2a5f8f; }
 
 /* =====================
    ANNOUNCEMENTS GRID
@@ -103,16 +124,6 @@
   background: white;
 }
 
-.section-title-dark {
-  text-align: center;
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #1a3a5c;
-  text-decoration: underline;
-  margin: 0 0 1.2rem;
-  letter-spacing: 1px;
-}
-
 .events-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -134,9 +145,7 @@
   transition: transform 0.3s;
 }
 
-.event-card:hover .event-img {
-  transform: scale(1.03);
-}
+.event-card:hover .event-img { transform: scale(1.03); }
 
 .event-overlay {
   position: absolute;
@@ -171,6 +180,4 @@
   white-space: nowrap;
 }
 
-.btn-ver-mas-event:hover {
-  background: rgba(255,255,255,0.35);
-}
+.btn-ver-mas-event:hover { background: rgba(255,255,255,0.35); }

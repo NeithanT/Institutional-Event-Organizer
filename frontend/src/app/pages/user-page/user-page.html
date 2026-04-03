@@ -4,7 +4,7 @@
   <!-- ANUNCIOS -->
   <section class="hero">
     <div class="hero-content">
-      <h2 class="section-title">ANUNCIOS</h2>
+      <a class="section-title" routerLink="/announcements">ANUNCIOS</a>
       <div class="announcements-grid">
         @for (anuncio of anuncios; track anuncio.id) {
           <div class="announcement-card">
@@ -21,7 +21,7 @@
 
   <!-- EVENTOS -->
   <section class="events-section">
-    <h2 class="section-title-dark">Eventos</h2>
+    <a class="section-title-dark" routerLink="/events">Eventos</a>
     <div class="events-grid">
       @for (evento of eventos; track evento.id) {
         <div class="event-card">
