@@ -68,9 +68,13 @@ export class LoginPage {
       });
 
       if (!response.ok) {
-        this.loginError = response.status === 400
-          ? await this.readResponseMessage(response, INSTITUTIONAL_EMAIL_MESSAGE)
-          : 'Correo o contraseña incorrectos.';
+        const defaultMessage = response.status === 400
+          ? INSTITUTIONAL_EMAIL_MESSAGE
+          : response.status === 401
+            ? 'Correo o contraseña incorrectos.'
+            : 'No se pudo completar la autenticación.';
+
+        this.loginError = await this.readResponseMessage(response, defaultMessage);
         this.cdr.detectChanges();
         return;
       }
@@ -122,17 +126,14 @@ export class LoginPage {
       });
 
       if (!response.ok) {
-        const errorBody = await this.readResponseMessage(response, 'No se pudo completar el registro.');
-        console.error('Register failed', response.status, response.statusText, errorBody);
+        const errorBody = await this.readResponseMessage(
+          response,
+          response.status === 409 ? 'Ese correo ya está registrado.' : 'No se pudo completar el registro.'
+        );
 
-        if (response.status === 409) {
-          this.registerError = 'Ese correo ya está registrado.';
-        } else if (response.status === 400) {
-          this.registerError = errorBody;
-        } else {
-          this.registerError = 'No se pudo completar el registro.';
-        }
+        this.registerError = errorBody;
         this.registerSuccess = '';
+        this.cdr.detectChanges();
         return;
       }
 
@@ -140,6 +141,7 @@ export class LoginPage {
       this.authService.setAuthenticationState(data.role ?? data.rol);
       this.registerError = '';
       this.registerSuccess = 'Cuenta creada correctamente.';
+      this.cdr.detectChanges();
 
       this.registerForm.reset();
       this.onCancel();
@@ -148,6 +150,7 @@ export class LoginPage {
       console.error('Error en el registro', error);
       this.registerError = 'No se pudo conectar con el servidor.';
       this.registerSuccess = '';
+      this.cdr.detectChanges();
     }
   }
 
@@ -173,23 +176,13 @@ export class LoginPage {
 
   private async readResponseMessage(response: Response, fallbackMessage: string): Promise<string> {
     try {
-      const body = await response.clone().json();
-      if (typeof body?.message === 'string' && body.message.trim()) {
-        return body.message;
+      const body = await response.json();
+      if (body && typeof body.message === 'string' && body.message.trim()) {
+        return body.message.trim();
       }
-
-      if (typeof body?.Message === 'string' && body.Message.trim()) {
-        return body.Message;
-      }
-
-      return fallbackMessage;
     } catch {
-      try {
-        const text = await response.clone().text();
-        return text.trim() || fallbackMessage;
-      } catch {
-        return fallbackMessage;
-      }
     }
+
+    return fallbackMessage;
   }
 }

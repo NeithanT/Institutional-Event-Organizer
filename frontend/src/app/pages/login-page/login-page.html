@@ -6,6 +6,7 @@
       <app-login-logo></app-login-logo>
 
       <div class="register-section">
+
         <h2><strong>Registro de Cuenta</strong></h2>
 
         <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
@@ -88,15 +89,17 @@
           <div class="button-group">
             <button type="button" class="btn primary" (click)="toggleRegister()">Registrar Cuenta</button>
             <button type="submit" class="btn primary">Iniciar Sesión</button>
-            <a class="help-link">¿Tiene problemas para acceder?</a>
-          </div>
-
-          <div class="error-container">
-            @if (loginError) {
-              <p class="error-message">{{ loginError }}</p>
-            }
           </div>
         </form>
+
+        <div>
+            <div class="error-container">
+              @if (loginError) {
+                <p class="error-message">{{ loginError }}</p>
+              }
+            </div>
+            <a class="help-link">¿Tiene problemas para acceder?</a>
+        </div>
       </div>
 
       <!-- DERECHA -->

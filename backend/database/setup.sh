@@ -11,8 +11,10 @@ PGDATABASE="${PGDATABASE:-EventOrganizer}"
 export PGPASSWORD
 
 psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -v ON_ERROR_STOP=1 -f "$(dirname "$0")/initdb.sql"
-psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -v ON_ERROR_STOP=1 -f "$(dirname "$0")/seed_events.sql"
-psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -v ON_ERROR_STOP=1 -f "$(dirname "$0")/seed_users_inscriptions_attendance.sql"
-psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -v ON_ERROR_STOP=1 -f "$(dirname "$0")/seed_massive_participation.sql"
+psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -v ON_ERROR_STOP=1 -f "$(dirname "$0")/create_users.sql"
+psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -v ON_ERROR_STOP=1 -f "$(dirname "$0")/create_events.sql"
+psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -v ON_ERROR_STOP=1 -f "$(dirname "$0")/create_inscriptions.sql"
+psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -v ON_ERROR_STOP=1 -f "$(dirname "$0")/create_attendance.sql"
+psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -v ON_ERROR_STOP=1 -f "$(dirname "$0")/create_announcements.sql"
 
 echo "PostgreSQL schema and seed scripts applied successfully."

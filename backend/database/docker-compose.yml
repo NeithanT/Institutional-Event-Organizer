@@ -12,11 +12,13 @@ services:
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./initdb.sql:/docker-entrypoint-initdb.d/01_initdb.sql:ro
-      - ./seed_events.sql:/docker-entrypoint-initdb.d/02_seed_events.sql:ro
-      - ./seed_users_inscriptions_attendance.sql:/docker-entrypoint-initdb.d/03_seed_users_inscriptions_attendance.sql:ro
-      - ./seed_massive_participation.sql:/docker-entrypoint-initdb.d/04_seed_massive_participation.sql:ro
-
+      - ./initdb.sql:/docker-entrypoint-initdb.d/00_initdb.sql:ro
+      - ./create_users.sql:/docker-entrypoint-initdb.d/01_create_users.sql:ro
+      - ./create_events.sql:/docker-entrypoint-initdb.d/02_create_events.sql:ro
+      - ./create_inscriptions.sql:/docker-entrypoint-initdb.d/03_create_inscriptions.sql:ro
+      - ./create_attendance.sql:/docker-entrypoint-initdb.d/04_create_attendance.sql:ro
+      - ./create_announcements.sql:/docker-entrypoint-initdb.d/05_create_announcements.sql:ro
+      
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d EventOrganizer"]
       interval: 10s
