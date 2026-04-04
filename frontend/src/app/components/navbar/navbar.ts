@@ -1,4 +1,4 @@
-import { Component, signal, HostListener, Inject } from '@angular/core';
+import { Component, signal, HostListener, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Authentication, AuthenticationState } from '../../services/authentication';
 
@@ -11,24 +11,26 @@ import { Authentication, AuthenticationState } from '../../services/authenticati
 })
 export class Navbar {
 
-  router: Router = Inject(Router);
-  AuthenticationService: Authentication = Inject(Authentication);
+  router: Router = inject(Router);
+  authenticationService: Authentication = inject(Authentication);
   navbarLinks: { label: string; route: string }[] = [];
 
   constructor() {
-    if (this.AuthenticationService.authenticatedState == AuthenticationState.None) {
+    if (this.authenticationService.authenticatedState === AuthenticationState.None) {
       this.router.navigate(['']);
     }
 
     this.navbarLinks = [
+      { label: 'Inicio', route: '/user' },
       { label: 'Eventos', route: '/events' },
-      { label: 'Mis Eventos', route: '/myevents' },
+      { label: 'Inscripciones', route: '/inscripciones' },
     ];
 
-    if (this.AuthenticationService.authenticatedState == AuthenticationState.Admin) {
+    if (this.authenticationService.authenticatedState === AuthenticationState.Admin) {
+      console.log('User is admin, adding admin links to navbar');
       this.navbarLinks.push({ label: 'Crear Evento', route: '/create-event' });
       this.navbarLinks.push({ label: 'Administrar', route: '/admin' });
-    } else if (this.AuthenticationService.authenticatedState == AuthenticationState.Organizer) {
+    } else if (this.authenticationService.authenticatedState === AuthenticationState.Organizer) {
       this.navbarLinks.push({ label: 'Crear Evento', route: '/create-event' });
     }
 
