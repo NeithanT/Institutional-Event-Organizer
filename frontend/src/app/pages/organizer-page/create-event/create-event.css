@@ -3,22 +3,8 @@
   height: 100vh;
 }
 
-/* SIDEBAR */
-.sidebar {
-  width: 350px;
-  background-color: #0f3d66;
-}
-
-/* CONTENIDO */
-.content {
-  flex: 1;
-  background-color: #f3f4f6;
-}
-
-/* CARD */
-.form-card {
-  width: 900px;
-  border-radius: 10px;
+.sidebar-wrapper {
+  flex: 0 0 350px;
 }
 
 /* LINKS SIDEBAR */

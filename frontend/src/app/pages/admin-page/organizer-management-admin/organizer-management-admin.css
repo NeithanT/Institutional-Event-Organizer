@@ -1,0 +1,14 @@
+.admin-section {
+	max-width: 1000px;
+}
+
+.card {
+	border-radius: 12px;
+}
+
+th {
+	font-size: 0.85rem;
+	color: #6b7280;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+}

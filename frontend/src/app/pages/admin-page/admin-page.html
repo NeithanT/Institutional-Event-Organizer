@@ -1,1 +1,6 @@
-<p>admin-page works!</p>
+<div class="main-container d-flex">
+  <app-sidebar class="sidebar-wrapper" [links]="sidebarLinks"></app-sidebar>
+  <div class="content p-4 overflow-auto">
+    <router-outlet></router-outlet>
+  </div>
+</div>

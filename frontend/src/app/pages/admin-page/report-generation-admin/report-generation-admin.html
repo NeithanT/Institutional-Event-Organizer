@@ -1,0 +1,23 @@
+<section class="admin-section">
+	<header class="mb-4">
+		<h2 class="fw-bold mb-1">Generacion de reportes</h2>
+		<p class="text-muted mb-0">Listado de reportes disponibles del sistema.</p>
+	</header>
+
+	<div class="card border-0 shadow-sm p-3 p-md-4">
+		<div class="report-item" *ngFor="let report of reports">
+			<div>
+				<h6 class="mb-1 fw-semibold">{{ report.title }}</h6>
+				<small class="text-muted">Generado: {{ report.generatedAt }}</small>
+			</div>
+			<div class="d-flex align-items-center gap-2">
+				<span class="badge" [class.bg-success]="report.status === 'Listo'" [class.bg-warning]="report.status === 'En progreso'">
+					{{ report.status }}
+				</span>
+				<button class="btn btn-outline-primary btn-sm" [disabled]="report.status !== 'Listo'">
+					Ver
+				</button>
+			</div>
+		</div>
+	</div>
+</section>
