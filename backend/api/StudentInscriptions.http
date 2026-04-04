@@ -1,0 +1,16 @@
+@baseUrl = http://localhost:5053
+
+### Listar inscripciones de un usuario
+GET {{baseUrl}}/api/inscripciones?userId=5
+
+### Inscribirse a un evento
+POST {{baseUrl}}/api/inscripciones
+Content-Type: application/json
+
+{
+    "eventId": 6,
+    "userId": 5
+}
+
+### Desinscribirse de un evento
+DELETE {{baseUrl}}/api/inscripciones/6?userId=5
