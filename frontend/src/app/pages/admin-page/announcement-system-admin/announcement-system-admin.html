@@ -5,27 +5,15 @@
 	</header>
 
 	<div class="card border-0 shadow-sm p-3 p-md-4">
-		<form (ngSubmit)="submitAnnouncement()">
+		<form>
 			<div class="row g-3">
 				<div class="col-md-8">
 					<label class="form-label">Titulo</label>
 					<input class="form-control" type="text" name="title" [(ngModel)]="form.title" required>
 				</div>
 				<div class="col-md-4">
-					<label class="form-label">Categoria</label>
-					<select class="form-select" name="category" [(ngModel)]="form.category">
-						<option>General</option>
-						<option>Academico</option>
-						<option>Urgente</option>
-					</select>
-				</div>
-				<div class="col-md-6">
-					<label class="form-label">Audiencia</label>
-					<select class="form-select" name="audience" [(ngModel)]="form.audience">
-						<option>Comunidad universitaria</option>
-						<option>Solo organizadores</option>
-						<option>Solo estudiantes</option>
-					</select>
+				<label class="form-label">About</label>
+				<input class="form-control" type="text" name="about" [(ngModel)]="form.about" required>
 				</div>
 				<div class="col-12">
 					<label class="form-label">Contenido</label>
@@ -34,12 +22,14 @@
 			</div>
 
 			<div class="d-flex justify-content-end mt-4">
-				<button class="btn btn-primary" type="submit">Enviar anuncio</button>
+				<button class="btn btn-primary" type="button" (click)="submitAnnouncement()">Enviar anuncio</button>
 			</div>
 		</form>
 
-		<div *ngIf="sent" class="alert alert-success mt-3 mb-0" role="alert">
-			Diseno listo: anuncio preparado para envio (sin integracion API).
-		</div>
+		@if (sent) {
+			<div class="alert alert-success mt-3 mb-0" role="alert">
+				Anuncio enviado correctamente.
+			</div>
+		}
 	</div>
 </section>
