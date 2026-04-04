@@ -1,0 +1,13 @@
+@baseUrl = http://localhost:5053
+
+### Listar todos los anuncios
+GET {{baseUrl}}/api/anuncios
+
+### Filtrar por fecha
+GET {{baseUrl}}/api/anuncios?date=2026-02-16
+
+### Detalle de un anuncio
+GET {{baseUrl}}/api/anuncios/1
+
+### Anuncio inexistente (404)
+GET {{baseUrl}}/api/anuncios/9999
