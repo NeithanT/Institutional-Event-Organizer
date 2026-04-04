@@ -15,10 +15,10 @@ public static class EventEndpoint
     public static void mapOrganizerEventEndpoints(WebApplication app)
     {
         //Get all the events from the Events Table (Doesnt fetch the Canceled Events)
-        app.MapGet("organizer/my-events/all", async (DtoGetMyEvents dto, EventOrganizerContext db) =>
+        app.MapGet("organizer/my-events/all", async ([FromQuery] int organizerId, EventOrganizerContext db) =>
         {
             var events = await db.Events
-                        .Where(e => e.OrganizerEntityId == dto.OrganizerId)
+                        .Where(e => e.OrganizerEntityId == organizerId)
                         .ToListAsync();
 
             return Results.Ok(events);
@@ -27,14 +27,14 @@ public static class EventEndpoint
         //##################################################################################
 
         //Get all the events from the Events Table (Doesnt fetch the Canceled Events)
-        app.MapGet("organizer/my-events", async (DtoGetMyEvents dto, EventOrganizerContext db) =>
+        app.MapGet("organizer/my-events", async ([FromQuery] int organizerId, EventOrganizerContext db) =>
         {
             var availableEvents = await db.Events
                                 .Include(a => a.CanceledEvent)
                                 .Where(ev =>
                                     !db.CanceledEvents.Any(c => c.EventId == ev.Id)
                                     &&
-                                    ev.OrganizerEntityId == dto.OrganizerId
+                                    ev.OrganizerEntityId == organizerId
                                 ).
                                 ToListAsync();
             return Results.Ok(availableEvents);
@@ -44,11 +44,11 @@ public static class EventEndpoint
         //##################################################################################
 
         //Gets the information for an specific event from the Events Table
-        app.MapGet("organizer/my-events/{id}", async (DtoGetMyEvents dto, int id, EventOrganizerContext db) =>
+        app.MapGet("organizer/my-events/{id}", async ([FromQuery] int organizerId, [FromRoute] int id, EventOrganizerContext db) =>
         {
             Event? ev = await db.Events.FindAsync(id);
             if (ev == null) return Results.NotFound("Event not found");
-            if (ev.OrganizerEntityId != dto.OrganizerId) return Results.Unauthorized();
+            if (ev.OrganizerEntityId != organizerId) return Results.Unauthorized();
             return Results.Ok(ev);
 
         });
@@ -181,18 +181,15 @@ public static class EventEndpoint
             await db.Announcements.AddAsync(announcement);
             await db.SaveChangesAsync();
 
-            var enrolledPeople = await db.Inscriptions
+            var enrolledEmails = await db.Inscriptions
             .Where(insc => insc.EventId == id)
-            .Select(u => u.User)
+            .Select(u => u.User.Email)
             .ToListAsync();
 
-            foreach (var user in enrolledPeople)
-            {
-                await mailService.SendEmailAsync(user.Email,
-                $"ANNOUNCEMENT: {announcement.Title}",
-                $"{announcement.Body}");
-
-            }
+            var emailTasks = enrolledEmails.Select(email =>
+                    mailService.SendEmailAsync(email, $"ANNOUNCEMENT: {announcement.Title}", announcement.Body)
+                );
+            _ = Task.WhenAll(emailTasks);
 
             return Results.Ok("Announcement send correctly");
         });
@@ -200,11 +197,14 @@ public static class EventEndpoint
 
         //##################################################################################
         //Deletes an event from the Events Table
-        app.MapDelete("organizer/events/{id}", async (DtoDeleteEvent dto, int id, EventOrganizerContext db) =>
+        app.MapDelete("organizer/events/{id}", async (
+            [FromRoute] int id,
+            [FromQuery] int organizerId,
+            [FromServices] EventOrganizerContext db) =>
         {
             Event? ev = await db.Events.FindAsync(id);
             if (ev == null) return Results.NotFound();
-            if (ev.OrganizerEntityId != dto.OrganizerId) return Results.Unauthorized();
+            if (ev.OrganizerEntityId != organizerId) return Results.Unauthorized();
             {
                 db.Events.Remove(ev);
                 await db.SaveChangesAsync();
