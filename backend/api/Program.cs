@@ -27,6 +27,7 @@ builder.Services.AddDbContext<EventOrganizerContext>(
     }
 );
 builder.Services.AddScoped<IEmailService, GmailApiService>();
+builder.Services.AddScoped<IEventService, EventService>();
 
 
 // CORS: allow everything (use only in development / local testing)
@@ -51,6 +52,8 @@ builder.Services.AddOpenApiDocument(config =>
     config.Title = "Event API";
     config.Version = "v1";
 });
+
+
 
 var app = builder.Build();
 
@@ -111,5 +114,7 @@ AdministratorUtilitiesEndpoint.mapAdministratorUtilitiesEndpoint(app);
 OrganizerEntityEndpoint.mapOrganizerEntityEndpoints(app);
 
 OrganizerCategoriesEndpoint.mapOrganizerCategoriesEndpoint(app);
+
+StudentEventEndpoint.mapStudentEventEndpoints(app);
 
 app.Run();
