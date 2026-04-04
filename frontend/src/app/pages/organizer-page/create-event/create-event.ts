@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-
 import { CommonModule } from '@angular/common';
+import { Sidebar } from '../../../components/sidebar/sidebar';
 
 @Component({
   selector: 'app-create-event',
   standalone: true,
-  imports: [FormsModule, CommonModule], 
+  imports: [FormsModule, CommonModule, Sidebar], 
   templateUrl: './create-event.html',
   styleUrl: './create-event.css'
 })
@@ -25,6 +25,11 @@ export class CreateEvent implements OnInit {
   organizerEntityId: number = 0;
 
   selectedFile: File | null = null;
+
+  sidebarLinks = [
+    { label: 'Crear Eventos', route: '/create-event' },
+    { label: 'Mis Eventos', route: '/events' }
+  ];
 
   // lista dinámica desde backend
   organizerEntities: any[] = [];

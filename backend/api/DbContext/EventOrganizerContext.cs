@@ -63,6 +63,11 @@ public partial class EventOrganizerContext : DbContext
                 .HasForeignKey(d => d.WriterId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Announcement_User");
+
+            entity.HasOne(d => d.Event).WithMany()
+                .HasForeignKey(d => d.EventId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Announcement_Event");
         });
 
         modelBuilder.Entity<Attendance>(entity =>

@@ -81,8 +81,9 @@ export class LoginPage {
 
       const data = await response.json();
       this.authService.setAuthenticationState(
-        data.roleName
+        data.roleName ?? data.RoleName ?? data.role ?? data.rol
       );
+      this.authService.setUserId(data.id ?? data.Id ?? 0);
       this.loginError = '';
 
       await this.router.navigate(['/user']);
@@ -140,7 +141,8 @@ export class LoginPage {
       }
 
       const data = await response.json();
-      this.authService.setAuthenticationState(data.role ?? data.rol);
+      this.authService.setAuthenticationState(data.role ?? data.rol ?? 'user');
+      this.authService.setUserId(data.id ?? data.Id ?? 0);
       this.registerError = '';
       this.registerSuccess = 'Cuenta creada correctamente.';
       this.cdr.detectChanges();
