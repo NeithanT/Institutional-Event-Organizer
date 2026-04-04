@@ -167,7 +167,7 @@ public static class EventEndpoint
         {
             Event? ev = await db.Events.FindAsync(id);
             if (ev == null) return Results.NotFound();
-            if (ev.OrganizerEntityId != noticeData.WriterId)
+            if (ev.OrganizerId != noticeData.WriterId)
                 return Results.Unauthorized();
 
             Announcement announcement = new Announcement
