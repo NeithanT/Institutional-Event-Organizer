@@ -1,0 +1,25 @@
+@baseUrl = http://localhost:5053
+
+### Listar todos los eventos aprobados
+GET {{baseUrl}}/api/events
+
+### Filtrar por categoria
+GET {{baseUrl}}/api/events?category=Academico
+
+### Filtrar por modalidad virtual
+GET {{baseUrl}}/api/events?modality=virtual
+
+### Filtrar por entidad organizadora
+GET {{baseUrl}}/api/events?organizerEntity=Oficina de Eventos ITCR
+
+### Filtrar por fecha exacta
+GET {{baseUrl}}/api/events?date=2026-04-22
+
+### Combinar filtros
+GET {{baseUrl}}/api/events?category=Deportivo&modality=presencial
+
+### Detalle de un evento
+GET {{baseUrl}}/api/events/1
+
+### Evento inexistente (404)
+GET {{baseUrl}}/api/events/9999
