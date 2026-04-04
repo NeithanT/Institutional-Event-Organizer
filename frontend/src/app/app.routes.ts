@@ -56,7 +56,34 @@ export const routes: Routes = [
     canActivate: [AuthenticationGuard],
     data: {
       allowedRoles: [AuthenticationState.Admin]
-    }
+    },
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'event-approval'
+      },
+      {
+        path: 'event-approval',
+        loadComponent: () => import('./pages/admin-page/event-approval-admin/event-approval-admin').then(m => m.EventApprovalAdmin)
+      },
+      {
+        path: 'report-generation',
+        loadComponent: () => import('./pages/admin-page/report-generation-admin/report-generation-admin').then(m => m.ReportGenerationAdmin)
+      },
+      {
+        path: 'announcement-system',
+        loadComponent: () => import('./pages/admin-page/announcement-system-admin/announcement-system-admin').then(m => m.AnnouncementSystemAdmin)
+      },
+      {
+        path: 'organizer-management',
+        loadComponent: () => import('./pages/admin-page/organizer-management-admin/organizer-management-admin').then(m => m.OrganizerManagementAdmin)
+      },
+      {
+        path: 'content-moderation',
+        loadComponent: () => import('./pages/admin-page/content-moderation-admin/content-moderation-admin').then(m => m.ContentModerationAdmin)
+      }
+    ]
   },
 ];
 

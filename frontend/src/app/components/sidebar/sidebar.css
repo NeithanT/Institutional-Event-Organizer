@@ -1,0 +1,19 @@
+:host {
+  display: block;
+}
+
+.sidebar {
+  width: 100%;
+  max-width: 350px;
+  background-color: #0f3d66;
+  min-height: 100vh;
+}
+
+.logo-img {
+  max-width: 220px;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  text-decoration: underline;
+}

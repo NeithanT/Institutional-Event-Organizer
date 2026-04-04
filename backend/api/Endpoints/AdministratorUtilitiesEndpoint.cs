@@ -70,6 +70,50 @@ public static class AdministratorUtilitiesEndpoint
 
 
         //##############################################################################################################
+        app.MapGet("/administrator/users/grouped", async (EventOrganizerContext db) =>
+        {
+            var organizerRole = await db.Roles.FirstOrDefaultAsync(r => r.RolName == "Organizer");
+            var studentRole = await db.Roles.FirstOrDefaultAsync(r => r.RolName == "Student");
+
+            if (organizerRole == null || studentRole == null)
+                return Results.Problem("Required roles are not configured on the server", statusCode: 500);
+
+            var organizers = await db.Users
+                .Include(u => u.Role)
+                .Where(u => u.RoleId == organizerRole.Id)
+                .OrderBy(u => u.UserName)
+                .Select(user => new DtoUserInformation
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    Role = user.Role.RolName,
+                    UserName = user.UserName,
+                    EventsCreated = db.Events.Count(e => e.OrganizerId == user.Id),
+                    Active = user.Active,
+                    IdCard = user.IdCard
+                })
+                .ToListAsync();
+
+            var students = await db.Users
+                .Include(u => u.Role)
+                .Where(u => u.RoleId == studentRole.Id)
+                .OrderBy(u => u.UserName)
+                .Select(user => new DtoUserInformation
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    Role = user.Role.RolName,
+                    UserName = user.UserName,
+                    EventsCreated = db.Events.Count(e => e.OrganizerId == user.Id),
+                    Active = user.Active,
+                    IdCard = user.IdCard
+                })
+                .ToListAsync();
+
+            return Results.Ok(new { Organizers = organizers, Students = students });
+        });
+
+        //##############################################################################################################
         app.MapPost("/administrator/change-rol/to-organizer/{id:int}", async (int id, EventOrganizerContext db) =>
         {
 
@@ -124,6 +168,41 @@ public static class AdministratorUtilitiesEndpoint
             return Results.Ok("The user has been downgraded to a student");
 
         });
+
+        //##############################################################################################################
+        app.MapPost("/administrator/set-active/{id:int}", async (int id, EventOrganizerContext db) =>
+        {
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
+                return Results.NotFound("User not found");
+
+            if (user.Active)
+                return Results.BadRequest("User is already active");
+
+            user.Active = true;
+            await db.SaveChangesAsync();
+
+            return Results.Ok("The user has been activated");
+        });
+
+        //##############################################################################################################
+        app.MapPost("/administrator/set-inactive/{id:int}", async (int id, EventOrganizerContext db) =>
+        {
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
+                return Results.NotFound("User not found");
+
+            if (!user.Active)
+                return Results.BadRequest("User is already inactive");
+
+            user.Active = false;
+            await db.SaveChangesAsync();
+
+            return Results.Ok("The user has been deactivated");
+        });
+
         //##############################################################################################################
         app.MapPost("/administrator/generate-report", async (DtoReport dates, EventOrganizerContext db) =>
         {

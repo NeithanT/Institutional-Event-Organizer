@@ -1,0 +1,28 @@
+/* CONTENEDOR GENERAL */
+.main-container {
+  height: 100vh;
+}
+
+.sidebar-wrapper {
+  flex: 0 0 350px;
+}
+
+/* CONTENIDO */
+.content {
+  flex: 1;
+  background-color: #f3f4f6;
+}
+
+/* CARD */
+.form-card {
+  width: 900px;
+  border-radius: 10px;
+}
+
+/* LINKS SIDEBAR */
+.nav-link:hover {
+  text-decoration: underline;
+}
+.logo-img {
+  max-width: 220px;
+}

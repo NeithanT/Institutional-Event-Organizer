@@ -1,0 +1,15 @@
+<div class="sidebar p-4 text-white">
+  <div class="logo-container text-center">
+    <img [src]="logoSrc" class="img-fluid logo-img" alt="logo">
+  </div>
+
+  <h5 class="mb-4 text-center">{{ title }}</h5>
+
+  <ul class="nav flex-column">
+    <li class="nav-item mb-2" *ngFor="let link of links">
+      <a class="nav-link text-white" [routerLink]="link.route" routerLinkActive="active">
+        {{ link.label }}
+      </a>
+    </li>
+  </ul>
+</div>

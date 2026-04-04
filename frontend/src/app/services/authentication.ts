@@ -8,6 +8,7 @@ export enum AuthenticationState {
 }
 
 const AUTH_STORAGE_KEY = 'authentication-state';
+const AUTH_USER_ID_KEY = 'authentication-user-id';
 
 @Injectable({
   providedIn: 'root',
@@ -15,14 +16,21 @@ const AUTH_STORAGE_KEY = 'authentication-state';
 export class Authentication {
 
   authenticatedState: AuthenticationState = AuthenticationState.None;
+  userId = 0;
 
   constructor() {
     this.authenticatedState = this.readAuthenticationState();
+    this.userId = this.readUserId();
   }
 
   setAuthenticationState(state: AuthenticationState | string) {
     this.authenticatedState = this.normalizeAuthenticationState(state);
     this.persistAuthenticationState();
+  }
+
+  setUserId(id: number) {
+    this.userId = id;
+    this.persistUserId();
   }
 
   isAuthenticated(): boolean {
@@ -31,8 +39,10 @@ export class Authentication {
 
   clearAuthenticationState() {
     this.authenticatedState = AuthenticationState.None;
+    this.userId = 0;
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem(AUTH_STORAGE_KEY);
+      localStorage.removeItem(AUTH_USER_ID_KEY);
     }
   }
 
@@ -66,12 +76,29 @@ export class Authentication {
     return this.normalizeAuthenticationState(storedState);
   }
 
+  private readUserId(): number {
+    if (typeof localStorage === 'undefined') {
+      return 0;
+    }
+
+    const storedId = localStorage.getItem(AUTH_USER_ID_KEY);
+    return storedId ? Number(storedId) || 0 : 0;
+  }
+
   private persistAuthenticationState() {
     if (typeof localStorage === 'undefined') {
       return;
     }
 
     localStorage.setItem(AUTH_STORAGE_KEY, this.authenticatedState);
+  }
+
+  private persistUserId() {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+
+    localStorage.setItem(AUTH_USER_ID_KEY, String(this.userId));
   }
 }
 
