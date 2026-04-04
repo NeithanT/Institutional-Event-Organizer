@@ -79,6 +79,9 @@ public static class EventEndpoint
 
                     imagePath = "/uploads/" + uniqueFileName;
                 }
+                
+                if (createEventDto.EventDate < DateTime.UtcNow)
+                    return Results.BadRequest("Cannot create an event in the past");
 
                 Event ev = new Event
                 {

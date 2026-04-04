@@ -1,19 +1,23 @@
 # Documentación de Endpoints
 
-Este documento resume todos los endpoints definidos en el backend, agrupados por rol de uso: estudiante, organizador y administrador.
+Este documento resume los endpoints definidos en el backend y actualiza los cambios recientes de rutas.
 
 Base URL sugerida para pruebas locales: `https://localhost:5001`
 
-## Estudiante
+## Notas generales
+
+- Las rutas de gestión de eventos del organizador usan `organizer/my-events` para listados y detalle.
+- El registro de usuarios es `/user/register`.
+- Los endpoints de estudiante para eventos e inscripciones están bajo el prefijo `/api`.
+
+## Autenticación
 
 ### 1) Iniciar sesión
 
 - Método: `POST`
-- Ruta (estructura): `/user/auth`
-- ¿Qué hace?: Autentica un usuario con correo y contraseña.
-- ¿Para qué se usa?: Permite entrar al sistema y obtener datos básicos del usuario (id, nombre, correo y rol).
-- Ejemplo de ruta: `/user/auth`
-- Ejemplo mínimo de body (JSON):
+- Ruta: `/user/auth`
+- ¿Qué hace?: Autentica con correo y contraseña.
+- Body mínimo (JSON):
 
 ```json
 {
@@ -22,14 +26,12 @@ Base URL sugerida para pruebas locales: `https://localhost:5001`
 }
 ```
 
-### 2) Registro de estudiante
+### 2) Registro de usuario (rol estudiante)
 
 - Método: `POST`
-- Ruta (estructura): `/student/register`
-- ¿Qué hace?: Registra un usuario nuevo con rol de estudiante, validando dominio institucional y formato de contraseña.
-- ¿Para qué se usa?: Crear cuentas nuevas de estudiantes para poder participar en eventos.
-- Ejemplo de ruta: `/student/register`
-- Ejemplo mínimo de body (JSON):
+- Ruta: `/user/register`
+- ¿Qué hace?: Registra un usuario validando dominio institucional y formato de contraseña.
+- Body mínimo (JSON):
 
 ```json
 {
@@ -41,43 +43,85 @@ Base URL sugerida para pruebas locales: `https://localhost:5001`
 }
 ```
 
+## Estudiante
+
+### 1) Listar eventos aprobados con filtros opcionales
+
+- Método: `GET`
+- Ruta: `/api/events`
+- Query params opcionales: `category`, `modality`, `organizerEntity`, `date` (`yyyy-MM-dd`)
+- ¿Qué hace?: Devuelve eventos aprobados aplicando filtros.
+- Ejemplo: `/api/events?category=Arte&date=2026-05-20`
+
+### 2) Obtener evento por id
+
+- Método: `GET`
+- Ruta: `/api/events/{id:int}`
+- ¿Qué hace?: Devuelve detalle de un evento aprobado por id.
+- Ejemplo: `/api/events/15`
+
+### 3) Listar inscripciones de un usuario
+
+- Método: `GET`
+- Ruta: `/api/inscripciones`
+- Query param requerido: `userId`
+- ¿Qué hace?: Lista las inscripciones del usuario.
+- Ejemplo: `/api/inscripciones?userId=203`
+
+### 4) Crear inscripción
+
+- Método: `POST`
+- Ruta: `/api/inscripciones`
+- ¿Qué hace?: Inscribe un usuario a un evento.
+- Body mínimo (JSON):
+
+```json
+{
+  "UserId": 203,
+  "EventId": 15
+}
+```
+
+### 5) Eliminar inscripción
+
+- Método: `DELETE`
+- Ruta: `/api/inscripciones/{eventId:int}`
+- Query param requerido: `userId`
+- ¿Qué hace?: Elimina la inscripción del usuario para el evento indicado.
+- Ejemplo: `/api/inscripciones/15?userId=203`
+
 ## Organizador
 
-### 1) Listar todos los eventos (incluye cancelados)
+### 1) Listar todos mis eventos
 
 - Método: `GET`
-- Ruta (estructura): `/organizer/events/all`
-- ¿Qué hace?: Retorna todos los eventos en base de datos sin filtrar cancelados.
-- ¿Para qué se usa?: Revisiones internas o panel completo de gestión.
-- Ejemplo de ruta: `/organizer/events/all`
-- Ejemplo mínimo de request: sin body.
+- Ruta: `/organizer/my-events/all`
+- Query param requerido: `organizerId`
+- ¿Qué hace?: Retorna todos los eventos asociados a la entidad organizadora indicada.
+- Ejemplo: `/organizer/my-events/all?organizerId=2`
 
-### 2) Listar eventos disponibles (excluye cancelados)
-
-- Método: `GET`
-- Ruta (estructura): `/organizer/events`
-- ¿Qué hace?: Lista eventos no cancelados.
-- ¿Para qué se usa?: Mostrar eventos activos para operación normal.
-- Ejemplo de ruta: `/organizer/events`
-- Ejemplo mínimo de request: sin body.
-
-### 3) Obtener evento por id
+### 2) Listar mis eventos activos (no cancelados)
 
 - Método: `GET`
-- Ruta (estructura): `/organizer/events/{id}`
-- ¿Qué hace?: Busca un evento específico por su id.
-- ¿Para qué se usa?: Ver detalle de un evento concreto.
-- Ejemplo de ruta: `/organizer/events/15`
-- Ejemplo mínimo de request: sin body.
+- Ruta: `/organizer/my-events`
+- Query param requerido: `organizerId`
+- ¿Qué hace?: Retorna eventos de la entidad organizadora excluyendo cancelados.
+- Ejemplo: `/organizer/my-events?organizerId=2`
+
+### 3) Obtener uno de mis eventos por id
+
+- Método: `GET`
+- Ruta: `/organizer/my-events/{id}`
+- Query param requerido: `organizerId`
+- ¿Qué hace?: Devuelve un evento específico, validando pertenencia de la entidad.
+- Ejemplo: `/organizer/my-events/15?organizerId=2`
 
 ### 4) Crear evento
 
 - Método: `POST`
-- Ruta (estructura): `/organizer/events`
-- ¿Qué hace?: Crea un evento nuevo (incluye soporte para imagen en formulario).
-- ¿Para qué se usa?: Publicar propuestas de evento desde organizaciones.
-- Ejemplo de ruta: `/organizer/events`
-- Ejemplo mínimo de body (form-data):
+- Ruta: `/organizer/events`
+- ¿Qué hace?: Crea un evento nuevo. Recibe `multipart/form-data`.
+- Body mínimo (form-data):
 
 ```text
 Title=Feria de Clubes
@@ -87,39 +131,35 @@ CategoryId=1
 OrganizerId=203
 OrganizerEntityId=2
 AvalaibleEntries=120
-ApprovedState=false
 IsVirtual=false
 EventDate=2026-05-20T14:00:00
-ImageFileEvent=(opcional, archivo)`
+ImageFileEvent=(opcional, archivo)
 ```
 
 ### 5) Cancelar evento
 
 - Método: `POST`
-- Ruta (estructura): `/organizer/events/{id:int}/cancel`
-- ¿Qué hace?: Marca un evento aprobado como cancelado y notifica por correo a inscritos.
-- ¿Para qué se usa?: Suspender un evento ya publicado cuando sea necesario.
-- Ejemplo de ruta: `/organizer/events/15/cancel`
-- Ejemplo mínimo de body (JSON):
+- Ruta: `/organizer/events/{id:int}/cancel`
+- ¿Qué hace?: Cancela un evento aprobado y notifica por correo a personas inscritas.
+- Body mínimo (JSON):
 
 ```json
 {
+  "OrganizerId": 2,
   "Reason": "Cambio de fecha por mantenimiento del auditorio"
 }
 ```
 
-### 6) Enviar anuncio de evento
+### 6) Enviar anuncio del evento
 
 - Método: `POST`
-- Ruta (estructura): `/organizer/events/{id:int}/notice`
-- ¿Qué hace?: Crea un anuncio y lo envía por correo a las personas inscritas.
-- ¿Para qué se usa?: Comunicar cambios o avisos importantes del evento.
-- Ejemplo de ruta: `/organizer/events/15/notice`
-- Ejemplo mínimo de body (JSON):
+- Ruta: `/organizer/events/{id:int}/notice`
+- ¿Qué hace?: Crea un anuncio y lo envía por correo a personas inscritas.
+- Body mínimo (JSON):
 
 ```json
 {
-  "WriterId": 203,
+  "WriterId": 2,
   "Title": "Cambio de aula",
   "About": "Actualizacion logistica",
   "Body": "El evento se movera al Aula B3."
@@ -129,85 +169,72 @@ ImageFileEvent=(opcional, archivo)`
 ### 7) Eliminar evento
 
 - Método: `DELETE`
-- Ruta (estructura): `/organizer/events/{id}`
-- ¿Qué hace?: Elimina un evento de la base de datos.
-- ¿Para qué se usa?: Borrar eventos que no deben mantenerse en el sistema.
-- Ejemplo de ruta: `/organizer/events/15`
-- Ejemplo mínimo de request: sin body.
+- Ruta: `/organizer/events/{id}`
+- Query param requerido: `organizerId`
+- ¿Qué hace?: Elimina un evento si pertenece a la entidad organizadora indicada.
+- Ejemplo: `/organizer/events/15?organizerId=2`
 
 ### 8) Ver lista de asistencia de un evento
 
 - Método: `GET`
-- Ruta (estructura): `/organizer/events/{id:int}/check-list`
-- ¿Qué hace?: Muestra inscritos del evento e indica si ya tienen asistencia marcada.
-- ¿Para qué se usa?: Control de entrada y seguimiento de participantes.
-- Ejemplo de ruta: `/organizer/events/15/check-list`
-- Ejemplo mínimo de request: sin body.
+- Ruta: `/organizer/events/{id:int}/check-list`
+- ¿Qué hace?: Muestra inscritos con estado de asistencia.
+- Ejemplo: `/organizer/events/15/check-list`
 
 ### 9) Marcar asistencia de usuario
 
 - Método: `POST`
-- Ruta (estructura): `/organizer/events/{eventId:int}/check-list/{userId:int}`
-- ¿Qué hace?: Registra que un usuario asistió al evento.
-- ¿Para qué se usa?: Llevar el control oficial de asistencia.
-- Ejemplo de ruta: `/organizer/events/15/check-list/203`
-- Ejemplo mínimo de request: sin body.
+- Ruta: `/organizer/events/{eventId:int}/check-list/{userId:int}`
+- ¿Qué hace?: Registra asistencia de un usuario inscrito.
+- Ejemplo: `/organizer/events/15/check-list/203`
 
 ### 10) Quitar marca de asistencia
 
 - Método: `DELETE`
-- Ruta (estructura): `/organizer/events/{eventId:int}/check-list/{userId:int}`
-- ¿Qué hace?: Elimina un registro de asistencia de un usuario.
-- ¿Para qué se usa?: Corregir errores de marcación.
-- Ejemplo de ruta: `/organizer/events/15/check-list/203`
-- Ejemplo mínimo de request: sin body.
+- Ruta: `/organizer/events/{eventId:int}/check-list/{userId:int}`
+- ¿Qué hace?: Elimina el registro de asistencia de un usuario.
+- Ejemplo: `/organizer/events/15/check-list/203`
 
-### 11) Listar entidades organizadoras
+### 11) Listar categorías de eventos
 
 - Método: `GET`
-- Ruta (estructura): `/organizer/get-entities`
-- ¿Qué hace?: Retorna id y nombre de entidades organizadoras ordenadas alfabéticamente.
-- ¿Para qué se usa?: Cargar opciones de entidad al crear o editar eventos.
-- Ejemplo de ruta: `/organizer/get-entities`
-- Ejemplo mínimo de request: sin body.
+- Ruta: `/organizer/get-events-categories`
+- ¿Qué hace?: Lista categorías de eventos ordenadas por nombre.
+- Ejemplo: `/organizer/get-events-categories`
+
+### 12) Listar entidades organizadoras
+
+- Método: `GET`
+- Ruta: `/organizer/get-entities`
+- ¿Qué hace?: Lista entidades organizadoras ordenadas por nombre.
+- Ejemplo: `/organizer/get-entities`
 
 ## Administrador
 
-### 1) Listar todos los eventos (incluye denegados/cancelados)
+### 1) Listar todos los eventos
 
 - Método: `GET`
-- Ruta (estructura): `/administrator/events/all`
-- ¿Qué hace?: Devuelve todos los eventos sin filtros.
-- ¿Para qué se usa?: Auditoría o gestión administrativa completa.
-- Ejemplo de ruta: `/administrator/events/all`
-- Ejemplo mínimo de request: sin body.
+- Ruta: `/administrator/events/all`
+- ¿Qué hace?: Devuelve todos los eventos sin filtrar.
 
 ### 2) Listar eventos administrables (no cancelados)
 
 - Método: `GET`
-- Ruta (estructura): `/administrator/events`
-- ¿Qué hace?: Lista eventos que aún no están cancelados.
-- ¿Para qué se usa?: Revisar eventos pendientes o aprobados para toma de decisiones.
-- Ejemplo de ruta: `/administrator/events`
-- Ejemplo mínimo de request: sin body.
+- Ruta: `/administrator/events`
+- ¿Qué hace?: Devuelve eventos no cancelados.
 
 ### 3) Aprobar evento
 
 - Método: `POST`
-- Ruta (estructura): `/administrator/{id:int}/approve`
+- Ruta: `/administrator/{id:int}/approve`
 - ¿Qué hace?: Cambia el estado del evento a aprobado.
-- ¿Para qué se usa?: Habilitar oficialmente la publicación/ejecución del evento.
-- Ejemplo de ruta: `/administrator/15/approve`
-- Ejemplo mínimo de request: sin body.
 
 ### 4) Denegar evento
 
 - Método: `POST`
-- Ruta (estructura): `/administrator/{id:int}/deny`
+- Ruta: `/administrator/{id:int}/deny`
 - ¿Qué hace?: Deniega el evento y registra motivo en cancelados.
-- ¿Para qué se usa?: Rechazar propuestas que no cumplen criterios.
-- Ejemplo de ruta: `/administrator/15/deny`
-- Ejemplo mínimo de body (JSON):
+- Body mínimo (JSON):
 
 ```json
 {
@@ -218,47 +245,33 @@ ImageFileEvent=(opcional, archivo)`
 ### 5) Buscar usuario por nombre
 
 - Método: `GET`
-- Ruta (estructura): `/administrator/search-user-by-name/{name}`
-- ¿Qué hace?: Busca usuario exacto por nombre y devuelve información de perfil/rol.
-- ¿Para qué se usa?: Consultas administrativas rápidas de usuarios.
-- Ejemplo de ruta: `/administrator/search-user-by-name/Juan%20Perez`
-- Ejemplo mínimo de request: sin body.
+- Ruta: `/administrator/search-user-by-name/{name}`
+- ¿Qué hace?: Busca usuario por nombre exacto.
 
 ### 6) Buscar usuario por cédula
 
 - Método: `GET`
-- Ruta (estructura): `/administrator/search-user-by-idcard/{idCard:int}`
-- ¿Qué hace?: Busca usuario por cédula y devuelve información completa.
-- ¿Para qué se usa?: Soporte y validación administrativa de identidad.
-- Ejemplo de ruta: `/administrator/search-user-by-idcard/2034500001`
-- Ejemplo mínimo de request: sin body.
+- Ruta: `/administrator/search-user-by-idcard/{idCard:int}`
+- ¿Qué hace?: Busca usuario por cédula.
 
 ### 7) Cambiar rol a organizador
 
 - Método: `POST`
-- Ruta (estructura): `/administrator/change-rol/to-organizer/{id:int}`
-- ¿Qué hace?: Promueve un usuario activo al rol de organizador.
-- ¿Para qué se usa?: Delegar gestión de eventos a nuevos responsables.
-- Ejemplo de ruta: `/administrator/change-rol/to-organizer/203`
-- Ejemplo mínimo de request: sin body.
+- Ruta: `/administrator/change-rol/to-organizer/{id:int}`
+- ¿Qué hace?: Cambia rol de un usuario activo a organizador.
 
 ### 8) Cambiar rol a estudiante
 
 - Método: `POST`
-- Ruta (estructura): `/administrator/change-rol/to-student/{id:int}`
-- ¿Qué hace?: Regresa un usuario activo al rol de estudiante.
-- ¿Para qué se usa?: Ajustar permisos cuando un usuario deja de organizar.
-- Ejemplo de ruta: `/administrator/change-rol/to-student/203`
-- Ejemplo mínimo de request: sin body.
+- Ruta: `/administrator/change-rol/to-student/{id:int}`
+- ¿Qué hace?: Cambia rol de un usuario activo a estudiante.
 
 ### 9) Generar reporte PDF por rango de fechas
 
 - Método: `POST`
-- Ruta (estructura): `/administrator/generate-report`
-- ¿Qué hace?: Genera y devuelve un PDF con métricas de asistencia por categoría.
-- ¿Para qué se usa?: Reportería institucional y análisis de participación.
-- Ejemplo de ruta: `/administrator/generate-report`
-- Ejemplo mínimo de body (JSON):
+- Ruta: `/administrator/generate-report`
+- ¿Qué hace?: Genera un PDF con métricas por categoría en el rango indicado.
+- Body mínimo (JSON):
 
 ```json
 {
