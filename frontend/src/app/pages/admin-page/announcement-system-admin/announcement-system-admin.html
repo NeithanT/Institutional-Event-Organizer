@@ -1,0 +1,35 @@
+<section class="admin-section">
+	<header class="mb-4">
+		<h2 class="fw-bold mb-1">Sistema de anuncios</h2>
+		<p class="text-muted mb-0">Formulario para publicar un anuncio a la comunidad.</p>
+	</header>
+
+	<div class="card border-0 shadow-sm p-3 p-md-4">
+		<form>
+			<div class="row g-3">
+				<div class="col-md-8">
+					<label class="form-label">Titulo</label>
+					<input class="form-control" type="text" name="title" [(ngModel)]="form.title" required>
+				</div>
+				<div class="col-md-4">
+				<label class="form-label">About</label>
+				<input class="form-control" type="text" name="about" [(ngModel)]="form.about" required>
+				</div>
+				<div class="col-12">
+					<label class="form-label">Contenido</label>
+					<textarea class="form-control" rows="5" name="content" [(ngModel)]="form.content" required></textarea>
+				</div>
+			</div>
+
+			<div class="d-flex justify-content-end mt-4">
+				<button class="btn btn-primary" type="button" (click)="submitAnnouncement()">Enviar anuncio</button>
+			</div>
+		</form>
+
+		@if (sent) {
+			<div class="alert alert-success mt-3 mb-0" role="alert">
+				Anuncio enviado correctamente.
+			</div>
+		}
+	</div>
+</section>

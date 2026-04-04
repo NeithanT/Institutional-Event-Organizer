@@ -1,0 +1,57 @@
+<section class="admin-section">
+	<header class="mb-4">
+		<h2 class="fw-bold mb-1">Moderacion de contenido</h2>
+		<p class="text-muted mb-0">Eventos publicados con opción de eliminación.</p>
+	</header>
+
+	@if (errorMessage) {
+		<div class="alert alert-danger">{{ errorMessage }}</div>
+	}
+
+	<div class="table-responsive card border-0 shadow-sm">
+		<table class="table align-middle mb-0">
+			<thead>
+				<tr>
+					<th>Evento</th>
+					<th>Organizador</th>
+					<th>Categoria</th>
+					<th>Reportes</th>
+					<th class="text-end">Accion</th>
+				</tr>
+			</thead>
+			<tbody>
+				@if (isLoading) {
+					<tr>
+						<td colspan="5" class="text-center text-muted py-4">Cargando eventos...</td>
+					</tr>
+				}
+
+				@if (!isLoading && events.length === 0) {
+					<tr>
+						<td colspan="5" class="text-center text-muted py-4">No hay eventos para moderar.</td>
+					</tr>
+				}
+
+				@if (!isLoading && events.length > 0) {
+					@for (event of events; track event.id) {
+						<tr>
+							<td class="fw-semibold">{{ event.title }}</td>
+							<td>{{ event.organizer }}</td>
+							<td>{{ event.category }}</td>
+							<td>
+								<span class="badge" [class.bg-warning]="event.reports > 0" [class.bg-success]="event.reports === 0">
+									{{ event.reports }}
+								</span>
+							</td>
+							<td class="text-end">
+								<button class="btn btn-outline-danger btn-sm" (click)="removeEvent(event.id)">
+									Eliminar
+								</button>
+							</td>
+						</tr>
+					}
+				}
+			</tbody>
+		</table>
+	</div>
+</section>
