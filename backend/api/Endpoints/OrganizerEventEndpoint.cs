@@ -176,6 +176,7 @@ public static class EventEndpoint
                 Title = noticeData.Title,
                 About = noticeData.About,
                 Body = noticeData.Body,
+                EventId = id
             };
 
             await db.Announcements.AddAsync(announcement);
