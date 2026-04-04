@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { AuthenticationGuard } from './guards/authentication.guard';
+import { AuthenticationState } from './services/authentication';
 
 export const routes: Routes = [
   {
@@ -7,25 +9,54 @@ export const routes: Routes = [
   },
   {
     path: 'user',
-    loadComponent: () => import('./pages/user-page/user-page').then(m => m.UserPage)
+    loadComponent: () => import('./pages/user-page/user-page').then(m => m.UserPage),
+    canActivate: [AuthenticationGuard]
   },
   {
-    path: 'organizer/create-event',
-    loadComponent: () => import('./pages/organizer-page/create-event/create-event').then(m => m.CreateEvent)
-   
+    path: 'create-event',
+    loadComponent: () => import('./pages/organizer-page/create-event/create-event').then(m => m.CreateEvent),
+    canActivate: [AuthenticationGuard],
+    data: {
+      allowedRoles: [AuthenticationState.Admin, AuthenticationState.Organizer]
+    }
   },
   {
      path: 'events',
-    loadComponent: () => import('./pages/events-page/events-page').then(m => m.EventsPage)
+    loadComponent: () => import('./pages/events-page/events-page').then(m => m.EventsPage),
+    canActivate: [AuthenticationGuard]
   },
-  { path: 'inscripciones', loadComponent: () => import('./pages/inscriptions-page/inscriptions-page').then(m => m.InscriptionsPage) }
-  ,
-  { path: 'profile', loadComponent: () => import('./pages/user-profile-page/user-profile-page').then(m => m.UserProfilePage) }
-  ,
-  { path: 'events/:id', loadComponent: () => import('./pages/event-detail-page/event-detail-page').then(m => m.EventDetailPage) },
-  { path: 'announcements', loadComponent: () => import('./pages/announcements-page/announcements-page').then(m => m.AnnouncementsPage) },
-  { path: 'announcements/:id', loadComponent: () => import('./pages/announcement-detail-page/announcement-detail-page').then(m => m.AnnouncementDetailPage) },
-
-
+  {
+    path: 'inscripciones',
+    loadComponent: () => import('./pages/inscriptions-page/inscriptions-page').then(m => m.InscriptionsPage),
+    canActivate: [AuthenticationGuard]
+  },
+  {
+    path: 'profile',
+    loadComponent: () => import('./pages/user-profile-page/user-profile-page').then(m => m.UserProfilePage),
+    canActivate: [AuthenticationGuard]
+  },
+  {
+    path: 'events/:id',
+    loadComponent: () => import('./pages/event-detail-page/event-detail-page').then(m => m.EventDetailPage),
+    canActivate: [AuthenticationGuard]
+  },
+  {
+    path: 'announcements',
+    loadComponent: () => import('./pages/announcements-page/announcements-page').then(m => m.AnnouncementsPage),
+    canActivate: [AuthenticationGuard]
+  },
+  {
+    path: 'announcements/:id',
+    loadComponent: () => import('./pages/announcement-detail-page/announcement-detail-page').then(m => m.AnnouncementDetailPage),
+    canActivate: [AuthenticationGuard]
+  },
+  {
+    path: 'admin',
+    loadComponent: () => import('./pages/admin-page/admin-page').then(m => m.AdminPage),
+    canActivate: [AuthenticationGuard],
+    data: {
+      allowedRoles: [AuthenticationState.Admin]
+    }
+  },
 ];
 
