@@ -1,43 +1,199 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 
-interface OrganizerItem {
+interface UserSearchResult {
   id: number;
-  name: string;
-  department: string;
+  userName: string;
   email: string;
-  status: 'Activo' | 'Pendiente';
+  role: string;
+  eventsCreated: number;
+  active: boolean;
+  idCard: number;
 }
 
 @Component({
   selector: 'app-organizer-management-admin',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './organizer-management-admin.html',
   styleUrl: './organizer-management-admin.css',
 })
-export class OrganizerManagementAdmin {
-  organizers: OrganizerItem[] = [
-    {
-      id: 1,
-      name: 'Asociacion Estudiantil de Tecnologia',
-      department: 'Ingenieria de Sistemas',
-      email: 'aet@universidad.edu',
-      status: 'Activo',
-    },
-    {
-      id: 2,
-      name: 'Comite de Cultura',
-      department: 'Extension Cultural',
-      email: 'cultura@universidad.edu',
-      status: 'Pendiente',
-    },
-    {
-      id: 3,
-      name: 'Grupo de Investigacion BIO-LAB',
-      department: 'Ciencias Naturales',
-      email: 'biolab@universidad.edu',
-      status: 'Activo',
-    },
-  ];
+export class OrganizerManagementAdmin implements OnInit {
+  currentOrganizers: UserSearchResult[] = [];
+  students: UserSearchResult[] = [];
+  organizerPage = 0;
+  organizerPageSize = 10;
+
+  searchName = '';
+  searchIdCard = '';
+  searchedUser: UserSearchResult | null = null;
+  isSearching = false;
+  isUpdating = false;
+  errorMessage = '';
+  successMessage = '';
+
+  constructor(private http: HttpClient) {}
+
+  ngOnInit(): void {
+    this.loadCurrentUsers();
+  }
+
+  get canPromote(): boolean {
+    return !!this.searchedUser && this.searchedUser.active && this.searchedUser.role !== 'Organizer';
+  }
+
+  get canDemote(): boolean {
+    return !!this.searchedUser && this.searchedUser.active && this.searchedUser.role === 'Organizer';
+  }
+
+  get displayedOrganizers(): UserSearchResult[] {
+    const start = this.organizerPage * this.organizerPageSize;
+    return this.currentOrganizers.slice(start, start + this.organizerPageSize);
+  }
+
+  get organizerPageCount(): number {
+    return Math.max(1, Math.ceil(this.currentOrganizers.length / this.organizerPageSize));
+  }
+
+  get hasMoreOrganizerPages(): boolean {
+    return this.organizerPageCount > 1;
+  }
+
+  clearMessages(): void {
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
+  loadCurrentUsers(): void {
+    this.clearMessages();
+    this.http
+      .get<{ organizers: UserSearchResult[]; students: UserSearchResult[] }>('http://localhost:5053/administrator/users/grouped')
+      .subscribe({
+        next: (data) => {
+          this.currentOrganizers = data.organizers;
+          this.students = data.students;
+          this.organizerPage = 0;
+        },
+        error: (error) => {
+          this.errorMessage = error?.error || 'No se pudo obtener la lista de usuarios.';
+        },
+      });
+  }
+
+  searchByName(): void {
+    this.clearMessages();
+
+    if (!this.searchName.trim()) {
+      this.errorMessage = 'Ingrese un nombre de usuario para buscar.';
+      return;
+    }
+
+    this.isSearching = true;
+    this.searchedUser = null;
+
+    this.http
+      .get<UserSearchResult>(`http://localhost:5053/administrator/search-user-by-name/${encodeURIComponent(this.searchName.trim())}`)
+      .subscribe({
+        next: (user) => {
+          this.searchedUser = user;
+        },
+        error: (error) => {
+          this.errorMessage = error?.error || 'No se encontró ningún usuario con ese nombre.';
+        },
+        complete: () => {
+          this.isSearching = false;
+        },
+      });
+  }
+
+  searchByIdCard(): void {
+    this.clearMessages();
+
+    const idCard = Number(this.searchIdCard);
+    if (!Number.isInteger(idCard) || idCard <= 0) {
+      this.errorMessage = 'Ingrese un número de cédula válido.';
+      return;
+    }
+
+    this.isSearching = true;
+    this.searchedUser = null;
+
+    this.http
+      .get<UserSearchResult>(`http://localhost:5053/administrator/search-user-by-idcard/${idCard}`)
+      .subscribe({
+        next: (user) => {
+          this.searchedUser = user;
+        },
+        error: (error) => {
+          this.errorMessage = error?.error || 'No se encontró ningún usuario con esa cédula.';
+        },
+        complete: () => {
+          this.isSearching = false;
+        },
+      });
+  }
+
+  setOrganizer(): void {
+    if (!this.searchedUser) {
+      return;
+    }
+
+    this.clearMessages();
+    this.isUpdating = true;
+
+    this.http
+      .post(`http://localhost:5053/administrator/change-rol/to-organizer/${this.searchedUser.id}`, {})
+      .subscribe({
+        next: () => {
+          this.successMessage = 'El usuario ha sido promovido a organizador.';
+          this.searchedUser!.role = 'Organizer';
+          this.loadCurrentUsers();
+        },
+        error: (error) => {
+          this.errorMessage = error?.error || 'No se pudo promover al usuario.';
+        },
+        complete: () => {
+          this.isUpdating = false;
+        },
+      });
+  }
+
+  removeOrganizer(): void {
+    if (!this.searchedUser) {
+      return;
+    }
+
+    this.clearMessages();
+    this.isUpdating = true;
+
+    this.http
+      .post(`http://localhost:5053/administrator/change-rol/to-student/${this.searchedUser.id}`, {})
+      .subscribe({
+        next: () => {
+          this.successMessage = 'El organizador ha sido removido y ahora es estudiante.';
+          this.searchedUser!.role = 'Student';
+          this.loadCurrentUsers();
+        },
+        error: (error) => {
+          this.errorMessage = error?.error || 'No se pudo remover el rol de organizador.';
+        },
+        complete: () => {
+          this.isUpdating = false;
+        },
+      });
+  }
+
+  previousOrganizerPage(): void {
+    if (this.organizerPage > 0) {
+      this.organizerPage -= 1;
+    }
+  }
+
+  nextOrganizerPage(): void {
+    if (this.organizerPage + 1 < this.organizerPageCount) {
+      this.organizerPage += 1;
+    }
+  }
 }

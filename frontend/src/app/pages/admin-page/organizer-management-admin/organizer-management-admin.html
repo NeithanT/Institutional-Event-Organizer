@@ -1,31 +1,177 @@
 <section class="admin-section">
 	<header class="mb-4">
 		<h2 class="fw-bold mb-1">Gestion de organizadores</h2>
-		<p class="text-muted mb-0">Vista de organizadores registrados en el sistema.</p>
+		<p class="text-muted mb-0">Busca usuarios, promueve organizadores y administra su estado desde esta vista.</p>
 	</header>
 
-	<div class="table-responsive card border-0 shadow-sm">
-		<table class="table align-middle mb-0">
-			<thead>
-				<tr>
-					<th>Nombre</th>
-					<th>Departamento</th>
-					<th>Email</th>
-					<th>Estado</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr *ngFor="let organizer of organizers">
-					<td class="fw-semibold">{{ organizer.name }}</td>
-					<td>{{ organizer.department }}</td>
-					<td>{{ organizer.email }}</td>
-					<td>
-						<span class="badge" [class.bg-success]="organizer.status === 'Activo'" [class.bg-secondary]="organizer.status === 'Pendiente'">
-							{{ organizer.status }}
-						</span>
-					</td>
-				</tr>
-			</tbody>
-		</table>
+	<div class="card border-0 shadow-sm p-4 mb-4">
+		<div class="row g-3 align-items-end">
+			<div class="col-md-6">
+				<label class="form-label">Buscar por nombre de usuario</label>
+				<input type="text" class="form-control" [(ngModel)]="searchName" placeholder="Nombre de usuario" />
+				<button class="btn btn-primary mt-2" type="button" [disabled]="isSearching" (click)="searchByName()">
+					Buscar usuario
+				</button>
+			</div>
+
+			<div class="col-md-6">
+				<label class="form-label">Buscar por carne</label>
+				<input type="text" class="form-control" [(ngModel)]="searchIdCard" placeholder="carne" />
+				<button class="btn btn-primary mt-2" type="button" [disabled]="isSearching" (click)="searchByIdCard()">
+					Buscar carne
+				</button>
+			</div>
+		</div>
+
+		@if (errorMessage || successMessage) {
+			<div class="mt-4">
+				@if (errorMessage) {
+					<div class="alert alert-danger py-2">
+						{{ errorMessage }}
+					</div>
+				}
+				@if (successMessage) {
+					<div class="alert alert-success py-2">
+						{{ successMessage }}
+					</div>
+				}
+			</div>
+		}
+	</div>
+
+	@if (searchedUser) {
+		<div class="card border-0 shadow-sm p-4 mb-4">
+			<div class="d-flex justify-content-between align-items-start mb-3">
+				<div>
+					<h3 class="h5 mb-1">Usuario encontrado</h3>
+					<p class="text-muted mb-0">Gestione el rol del usuario y revise sus datos.</p>
+				</div>
+				<div>
+					<span class="badge" [class.bg-success]="searchedUser.active" [class.bg-danger]="!searchedUser.active">
+						{{ searchedUser.active ? 'Activo' : 'Inactivo' }}
+					</span>
+				</div>
+			</div>
+
+			<div class="row mb-3">
+				<div class="col-sm-4 mb-3">
+					<strong>Nombre de usuario</strong>
+					<div>{{ searchedUser.userName }}</div>
+				</div>
+				<div class="col-sm-4 mb-3">
+					<strong>Email</strong>
+					<div>{{ searchedUser.email }}</div>
+				</div>
+				<div class="col-sm-4 mb-3">
+					<strong>carne</strong>
+					<div>{{ searchedUser.idCard }}</div>
+				</div>
+			</div>
+
+			<div class="row mb-3">
+				<div class="col-sm-4 mb-3">
+					<strong>Rol actual</strong>
+					<div>{{ searchedUser.role }}</div>
+				</div>
+				<div class="col-sm-4 mb-3">
+					<strong>Eventos creados</strong>
+					<div>{{ searchedUser.eventsCreated }}</div>
+				</div>
+				<div class="col-sm-4 mb-3">
+					<strong>Estado</strong>
+					<div>{{ searchedUser.active ? 'Activo' : 'Inactivo' }}</div>
+				</div>
+			</div>
+
+			<div class="d-flex gap-2">
+				<button class="btn btn-success" type="button" [disabled]="!canPromote || isUpdating" (click)="setOrganizer()">
+					Promover a organizador
+				</button>
+				<button class="btn btn-outline-secondary" type="button" [disabled]="!canDemote || isUpdating" (click)="removeOrganizer()">
+					Remover estatus organizador
+				</button>
+			</div>
+		</div>
+	}
+
+	<div class="card border-0 shadow-sm p-4 mb-4">
+		<div class="d-flex justify-content-between align-items-center mb-3">
+			<div>
+				<h3 class="h5 mb-1">Usuarios activos</h3>
+				<p class="text-muted mb-0">Organizadores actuales y estudiantes registrados en el sistema.</p>
+			</div>
+			<button class="btn btn-sm btn-outline-primary" type="button" (click)="loadCurrentUsers()">
+				Actualizar lista
+			</button>
+		</div>
+
+		<div class="table-responsive">
+			<table class="table align-middle mb-0">
+				<thead>
+					<tr>
+						<th>Nombre</th>
+						<th>Email</th>
+						<th>Rol</th>
+						<th>Eventos creados</th>
+						<th>Estado</th>
+					</tr>
+				</thead>
+				<tbody>
+					@if (currentOrganizers.length === 0 && students.length === 0) {
+						<tr>
+							<td colspan="5" class="text-center py-4 text-muted">No hay usuarios registrados.</td>
+						</tr>
+					}
+
+					@for (organizer of displayedOrganizers; track organizer.id) {
+						<tr>
+							<td class="fw-semibold">{{ organizer.userName }}</td>
+							<td>{{ organizer.email }}</td>
+							<td>{{ organizer.role }}</td>
+							<td>{{ organizer.eventsCreated }}</td>
+							<td>
+								<span class="badge" [class.bg-success]="organizer.active" [class.bg-secondary]="!organizer.active">
+									{{ organizer.active ? 'Activo' : 'Inactivo' }}
+								</span>
+							</td>
+						</tr>
+					}
+
+					@if (students.length > 0) {
+						<tr class="table-secondary">
+							<td colspan="5" class="fw-bold text-center">Estudiantes</td>
+						</tr>
+					}
+
+					@for (student of students; track student.id) {
+						<tr>
+							<td class="fw-semibold">{{ student.userName }}</td>
+							<td>{{ student.email }}</td>
+							<td>{{ student.role }}</td>
+							<td>{{ student.eventsCreated }}</td>
+							<td>
+								<span class="badge" [class.bg-success]="student.active" [class.bg-secondary]="!student.active">
+									{{ student.active ? 'Activo' : 'Inactivo' }}
+								</span>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+
+		@if (hasMoreOrganizerPages) {
+			<div class="d-flex justify-content-between align-items-center mt-3">
+				<div class="text-muted">Página {{ organizerPage + 1 }} de {{ organizerPageCount }} de organizadores</div>
+				<div>
+					<button class="btn btn-sm btn-outline-secondary me-2" type="button" [disabled]="organizerPage === 0" (click)="previousOrganizerPage()">
+						Anterior
+					</button>
+					<button class="btn btn-sm btn-outline-secondary" type="button" [disabled]="organizerPage + 1 >= organizerPageCount" (click)="nextOrganizerPage()">
+						Siguiente
+					</button>
+				</div>
+			</div>
+		}
 	</div>
 </section>

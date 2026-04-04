@@ -70,6 +70,50 @@ public static class AdministratorUtilitiesEndpoint
 
 
         //##############################################################################################################
+        app.MapGet("/administrator/users/grouped", async (EventOrganizerContext db) =>
+        {
+            var organizerRole = await db.Roles.FirstOrDefaultAsync(r => r.RolName == "Organizer");
+            var studentRole = await db.Roles.FirstOrDefaultAsync(r => r.RolName == "Student");
+
+            if (organizerRole == null || studentRole == null)
+                return Results.Problem("Required roles are not configured on the server", statusCode: 500);
+
+            var organizers = await db.Users
+                .Include(u => u.Role)
+                .Where(u => u.RoleId == organizerRole.Id)
+                .OrderBy(u => u.UserName)
+                .Select(user => new DtoUserInformation
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    Role = user.Role.RolName,
+                    UserName = user.UserName,
+                    EventsCreated = db.Events.Count(e => e.OrganizerId == user.Id),
+                    Active = user.Active,
+                    IdCard = user.IdCard
+                })
+                .ToListAsync();
+
+            var students = await db.Users
+                .Include(u => u.Role)
+                .Where(u => u.RoleId == studentRole.Id)
+                .OrderBy(u => u.UserName)
+                .Select(user => new DtoUserInformation
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    Role = user.Role.RolName,
+                    UserName = user.UserName,
+                    EventsCreated = db.Events.Count(e => e.OrganizerId == user.Id),
+                    Active = user.Active,
+                    IdCard = user.IdCard
+                })
+                .ToListAsync();
+
+            return Results.Ok(new { Organizers = organizers, Students = students });
+        });
+
+        //##############################################################################################################
         app.MapPost("/administrator/change-rol/to-organizer/{id:int}", async (int id, EventOrganizerContext db) =>
         {
 
