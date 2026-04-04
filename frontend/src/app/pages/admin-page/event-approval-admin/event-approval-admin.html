@@ -15,20 +15,26 @@
 					<th class="text-end">Accion</th>
 				</tr>
 			</thead>
-			<tbody>
+			<tbody *ngIf="events.length > 0">
 				<tr *ngFor="let event of events">
 					<td class="fw-semibold">{{ event.title }}</td>
 					<td>{{ event.organizer }}</td>
-					<td>{{ event.date }}</td>
+					<td>{{ event.date | date:'yyyy-MM-dd' }}</td>
 					<td>{{ event.location }}</td>
 					<td class="text-end">
 						<button
 							class="btn btn-success btn-sm"
 							(click)="approveEvent(event.id)"
-							[disabled]="event.approved"
 						>
-							{{ event.approved ? 'Aprobado' : 'Aprobar' }}
+							Aprobar
 						</button>
+					</td>
+				</tr>
+			</tbody>
+			<tbody *ngIf="events.length === 0">
+				<tr>
+					<td colspan="5" class="text-center text-muted py-4">
+						No hay eventos pendientes de aprobación.
 					</td>
 				</tr>
 			</tbody>

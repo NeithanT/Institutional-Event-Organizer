@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 
 interface PendingEvent {
   id: number;
@@ -17,37 +18,36 @@ interface PendingEvent {
   templateUrl: './event-approval-admin.html',
   styleUrl: './event-approval-admin.css',
 })
-export class EventApprovalAdmin {
-  events: PendingEvent[] = [
-    {
-      id: 1,
-      title: 'Feria de Proyectos 2026',
-      organizer: 'Facultad de Ingenieria',
-      date: '2026-04-12',
-      location: 'Auditorio Central',
-      approved: false,
-    },
-    {
-      id: 2,
-      title: 'Seminario de Innovacion Educativa',
-      organizer: 'Centro de Innovacion Docente',
-      date: '2026-04-18',
-      location: 'Sala B-204',
-      approved: false,
-    },
-    {
-      id: 3,
-      title: 'Jornada de Voluntariado Comunitario',
-      organizer: 'Departamento de Bienestar',
-      date: '2026-04-24',
-      location: 'Plaza Norte',
-      approved: false,
-    },
-  ];
+export class EventApprovalAdmin implements OnInit {
+  events: PendingEvent[] = [];
+
+  constructor(private http: HttpClient) {}
+
+  ngOnInit() {
+    this.getEvents();
+  }
 
   approveEvent(eventId: number): void {
-    this.events = this.events.map((event) =>
-      event.id === eventId ? { ...event, approved: true } : event
-    );
+    this.http.post(`http://localhost:5053/administrator/${eventId}/approve`, {})
+      .subscribe({
+        next: () => {
+          this.events = this.events.filter(event => event.id !== eventId);
+        },
+        error: (err) => {
+          console.error(err);
+        }
+      });
+  }
+
+  getEvents() {
+    this.http.get<PendingEvent[]>('http://localhost:5053/administrator/events/pending')
+      .subscribe({
+        next: (data) => {
+          this.events = data;
+        },
+        error: (err) => {
+          console.error(err);
+        }
+      });
   }
 }
