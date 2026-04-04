@@ -4,6 +4,7 @@ using api.DTOs;
 using api.Interfaces;
 using api.Models;
 using api.Services;
+using Google.Apis.Util;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,22 +15,28 @@ public static class EventEndpoint
     public static void mapOrganizerEventEndpoints(WebApplication app)
     {
         //Get all the events from the Events Table (Doesnt fetch the Canceled Events)
-        app.MapGet("organizer/events/all", async (EventOrganizerContext db) =>
+        app.MapGet("organizer/my-events/all", async (DtoGetMyEvents dto, EventOrganizerContext db) =>
         {
-            return Results.Ok(await db.Events.ToListAsync());
+            var events = await db.Events
+                        .Where(e => e.OrganizerEntityId == dto.OrganizerId)
+                        .ToListAsync();
+
+            return Results.Ok(events);
         });
 
         //##################################################################################
 
         //Get all the events from the Events Table (Doesnt fetch the Canceled Events)
-        app.MapGet("organizer/events", async (EventOrganizerContext db) =>
+        app.MapGet("organizer/my-events", async (DtoGetMyEvents dto, EventOrganizerContext db) =>
         {
             var availableEvents = await db.Events
-            .Include(a => a.CanceledEvent)
-            .Where(ev =>
-                !db.CanceledEvents.Any(c => c.EventId == ev.Id)
-                ).
-            ToListAsync();
+                                .Include(a => a.CanceledEvent)
+                                .Where(ev =>
+                                    !db.CanceledEvents.Any(c => c.EventId == ev.Id)
+                                    &&
+                                    ev.OrganizerEntityId == dto.OrganizerId
+                                ).
+                                ToListAsync();
             return Results.Ok(availableEvents);
         });
 
@@ -37,85 +44,98 @@ public static class EventEndpoint
         //##################################################################################
 
         //Gets the information for an specific event from the Events Table
-        app.MapGet("organizer/events/{id}", async (int id, EventOrganizerContext db) =>
-            await db.Events.FindAsync(id)
-                is Event ev
-                    ? Results.Ok(ev)
-                    : Results.NotFound());
+        app.MapGet("organizer/my-events/{id}", async (DtoGetMyEvents dto, int id, EventOrganizerContext db) =>
+        {
+            Event? ev = await db.Events.FindAsync(id);
+            if (ev == null) return Results.NotFound("Event not found");
+            if (ev.OrganizerEntityId != dto.OrganizerId) return Results.Unauthorized();
+            return Results.Ok(ev);
+
+        });
 
         //##################################################################################
         //Creates an event on the Events Table
         app.MapPost("organizer/events", async ([FromForm] DtoCreateEvent createEventDto, IWebHostEnvironment env, EventOrganizerContext db) =>
-        {
-            string imagePath = "/Images/default.jpg";
-
-
-            if (createEventDto.ImageFileEvent != null
-            &&
-            createEventDto.ImageFileEvent.Length > 0)
             {
-
-                string uploadsFolder = Path.Combine(env.WebRootPath, "uploads");
-                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+                string imagePath = "/Images/default.jpg";
 
 
-                string uniqueFileName = Guid.NewGuid().ToString() + "_" + createEventDto.ImageFileEvent.FileName;
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                // 3. Guardar el archivo físicamente
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                if (createEventDto.ImageFileEvent != null
+                &&
+                createEventDto.ImageFileEvent.Length > 0)
                 {
-                    await createEventDto.ImageFileEvent.CopyToAsync(fileStream);
+
+                    string uploadsFolder = Path.Combine(env.WebRootPath, "uploads");
+                    if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+
+                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + createEventDto.ImageFileEvent.FileName;
+                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    // 3. Guardar el archivo físicamente
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await createEventDto.ImageFileEvent.CopyToAsync(fileStream);
+                    }
+
+                    imagePath = "/uploads/" + uniqueFileName;
                 }
 
-                imagePath = "/uploads/" + uniqueFileName;
-            }
+                Event ev = new Event
+                {
+                    Title = createEventDto.Title,
+                    ImageFileEvent = imagePath,
+                    EventDescription = createEventDto.EventDescription,
+                    EventDate = createEventDto.EventDate,
+                    Place = createEventDto.Place,
+                    CategoryId = createEventDto.CategoryId,
+                    OrganizerId = createEventDto.OrganizerId,
+                    OrganizerEntityId = createEventDto.OrganizerEntityId,
+                    AvalaibleEntries = createEventDto.AvalaibleEntries,
+                    ApprovedState = false,
+                    IsVirtual = createEventDto.IsVirtual
+                };
 
-            Event ev = new Event
-            {
-                Title = createEventDto.Title,
-                ImageFileEvent = imagePath,
-                EventDescription = createEventDto.EventDescription,
-                EventDate = createEventDto.EventDate,
-                Place = createEventDto.Place,
-                CategoryId = createEventDto.CategoryId,
-                OrganizerId = createEventDto.OrganizerId,
-                OrganizerEntityId = createEventDto.OrganizerEntityId,
-                AvalaibleEntries = createEventDto.AvalaibleEntries,
-                ApprovedState = false,
-                IsVirtual = createEventDto.IsVirtual
-            };
+                await db.Events.AddAsync(ev);
+                await db.SaveChangesAsync();
 
-            await db.Events.AddAsync(ev);
-            await db.SaveChangesAsync();
-
-            return Results.Created($"/events/{ev.Id}", ev);
-        }).DisableAntiforgery();
+                return Results.Created($"/events/{ev.Id}", ev);
+            }).DisableAntiforgery();
 
 
         //##################################################################################
         //Cancels an event on the Events Table
         app.MapPost("organizer/events/{id:int}/cancel", async (
             [FromRoute] int id,
-            [FromBody] DtoCanceledEvent motive,
+            [FromBody] DtoCanceledEvent dto,
             [FromServices] IEmailService mailService,
             EventOrganizerContext db
            ) =>
 
             {
-
-                bool alreadyCanceled = await db.CanceledEvents.AnyAsync(c => c.EventId == id);
-                if (alreadyCanceled) return Results.BadRequest("Event already canceled");
-
+                //Basic validations
                 Event? ev = await db.Events.FindAsync(id);
-                if (ev == null) return Results.NotFound();
-                if (ev.ApprovedState == false) return Results.BadRequest("Event has not been approved yet (cannot be canceled)");
+
+                if (ev == null)
+                    return Results.NotFound();
+                if (ev.OrganizerEntityId != dto.OrganizerId)
+                    return Results.Unauthorized();
+
+                //Check if event has been approved
+                if (ev.ApprovedState == false)
+                    return Results.BadRequest("Event has not been approved yet (cannot be canceled unless aproved)");
+
+
+                //Check if event has already been canceled
+                if (await db.CanceledEvents.AnyAsync(c => c.EventId == id))
+                    return Results.BadRequest("Event already canceled");
 
                 CanceledEvent newCanceledEvent = new CanceledEvent
                 {
                     EventId = id,
-                    Reason = motive.Reason
+                    Reason = dto.Reason
                 };
+
                 await db.CanceledEvents.AddAsync(newCanceledEvent);
                 await db.SaveChangesAsync();
 
@@ -129,11 +149,10 @@ public static class EventEndpoint
 
                     await mailService.SendEmailAsync(user.Email,
                     $"The Event {ev.Title} has been CANCELED",
-                    $"{motive.Reason}");
+                    $"{dto.Reason}");
 
                 }
                 return Results.Ok("The event has been canceled succesfully");
-
 
             });
 
@@ -148,6 +167,8 @@ public static class EventEndpoint
         {
             Event? ev = await db.Events.FindAsync(id);
             if (ev == null) return Results.NotFound();
+            if (ev.OrganizerEntityId != noticeData.WriterId)
+                return Results.Unauthorized();
 
             Announcement announcement = new Announcement
             {
@@ -156,6 +177,7 @@ public static class EventEndpoint
                 About = noticeData.About,
                 Body = noticeData.Body,
             };
+
             await db.Announcements.AddAsync(announcement);
             await db.SaveChangesAsync();
 
@@ -171,22 +193,23 @@ public static class EventEndpoint
                 $"{announcement.Body}");
 
             }
+
             return Results.Ok("Announcement send correctly");
         });
 
 
         //##################################################################################
         //Deletes an event from the Events Table
-        app.MapDelete("organizer/events/{id}", async (int id, EventOrganizerContext db) =>
+        app.MapDelete("organizer/events/{id}", async (DtoDeleteEvent dto, int id, EventOrganizerContext db) =>
         {
-            if (await db.Events.FindAsync(id) is Event ev)
+            Event? ev = await db.Events.FindAsync(id);
+            if (ev == null) return Results.NotFound();
+            if (ev.OrganizerEntityId != dto.OrganizerId) return Results.Unauthorized();
             {
                 db.Events.Remove(ev);
                 await db.SaveChangesAsync();
                 return Results.NoContent();
             }
-
-            return Results.NotFound();
         });
 
     }
