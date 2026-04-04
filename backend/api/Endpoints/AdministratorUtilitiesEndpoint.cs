@@ -168,6 +168,41 @@ public static class AdministratorUtilitiesEndpoint
             return Results.Ok("The user has been downgraded to a student");
 
         });
+
+        //##############################################################################################################
+        app.MapPost("/administrator/set-active/{id:int}", async (int id, EventOrganizerContext db) =>
+        {
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
+                return Results.NotFound("User not found");
+
+            if (user.Active)
+                return Results.BadRequest("User is already active");
+
+            user.Active = true;
+            await db.SaveChangesAsync();
+
+            return Results.Ok("The user has been activated");
+        });
+
+        //##############################################################################################################
+        app.MapPost("/administrator/set-inactive/{id:int}", async (int id, EventOrganizerContext db) =>
+        {
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
+                return Results.NotFound("User not found");
+
+            if (!user.Active)
+                return Results.BadRequest("User is already inactive");
+
+            user.Active = false;
+            await db.SaveChangesAsync();
+
+            return Results.Ok("The user has been deactivated");
+        });
+
         //##############################################################################################################
         app.MapPost("/administrator/generate-report", async (DtoReport dates, EventOrganizerContext db) =>
         {

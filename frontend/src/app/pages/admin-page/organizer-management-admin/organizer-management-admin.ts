@@ -48,6 +48,14 @@ export class OrganizerManagementAdmin implements OnInit {
     return !!this.searchedUser && this.searchedUser.active && this.searchedUser.role === 'Organizer';
   }
 
+  get canActivate(): boolean {
+    return !!this.searchedUser && !this.searchedUser.active;
+  }
+
+  get canDeactivate(): boolean {
+    return !!this.searchedUser && this.searchedUser.active;
+  }
+
   get displayedOrganizers(): UserSearchResult[] {
     const start = this.organizerPage * this.organizerPageSize;
     return this.currentOrganizers.slice(start, start + this.organizerPageSize);
@@ -178,6 +186,56 @@ export class OrganizerManagementAdmin implements OnInit {
         },
         error: (error) => {
           this.errorMessage = error?.error || 'No se pudo remover el rol de organizador.';
+        },
+        complete: () => {
+          this.isUpdating = false;
+        },
+      });
+  }
+
+  activateUser(): void {
+    if (!this.searchedUser) {
+      return;
+    }
+
+    this.clearMessages();
+    this.isUpdating = true;
+
+    this.http
+      .post(`http://localhost:5053/administrator/set-active/${this.searchedUser.id}`, {})
+      .subscribe({
+        next: () => {
+          this.successMessage = 'El usuario ha sido activado.';
+          this.searchedUser!.active = true;
+          this.loadCurrentUsers();
+        },
+        error: (error) => {
+          this.errorMessage = error?.error || 'No se pudo activar el usuario.';
+        },
+        complete: () => {
+          this.isUpdating = false;
+        },
+      });
+  }
+
+  deactivateUser(): void {
+    if (!this.searchedUser) {
+      return;
+    }
+
+    this.clearMessages();
+    this.isUpdating = true;
+
+    this.http
+      .post(`http://localhost:5053/administrator/set-inactive/${this.searchedUser.id}`, {})
+      .subscribe({
+        next: () => {
+          this.successMessage = 'El usuario ha sido desactivado.';
+          this.searchedUser!.active = false;
+          this.loadCurrentUsers();
+        },
+        error: (error) => {
+          this.errorMessage = error?.error || 'No se pudo desactivar el usuario.';
         },
         complete: () => {
           this.isUpdating = false;

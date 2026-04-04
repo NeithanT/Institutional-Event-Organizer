@@ -26,6 +26,28 @@ public static class AdministratorEventEndpoint
             return Results.Ok(evs);
         });
 
+        //##################################################################################################################
+        //Gets event summaries for content moderation
+        app.MapGet("/administrator/events/moderation", async (EventOrganizerContext db) =>
+        {
+            var evs = await db.Events
+                .Where(e => !db.CanceledEvents.Any(c => c.EventId == e.Id))
+                .Select(e => new
+                {
+                    e.Id,
+                    e.Title,
+                    organizer = e.OrganizerEntity.EntityName,
+                    category = e.Category.NameCategory,
+                    date = e.EventDate,
+                    location = e.Place,
+                    approved = e.ApprovedState,
+                    reports = 0
+                })
+                .ToListAsync();
+
+            return Results.Ok(evs);
+        });
+
         //###################################################################################################################
         app.MapGet("/administrator/events/pending", async (EventOrganizerContext db) =>
         {
