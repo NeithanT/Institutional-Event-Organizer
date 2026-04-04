@@ -1,5 +1,6 @@
-import { Component, signal, HostListener } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, signal, HostListener, Inject } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Authentication, AuthenticationState } from '../../services/authentication';
 
 @Component({
   selector: 'app-navbar',
@@ -10,6 +11,28 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 })
 export class Navbar {
 
+  router: Router = Inject(Router);
+  AuthenticationService: Authentication = Inject(Authentication);
+  navbarLinks: { label: string; route: string }[] = [];
+
+  constructor() {
+    if (this.AuthenticationService.authenticatedState == AuthenticationState.None) {
+      this.router.navigate(['']);
+    }
+
+    this.navbarLinks = [
+      { label: 'Eventos', route: '/events' },
+      { label: 'Mis Eventos', route: '/myevents' },
+    ];
+
+    if (this.AuthenticationService.authenticatedState == AuthenticationState.Admin) {
+      this.navbarLinks.push({ label: 'Crear Evento', route: '/create-event' });
+      this.navbarLinks.push({ label: 'Administrar', route: '/admin' });
+    } else if (this.AuthenticationService.authenticatedState == AuthenticationState.Organizer) {
+      this.navbarLinks.push({ label: 'Crear Evento', route: '/create-event' });
+    }
+
+  }
   showNotifications = signal(false);
 
   // Mock — TODO: cargar desde backend GET /notifications

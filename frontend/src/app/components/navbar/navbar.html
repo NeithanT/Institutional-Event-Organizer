@@ -4,9 +4,9 @@
     <span class="navbar-title">Sistema de Gestión<br />de eventos</span>
   </div>
   <div class="navbar-links">
-    <a routerLink="/user" routerLinkActive="active">Inicio</a>
-    <a routerLink="/events" routerLinkActive="active">Eventos</a>
-    <a routerLink="/inscripciones" routerLinkActive="active">Inscripciones</a>
+    @for (link of navbarLinks; track link) {
+      <a routerLink="{{ link.route }}" routerLinkActive="active">{{ link.label }}</a>
+    }
   </div>
   <div class="navbar-icons">
     <!-- Notificaciones -->

@@ -80,7 +80,9 @@ export class LoginPage {
       }
 
       const data = await response.json();
-      this.authService.setAuthenticationState(data.role ?? data.rol);
+      this.authService.setAuthenticationState(
+        data.roleName
+      );
       this.loginError = '';
 
       await this.router.navigate(['/user']);
