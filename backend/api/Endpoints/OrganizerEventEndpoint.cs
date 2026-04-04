@@ -4,7 +4,6 @@ using api.DTOs;
 using api.Interfaces;
 using api.Models;
 using api.Services;
-using Google.Apis.Util;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -118,7 +117,7 @@ public static class EventEndpoint
 
                 if (ev == null)
                     return Results.NotFound();
-                if (ev.OrganizerEntityId != dto.OrganizerId)
+                if (ev.OrganizerId != dto.OrganizerId)
                     return Results.Unauthorized();
 
                 //Check if event has been approved
@@ -190,7 +189,7 @@ public static class EventEndpoint
             var emailTasks = enrolledEmails.Select(email =>
                     mailService.SendEmailAsync(email, $"ANNOUNCEMENT: {announcement.Title}", announcement.Body)
                 );
-            _ = Task.WhenAll(emailTasks);
+            await Task.WhenAll(emailTasks);
 
             return Results.Ok("Announcement send correctly");
         });
