@@ -15,7 +15,7 @@ public partial class Announcement
 
     public string Body { get; set; } = null!;
 
-    public int EventId { get; set; }
+    public int? EventId { get; set; }
 
     public virtual User Writer { get; set; } = null!;
 }
