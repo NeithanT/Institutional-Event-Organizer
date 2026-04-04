@@ -29,7 +29,7 @@ builder.Services.AddDbContext<EventOrganizerContext>(
 builder.Services.AddScoped<IEmailService, GmailApiService>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IInscriptionService, InscriptionService>();
-
+builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 
 // CORS: allow everything (use only in development / local testing)
 var corsPolicyName = "AllowAll";
@@ -119,5 +119,8 @@ OrganizerCategoriesEndpoint.mapOrganizerCategoriesEndpoint(app);
 StudentEventEndpoint.mapStudentEventEndpoints(app);
 
 StudentInscriptionEndpoint.mapStudentInscriptionEndpoints(app);
+
+StudentAnnouncementEndpoint.mapStudentAnnouncementEndpoints(app);
+
 
 app.Run();
