@@ -4,6 +4,17 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Sidebar } from '../../../components/sidebar/sidebar';
 
+//Interfaces
+interface OrganizerEntity {
+  id: number;
+  entityName: string;
+}
+
+interface Category {
+  id: number;
+  nameCategory: string;
+}
+
 @Component({
   selector: 'app-create-event',
   standalone: true,
@@ -11,7 +22,6 @@ import { Sidebar } from '../../../components/sidebar/sidebar';
   templateUrl: './create-event.html',
   styleUrl: './create-event.css'
 })
-
 export class CreateEvent implements OnInit {
 
   title: string = '';
@@ -31,32 +41,47 @@ export class CreateEvent implements OnInit {
     { label: 'Mis Eventos', route: '/events' }
   ];
 
-  // lista dinámica desde backend
-  organizerEntities: any[] = [];
+ 
+  organizerEntities: OrganizerEntity[] = [];
+  categories: Category[] = [];
 
   constructor(private http: HttpClient) {}
 
+  ngOnInit() {
+    console.log("INIT FUNCIONANDO");
+    this.loadOrganizerEntities();
+    this.loadCategories(); // 
+  }
 
-ngOnInit() {
-  console.log("INIT FUNCIONANDO");
-  this.loadOrganizerEntities();
-}
+  //  traer unidades organizadoras
+  loadOrganizerEntities() {
+    this.http.get<OrganizerEntity[]>('http://localhost:5053/organizer/get-entities')
+      .subscribe({
+        next: (data) => {
+          console.log('ENTITIES:', data);
+          this.organizerEntities = data;
+        },
+        error: (err) => {
+          console.error('ERROR ENTITIES:', err);
+        }
+      });
+  }
 
-  // traer unidades organizadoras desde backend
-loadOrganizerEntities() {
-  this.http.get<any[]>('http://localhost:5053/organizer/get-entities')
-    .subscribe({
-      next: (data) => {
-        console.log('DATA LLEGO:', data);
-        this.organizerEntities = data;
-      },
-      error: (err) => {
-        console.error('ERROR:', err);
-      }
-    });
-}
+  //  traer categorías dinámicas
+  loadCategories() {
+    this.http.get<Category[]>('http://localhost:5053/organizer/get-events-categories')
+      .subscribe({
+        next: (data) => {
+          console.log('CATEGORIES:', data);
+          this.categories = data;
+        },
+        error: (err) => {
+          console.error('ERROR CATEGORIES:', err);
+        }
+      });
+  }
 
-  //captura archivo real
+  // captura archivo
   onFileSelected(event: any) {
     const file = event.target.files[0];
 
@@ -74,10 +99,8 @@ loadOrganizerEntities() {
     }
 
     const formattedDate = new Date(this.date).toISOString();
-
     const formData = new FormData();
 
-   
     formData.append('Title', this.title);
     formData.append('EventDate', formattedDate);
     formData.append('Place', this.place);
@@ -89,7 +112,6 @@ loadOrganizerEntities() {
     formData.append('OrganizerId', this.organizerId.toString());
     formData.append('OrganizerEntityId', this.organizerEntityId.toString());
 
-  
     if (this.selectedFile) {
       formData.append('ImageFileEvent', this.selectedFile);
     }
