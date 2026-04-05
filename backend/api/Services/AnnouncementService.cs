@@ -39,7 +39,8 @@ public class AnnouncementService : IAnnouncementService
                 Title = a.Title,
                 About = a.About,
                 WriterName = a.Writer.UserName,
-                EventTitle = a.Event != null ? a.Event.Title : null
+                EventTitle = a.Event != null ? a.Event.Title : null,
+                EventDate = a.Event != null ? a.Event.EventDate : null
             })
             .ToListAsync();
     }
