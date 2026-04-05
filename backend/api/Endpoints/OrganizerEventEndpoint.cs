@@ -17,7 +17,7 @@ public static class EventEndpoint
         app.MapGet("organizer/my-events/all", async ([FromQuery] int organizerId, EventOrganizerContext db) =>
         {
             var events = await db.Events
-                        .Where(e => e.OrganizerEntityId == organizerId)
+                        .Where(e => e.OrganizerId == organizerId)
                         .ToListAsync();
 
             return Results.Ok(events);
@@ -33,7 +33,7 @@ public static class EventEndpoint
                                 .Where(ev =>
                                     !db.CanceledEvents.Any(c => c.EventId == ev.Id)
                                     &&
-                                    ev.OrganizerEntityId == organizerId
+                                    ev.OrganizerId == organizerId
                                 ).
                                 ToListAsync();
             return Results.Ok(availableEvents);
@@ -47,7 +47,7 @@ public static class EventEndpoint
         {
             Event? ev = await db.Events.FindAsync(id);
             if (ev == null) return Results.NotFound("Event not found");
-            if (ev.OrganizerEntityId != organizerId) return Results.Unauthorized();
+            if (ev.OrganizerId != organizerId) return Results.Unauthorized();
             return Results.Ok(ev);
 
         });
@@ -79,7 +79,7 @@ public static class EventEndpoint
 
                     imagePath = "/uploads/" + uniqueFileName;
                 }
-                
+
                 if (createEventDto.EventDate < DateTime.UtcNow)
                     return Results.BadRequest("Cannot create an event in the past");
 
@@ -207,7 +207,7 @@ public static class EventEndpoint
         {
             Event? ev = await db.Events.FindAsync(id);
             if (ev == null) return Results.NotFound();
-            if (ev.OrganizerEntityId != organizerId) return Results.Unauthorized();
+            if (ev.OrganizerId != organizerId) return Results.Unauthorized();
             {
                 db.Events.Remove(ev);
                 await db.SaveChangesAsync();
