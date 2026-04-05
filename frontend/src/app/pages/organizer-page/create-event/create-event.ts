@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Sidebar } from '../../../components/sidebar/sidebar';
+import { Authentication } from '../../../services/authentication';
 
 //Interfaces
 interface OrganizerEntity {
@@ -31,9 +32,8 @@ export class CreateEvent implements OnInit {
   capacity: number = 0;
   isVirtual: boolean = false;
   categoryId: number = 0;
-  organizerId: number = 1; 
   organizerEntityId: number = 0;
-
+  organizerId: number = 0;
   selectedFile: File | null = null;
 
   sidebarLinks = [
@@ -45,12 +45,19 @@ export class CreateEvent implements OnInit {
   organizerEntities: OrganizerEntity[] = [];
   categories: Category[] = [];
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private auth: Authentication
+  ) {}
 
   ngOnInit() {
     console.log("INIT FUNCIONANDO");
+    this.organizerId = this.auth.userId;
     this.loadOrganizerEntities();
     this.loadCategories(); // 
+    console.log("USER ID:", this.auth.userId);
+    console.log("LOCAL STORAGE:", localStorage.getItem('authentication-user-id'));
+    
   }
 
   //  traer unidades organizadoras
@@ -92,11 +99,35 @@ export class CreateEvent implements OnInit {
   }
 
   saveEvent() {
+if (
+    !this.title.trim() ||
+    !this.description.trim() ||
+    !this.date ||
+    !this.place.trim() ||
+    this.capacity <= 0 ||
+    !this.categoryId ||
+    !this.organizerEntityId
+  ) {
+    alert('Todos los campos son obligatorios');
+    return;
+  }
 
-    if (!this.categoryId || !this.organizerEntityId) {
-      alert('Seleccione categoría y unidad organizadora');
-      return;
-    }
+  //VALIDACIÓN DE LONGITUD (error que ya  pasó)
+  if (this.description.length > 300) {
+    alert('La descripción no puede superar los 300 caracteres');
+    return;
+  }
+
+  if (this.title.length > 300) {
+    alert('El título no puede superar los 300 caracteres');
+    return;
+  }
+
+  if (this.place.length > 300) {
+    alert('El lugar no puede superar los 300 caracteres');
+    return;
+  }
+
 
     const formattedDate = new Date(this.date).toISOString();
     const formData = new FormData();
@@ -111,6 +142,7 @@ export class CreateEvent implements OnInit {
     formData.append('CategoryId', this.categoryId.toString());
     formData.append('OrganizerId', this.organizerId.toString());
     formData.append('OrganizerEntityId', this.organizerEntityId.toString());
+
 
     if (this.selectedFile) {
       formData.append('ImageFileEvent', this.selectedFile);
