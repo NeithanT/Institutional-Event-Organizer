@@ -1,7 +1,11 @@
 import { Component, signal, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
 import { Navbar } from '../../components/navbar/navbar';
 import { Footer } from '../../components/footer/footer';
+import { EventService } from '../../services/event.service';
+import { InscriptionService } from '../../services/inscription.service';
+import { Authentication } from '../../services/authentication';
 
 interface EventDetail {
   id: number;
@@ -12,6 +16,8 @@ interface EventDetail {
   fecha: string;
   isPast: boolean;
   isInscribed: boolean;
+  isCanceled: boolean;
+  cancelReason: string | null;
 }
 
 @Component({
@@ -25,53 +31,51 @@ export class EventDetailPage implements OnInit {
 
   showSuccessModal = signal(false);
   event = signal<EventDetail | null>(null);
+  private eventId = 0;
 
-  // Mock data — TODO: reemplazar con GET /events/:id
-  private mockEvents: EventDetail[] = [
-    {
-      id: 1,
-      title: 'Karaoke-Chan',
-      content: 'NUEVO EVENTO!!! Karaoke-Chan\n\nUnete a nuestro nuevo evento de Café en el B3 el día 07 de Mayo. Tendremos:\n\n• Karaoke para nuestros invitados\n• Comida gratis para nuestros invitados\n\nNo te lo pierdas,',
-      organizer: 'Organizador XXX',
-      cupos: 3,
-      fecha: '07 de mayo 2026',
-      isPast: false,
-      isInscribed: false
-    },
-    {
-      id: 2,
-      title: 'Coffee Station',
-      content: 'NUEVO EVENTO!!! COFFEE-STATION\n\nUnete a nuestro nuevo evento de Café en el B3 el día 07 de Mayo. Tendremos:\n\n• Café gourmet para nuestros invitados\n• Comida gratis para nuestros invitados\n\nNo te lo pierdas,',
-      organizer: 'Organizador XXX',
-      cupos: 0,
-      fecha: '07 de mayo 2026',
-      isPast: true,
-      isInscribed: false
-    },
-    {
-      id: 3,
-      title: 'Swimming Pool',
-      content: 'Evento de natación en las instalaciones del TEC.\n\n• Acceso a la piscina olímpica\n• Instructor disponible\n• Refrescos incluidos\n\nCupos limitados, ¡inscribite ya!',
-      organizer: 'Deportes TEC',
-      cupos: 10,
-      fecha: '10 de mayo 2026',
-      isPast: false,
-      isInscribed: false
-    }
-  ];
-
-  constructor(private route: ActivatedRoute) {}
+  constructor(
+    private route: ActivatedRoute,
+    private eventService: EventService,
+    private inscriptionService: InscriptionService,
+    private auth: Authentication
+  ) {}
 
   ngOnInit() {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    const found = this.mockEvents.find(e => e.id === id) ?? this.mockEvents[0];
-    this.event.set(found);
+    this.eventId = Number(this.route.snapshot.paramMap.get('id'));
+    const userId = this.auth.userId;
+
+    const inscriptions$ = userId > 0
+      ? this.inscriptionService.getInscriptions(userId)
+      : of([]);
+
+    forkJoin([this.eventService.getEvent(this.eventId), inscriptions$]).subscribe({
+      next: ([dto, inscriptions]) => {
+        this.event.set({
+          id:          dto.id,
+          title:       dto.title,
+          content:     dto.eventDescription,
+          organizer:   dto.organizerName,
+          cupos:       dto.availableEntries,
+          fecha:       dto.eventDate,
+          isPast:      new Date(dto.eventDate) < new Date(),
+          isInscribed: inscriptions.some(i => i.eventId === dto.id),
+          isCanceled:  dto.isCanceled,
+          cancelReason: dto.cancelReason ?? null,
+        });
+      }
+    });
   }
 
   inscribir() {
-    // TODO: llamar al backend POST /inscriptions { eventId }
-    this.event.update(e => e ? { ...e, cupos: e.cupos - 1, isInscribed: true } : e);
-    this.showSuccessModal.set(true);
+    const userId = this.auth.userId;
+    if (userId <= 0) return;
+
+    this.inscriptionService.inscribe(this.eventId, userId).subscribe({
+      next: () => {
+        this.event.update(e => e ? { ...e, cupos: e.cupos - 1, isInscribed: true } : e);
+        this.showSuccessModal.set(true);
+      }
+    });
   }
 
   closeModal() {

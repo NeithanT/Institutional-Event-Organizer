@@ -1,0 +1,58 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+export interface EventSummaryDto {
+  id: number;
+  title: string;
+  place: string;
+  eventDate: string;
+  category: string;
+  organizerEntity: string;
+  availableEntries: number;
+  isVirtual: boolean;
+  imageFileEvent: string | null;
+}
+
+export interface EventDetailDto {
+  id: number;
+  title: string;
+  place: string;
+  eventDate: string;
+  eventDescription: string;
+  category: string;
+  organizerEntity: string;
+  organizerName: string;
+  availableEntries: number;
+  isVirtual: boolean;
+  imageFileEvent: string | null;
+  isCanceled: boolean;
+  cancelReason: string | null;
+}
+
+export interface EventFilters {
+  category?: string;
+  modality?: string;
+  organizerEntity?: string;
+  date?: string;
+}
+
+@Injectable({ providedIn: 'root' })
+export class EventService {
+  private base = 'http://localhost:5053/api';
+
+  constructor(private http: HttpClient) {}
+
+  getEvents(filters: EventFilters = {}): Observable<EventSummaryDto[]> {
+    let params = new HttpParams();
+    if (filters.category)        params = params.set('category', filters.category);
+    if (filters.modality)        params = params.set('modality', filters.modality);
+    if (filters.organizerEntity) params = params.set('organizerEntity', filters.organizerEntity);
+    if (filters.date)            params = params.set('date', filters.date);
+    return this.http.get<EventSummaryDto[]>(`${this.base}/events`, { params });
+  }
+
+  getEvent(id: number): Observable<EventDetailDto> {
+    return this.http.get<EventDetailDto>(`${this.base}/events/${id}`);
+  }
+}

@@ -11,7 +11,6 @@
       Regresar a la lista
     </a>
   </div>
-
 </section>
 
 <!-- Content -->
@@ -36,7 +35,9 @@
 
       <!-- Footer del card -->
       <div class="card-footer">
-        @if (ev.isPast) {
+        @if (ev.isCanceled) {
+          <span class="past-label">Evento cancelado{{ ev.cancelReason ? ': ' + ev.cancelReason : '' }}</span>
+        } @else if (ev.isPast) {
           <span class="past-label">Este evento ya ocurrió</span>
         } @else if (ev.isInscribed) {
           <span class="inscribed-label">✓ Ya estás inscrito</span>
