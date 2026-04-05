@@ -30,24 +30,18 @@
         <div class="row mb-3">
           <div class="col">
             <label class="form-label">Categoría</label>
-            <select class="form-select" [(ngModel)]="categoryId"
-              name="categoryId">
-             <option [ngValue]="0" disabled>Seleccione una categoría</option>
-              <option [ngValue]="1">Académico</option>
-              <option [ngValue]="2">Cultural</option>
-              <option [ngValue]="3">Deportivo</option>
-              <option [ngValue]="4">Tecnológico</option>
-              <option [ngValue]="9">Comunidad</option>
-              <option [ngValue]="10">Salud</option>
-            </select>
+            <select class="form-select" [(ngModel)]="categoryId" name="categoryId">
+            <option [ngValue]="0" disabled>Seleccione una categoría</option>
+            <option *ngFor="let cat of categories" [ngValue]="cat.id">
+              {{ cat.nameCategory }}
+            </option>
+          </select>
           </div>
 
           <div class="col">
             <label class="form-label">Unidad Organizadora</label>
            <select [(ngModel)]="organizerEntityId" name="organizerEntityId" class="form-select">
-
-            <option value="">Seleccione unidad</option>
-
+             <option [ngValue]="0" disabled>Seleccione una unidad</option>
             <option *ngFor="let entity of organizerEntities" [value]="entity.id">
               {{ entity.entityName }}
             </option>
