@@ -36,10 +36,10 @@ export class CreateEvent implements OnInit {
   organizerId: number = 0;
   selectedFile: File | null = null;
 
-  sidebarLinks = [
-    { label: 'Crear Eventos', route: '/create-event' },
-    { label: 'Mis Eventos', route: '/events' }
-  ];
+sidebarLinks = [
+  { label: 'Crear Eventos', route: '/create-event' },
+  { label: 'Mis Eventos', route: '/organizer-events' }
+];
 
  
   organizerEntities: OrganizerEntity[] = [];
@@ -111,7 +111,13 @@ if (
     alert('Todos los campos son obligatorios');
     return;
   }
+  const selectedDate = new Date(this.date);
+  const now = new Date();
 
+  if (selectedDate < now) {
+    alert('No puedes seleccionar una fecha pasada');
+    return;
+  }
   //VALIDACIÓN DE LONGITUD (error que ya  pasó)
   if (this.description.length > 300) {
     alert('La descripción no puede superar los 300 caracteres');
