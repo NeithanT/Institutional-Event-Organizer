@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using QuestPDF.Infrastructure;
 QuestPDF.Settings.License = LicenseType.Community;
 
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-
 var builder = WebApplication.CreateBuilder(args);
 
 // builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
