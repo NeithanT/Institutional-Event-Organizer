@@ -21,9 +21,9 @@ export class LoginPage {
   private cdr = inject(ChangeDetectorRef);
 
   isRegistering: boolean = false;
+  showSuccessModal: boolean = false;
   loginError = '';
   registerError = '';
-  registerSuccess = '';
 
   loginForm = this.fb.group({
     correo: ['', [Validators.required, Validators.email, Validators.pattern(INSTITUTIONAL_EMAIL_PATTERN)]],
@@ -42,7 +42,6 @@ export class LoginPage {
     this.isRegistering = true;
     this.loginError = '';
     this.registerError = '';
-    this.registerSuccess = '';
   }
 
   async onLogin() {
@@ -98,7 +97,6 @@ export class LoginPage {
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
       this.registerError = this.getInstitutionalEmailError(this.registerForm.get('correo')) ?? 'Complete los campos requeridos.';
-      this.registerSuccess = '';
       return;
     }
 
@@ -107,7 +105,6 @@ export class LoginPage {
 
     if (!Number.isInteger(idCard) || idCard < 1950000000 || idCard > 2050000000) {
       this.registerError = 'El carne debe ser valido.';
-      this.registerSuccess = '';
       return;
     }
 
@@ -133,9 +130,7 @@ export class LoginPage {
           response,
           response.status === 409 ? 'Ese correo ya está registrado.' : 'No se pudo completar el registro.'
         );
-
         this.registerError = errorBody;
-        this.registerSuccess = '';
         this.cdr.detectChanges();
         return;
       }
@@ -144,18 +139,24 @@ export class LoginPage {
       this.authService.setAuthenticationState(data.role ?? data.rol ?? 'user');
       this.authService.setUserId(data.id ?? data.Id ?? 0);
       this.registerError = '';
-      this.registerSuccess = 'Cuenta creada correctamente.';
-      this.cdr.detectChanges();
-
       this.registerForm.reset();
-      this.onCancel();
+      this.showSuccessModal = true;
+      this.cdr.detectChanges();
 
     } catch (error) {
       console.error('Error en el registro', error);
       this.registerError = 'No se pudo conectar con el servidor.';
-      this.registerSuccess = '';
       this.cdr.detectChanges();
     }
+  }
+
+  onSuccessContinue() {
+    this.showSuccessModal = false;
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      this.isRegistering = false;
+      this.cdr.detectChanges();
+    }, 80);
   }
 
   onCancel() {
@@ -163,7 +164,6 @@ export class LoginPage {
     this.registerForm.reset();
     this.loginError = '';
     this.registerError = '';
-    this.registerSuccess = '';
   }
 
   private getInstitutionalEmailError(control: AbstractControl | null): string | null {

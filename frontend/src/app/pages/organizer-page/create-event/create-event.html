@@ -1,10 +1,11 @@
 <div class="main-container d-flex">
+
   <app-sidebar class="sidebar-wrapper" [links]="sidebarLinks"></app-sidebar>
 
   <!-- CONTENIDO -->
-  <div class="content d-flex justify-content-center align-items-center">
+  <div class="content d-flex justify-content-center align-items-center" style="width: 100%">
 
-    <div class="form-card card shadow p-4">
+    <div class="form-card card shadow p-4" style="width: 80%;">
 
       <h4 class="mb-1">Crear Nuevo Evento</h4>
       <p class="text-muted mb-4">Complete la información detallada para que el
@@ -69,14 +70,14 @@
           <input type="text" class="form-control" [(ngModel)]="place"
             name="place">
         </div>
-      
+
         <div class="mb-3">
           <label class="form-label">Modalidad</label><br>
          <div class="form-check">
-          <input 
-            type="checkbox" 
-            class="form-check-input" 
-            [(ngModel)]="isVirtual" 
+          <input
+            type="checkbox"
+            class="form-check-input"
+            [(ngModel)]="isVirtual"
             name="isVirtual"
             id="isVirtual">
           <label class="form-check-label" for="isVirtual">
@@ -84,7 +85,7 @@
           </label>
         </div>
         </div>
-      
+
 
        <div class="text-end">
         <button type="submit" class="btn btn-primary">

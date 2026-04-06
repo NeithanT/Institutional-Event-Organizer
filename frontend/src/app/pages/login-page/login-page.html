@@ -1,12 +1,52 @@
 <div class="main-container">
+  <div class="login-card" [class.is-registering]="isRegistering">
 
-  <div class="login-card">
+    <!-- Panel blanco (logo) -->
+    <div class="panel-white">
+      <app-login-logo />
+    </div>
 
-    @if(isRegistering) {
-      <app-login-logo></app-login-logo>
+    <!-- Panel azul (login o registro) -->
+    <div class="panel-blue">
 
-      <div class="register-section">
+      @if (!isRegistering) {
+        <!-- LOGIN -->
+        <h2><strong>Inicio de Sesión</strong></h2>
 
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+          <div class="form-group">
+            <label class="field-label">
+              Correo
+              <span class="required" [class.visible]="loginForm.get('correo')?.invalid && loginForm.get('correo')?.touched">*</span>
+            </label>
+            <input formControlName="correo" type="email" placeholder="Ingrese su correo">
+          </div>
+
+          <div class="form-group">
+            <label class="field-label">
+              Contraseña
+              <span class="required" [class.visible]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">*</span>
+            </label>
+            <input formControlName="password" type="password" placeholder="Ingrese su contraseña">
+          </div>
+
+          <div class="button-group">
+            <button type="button" class="btn primary" (click)="toggleRegister()">Registrar Cuenta</button>
+            <button type="submit" class="btn primary">Iniciar Sesión</button>
+          </div>
+        </form>
+
+        <div>
+          <div class="error-container">
+            @if (loginError) {
+              <p class="error-message">{{ loginError }}</p>
+            }
+          </div>
+          <a class="help-link">¿Tiene problemas para acceder?</a>
+        </div>
+
+      } @else {
+        <!-- REGISTRO -->
         <h2><strong>Registro de Cuenta</strong></h2>
 
         <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
@@ -58,54 +98,28 @@
           <div class="error-container">
             @if (registerError) {
               <p class="error-message">{{ registerError }}</p>
-            } @else if (registerSuccess) {
-              <p class="success-message">{{ registerSuccess }}</p>
             }
           </div>
         </form>
-      </div>
-    } @else {
-      <!-- IZQUIERDA -->
-      <div class="left-section">
-        <h2><strong>Inicio de Sesión</strong></h2>
+      }
 
-        <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
-          <div class="form-group">
-            <label class="field-label">
-              Correo
-              <span class="required" [class.visible]="loginForm.get('correo')?.invalid && loginForm.get('correo')?.touched">*</span>
-            </label>
-            <input formControlName="correo" type="email" placeholder="Ingrese su correo">
+    </div>
+
+    <!-- Modal éxito (dentro del card para el overlay) -->
+    @if (showSuccessModal) {
+      <div class="success-overlay">
+        <div class="success-modal">
+          <div class="success-circle">
+            <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
           </div>
-
-          <div class="form-group">
-            <label class="field-label">
-              Contraseña
-              <span class="required" [class.visible]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">*</span>
-            </label>
-            <input formControlName="password" type="password" placeholder="Ingrese su contraseña">
-          </div>
-
-          <div class="button-group">
-            <button type="button" class="btn primary" (click)="toggleRegister()">Registrar Cuenta</button>
-            <button type="submit" class="btn primary">Iniciar Sesión</button>
-          </div>
-        </form>
-
-        <div>
-            <div class="error-container">
-              @if (loginError) {
-                <p class="error-message">{{ loginError }}</p>
-              }
-            </div>
-            <a class="help-link">¿Tiene problemas para acceder?</a>
+          <h3 class="success-title">¡ÉXITO!</h3>
+          <p class="success-message">Tus datos han sido registrados correctamente</p>
+          <button class="btn-continuar" (click)="onSuccessContinue()">Continuar</button>
         </div>
       </div>
-
-      <!-- DERECHA -->
-      <app-login-logo></app-login-logo>
     }
 
   </div>
-
 </div>
