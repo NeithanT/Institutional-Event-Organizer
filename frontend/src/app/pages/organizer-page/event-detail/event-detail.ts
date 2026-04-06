@@ -69,12 +69,18 @@ export class EventDetail implements OnInit {
   }
 cancelEvent() {
   const confirmacion = confirm('¿Estás seguro de que deseas cancelar este evento?');
-
   if (!confirmacion) return;
+
+  const reason = prompt('Escribe el motivo de cancelación (se enviará a todos los participantes):');
+
+  if (!reason || !reason.trim()) {
+    alert(' Debes escribir un motivo de cancelación');
+    return;
+  }
 
   const body = {
     organizerId: this.organizerId,
-    reason: 'Cancelado por el organizador'
+    reason: reason.trim()
   };
 
   this.http.post(
@@ -82,7 +88,7 @@ cancelEvent() {
     body
   ).subscribe({
     next: () => {
-      alert('Evento cancelado correctamente');
+      alert('Evento cancelado correctamente. Se notificó a todos los participantes.');
       this.router.navigate(['/organizer-events']);
     },
     error: (err) => {
