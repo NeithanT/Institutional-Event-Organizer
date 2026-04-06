@@ -8,6 +8,16 @@ namespace api.Endpoints;
 
 public static class AdministratorEventEndpoint
 {
+    private static bool IsValidData(DtoEditEvent d)
+    {
+        return !(
+            d.IdEvent < 0
+        || string.IsNullOrEmpty(d.EventDate.ToString())
+        || d.EventDate < DateTime.Now
+        || string.IsNullOrEmpty(d.EventDescription)
+        || string.IsNullOrEmpty(d.Place)
+        || string.IsNullOrEmpty(d.Title));
+    }
     public static void mapAdministratorEndpoints(WebApplication app)
     {
         //Just in case you guys need to get all the events (event the denied and canceled ones) for some reason
@@ -115,11 +125,32 @@ public static class AdministratorEventEndpoint
             if (eventToApprove.ApprovedState == true) return Results.BadRequest("Event has already been approved");
             if (await db.CanceledEvents.AnyAsync(e => e.EventId == id)) return Results.BadRequest("Event already been canceled by organizer");
 
-  
+
             eventToApprove.ApprovedState = true; ;
             await db.SaveChangesAsync();
             return Results.Ok("Event has been approved successfully");
         });
+
+        //##################################################################################################################
+        app.MapPut("administrator/events", async (DtoEditEvent editEventDto, EventOrganizerContext db) =>
+               {
+
+                   Event? ev = await db.Events.FindAsync(editEventDto.IdEvent);
+                   if (ev == null) return Results.NotFound("Event not found to update");
+
+                   if (!IsValidData(editEventDto)) return Results.BadRequest("Invalid data to update");
+
+                   ev.Title = editEventDto.Title;
+                   ev.EventDescription = editEventDto.EventDescription;
+                   ev.EventDate = editEventDto.EventDate;
+                   ev.Place = editEventDto.Place;
+                   ev.IsVirtual = editEventDto.IsVirtual;
+
+                   await db.SaveChangesAsync();
+
+                   return Results.Ok($"Event updated succesfully");
+               });
+
         //##################################################################################################################
         //Changes the status of an event to approved = false and add it to the canceled table
         app.MapPost("/administrator/{id:int}/deny", async (DtoDenyEvent dtoDeny, int id, EventOrganizerContext db) =>
