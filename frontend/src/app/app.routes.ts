@@ -26,8 +26,13 @@ export const routes: Routes = [
   canActivate: [AuthenticationGuard]
 },
 {
-  path: 'events/:id',
+  path: 'detail-event/:id',
   loadComponent: () => import('./pages/organizer-page/event-detail/event-detail').then(m => m.EventDetail),
+  canActivate: [AuthenticationGuard]
+},
+{
+  path: 'edit-event/:id',
+  loadComponent: () => import('./pages/organizer-page/edit-event/edit-event').then(m => m.EditEvent),
   canActivate: [AuthenticationGuard]
 },
   {

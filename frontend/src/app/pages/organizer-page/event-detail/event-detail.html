@@ -36,7 +36,11 @@
             <ng-container *ngIf="getEventStatus() === 'approved'">
               <button class="btn btn-success     fw-semibold px-4">📋 Asistencia</button>
               <button class="btn btn-primary     fw-semibold px-4">✉️ Comunicado</button>
-              <button class="btn btn-warning     fw-semibold px-4">✏️ Editar</button>
+              <button 
+                class="btn btn-warning fw-semibold px-4"
+                [routerLink]="['/edit-event', event.id]">
+                ✏️ Editar
+              </button>
               <button class="btn btn-danger      fw-semibold px-4">🗑️ Eliminar</button>
             </ng-container>
 
@@ -47,7 +51,11 @@
 
             <!-- PENDIENTE -->
             <ng-container *ngIf="getEventStatus() === 'pending'">
-              <button class="btn btn-warning     fw-semibold px-4">✏️ Editar</button>
+              <button 
+                class="btn btn-warning fw-semibold px-4"
+                [routerLink]="['/edit-event', event.id]">
+                ✏️ Editar
+              </button>
               <button class="btn btn-danger      fw-semibold px-4">🗑️ Eliminar</button>
             </ng-container>
 

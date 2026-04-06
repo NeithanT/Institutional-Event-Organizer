@@ -4,11 +4,11 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Authentication } from '../../../services/authentication';
 import { Sidebar } from '../../../components/sidebar/sidebar';
-
+import { RouterModule } from '@angular/router';
 @Component({
   selector: 'app-event-detail',
   standalone: true,
-  imports: [CommonModule, Sidebar],
+  imports: [CommonModule, Sidebar, RouterModule],
   templateUrl: './event-detail.html',
   styleUrl: './event-detail.css'
 })
