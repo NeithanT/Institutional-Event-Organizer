@@ -1,1 +1,8 @@
 # GET http://localhost:5053/users
+
+PUT http://localhost:5053/user/customize/1
+Content-Type: application/json
+
+{
+    "Biography": "I am a organizer"
+}

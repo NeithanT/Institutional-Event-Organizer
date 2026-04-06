@@ -104,6 +104,7 @@ app.UseCors(corsPolicyName);
 app.UseHttpsRedirection();
 
 AuthenticationEndpoint.mapAuthenticationEndpoints(app);
+UserCustomizingEndpoint.mapUserCustomizingEndpoints(app);
 
 EventEndpoint.mapOrganizerEventEndpoints(app);
 
