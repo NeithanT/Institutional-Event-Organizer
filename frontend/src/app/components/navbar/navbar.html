@@ -17,21 +17,21 @@
       <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
       <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
     </svg>
-    @if (notifications.length > 0) {
-      <span class="notif-badge">{{ notifications.length }}</span>
+    @if (notifications().length > 0) {
+      <span class="notif-badge">{{ notifications().length }}</span>
     }
   </button>
 
   @if (showNotifications()) {
     <div class="notif-dropdown">
       <div class="notif-header">Notificaciones</div>
-      @for (n of notifications; track n.id) {
-        <a class="notif-item" [routerLink]="['/announcements', n.announcementId]" (click)="showNotifications.set(false)">
+      @for (n of notifications(); track n.id) {
+        <a class="notif-item" [routerLink]="['/announcements', n.id]" (click)="showNotifications.set(false)">
           <span class="notif-title">{{ n.title }}</span>
           <span class="notif-date">{{ n.date }}</span>
         </a>
       }
-      @if (notifications.length === 0) {
+      @if (notifications().length === 0) {
         <div class="notif-empty">Sin notificaciones</div>
       }
     </div>
