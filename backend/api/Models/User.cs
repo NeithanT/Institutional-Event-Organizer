@@ -13,6 +13,12 @@ public partial class User
 
     public string Email { get; set; } = null!;
 
+    public string? Biography { get; set; }
+
+    public string? UrlImageProfile { get; set; }
+
+    public string? PreferredLanguage { get; set; }
+
     public bool Active { get; set; }
 
     public int RoleId { get; set; }
