@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, signal, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { Navbar } from '../../components/navbar/navbar';
@@ -27,8 +27,8 @@ interface EventoItem {
 })
 export class UserPage implements OnInit {
 
-  anuncios: AnuncioItem[] = [];
-  eventos: EventoItem[] = [];
+  anuncios = signal<AnuncioItem[]>([]);
+  eventos  = signal<EventoItem[]>([]);
 
   constructor(
     private eventService: EventService,
@@ -41,19 +41,19 @@ export class UserPage implements OnInit {
       this.announcementService.getAnnouncements()
     ]).subscribe({
       next: ([eventDtos, annDtos]) => {
-        this.eventos = eventDtos.slice(0, 6).map(dto => ({
+        this.eventos.set(eventDtos.slice(0, 6).map(dto => ({
           id:     dto.id,
           titulo: dto.title,
           imagen: dto.imageFileEvent || '',
-        }));
+        })));
 
-        this.anuncios = annDtos.slice(0, 6).map(dto => ({
+        this.anuncios.set(annDtos.slice(0, 6).map(dto => ({
           id:     dto.id,
           titulo: dto.title,
           fecha:  dto.eventDate
             ? new Date(dto.eventDate).toLocaleDateString('es-CR', { day: 'numeric', month: 'long', year: 'numeric' })
             : '',
-        }));
+        })));
       }
     });
   }
