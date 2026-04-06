@@ -1,6 +1,13 @@
-import { Component, signal, HostListener, inject } from '@angular/core';
+import { Component, signal, HostListener, inject, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Authentication, AuthenticationState } from '../../services/authentication';
+import { AnnouncementService } from '../../services/announcement.service';
+
+interface NotificationItem {
+  id: number;
+  title: string;
+  date: string;
+}
 
 @Component({
   selector: 'app-navbar',
@@ -9,10 +16,11 @@ import { Authentication, AuthenticationState } from '../../services/authenticati
   templateUrl: './navbar.html',
   styleUrl: './navbar.css'
 })
-export class Navbar {
+export class Navbar implements OnInit {
 
   router: Router = inject(Router);
   authenticationService: Authentication = inject(Authentication);
+  announcementService: AnnouncementService = inject(AnnouncementService);
   navbarLinks: { label: string; route: string }[] = [];
 
   constructor() {
@@ -33,22 +41,29 @@ export class Navbar {
     } else if (this.authenticationService.authenticatedState === AuthenticationState.Organizer) {
       this.navbarLinks.push({ label: 'Crear Evento', route: '/create-event' });
     }
-
   }
-  showNotifications = signal(false);
 
-  // Mock — TODO: cargar desde backend GET /notifications
-  notifications = [
-    { id: 1, title: 'Cancelación del Evento Karaoke-Chan', date: '19 de febrero 2026', announcementId: 1 },
-    { id: 2, title: 'Almuerzo Gratis en el B3!',           date: '19 de febrero 2026', announcementId: 2 },
-    { id: 3, title: 'Hackathon TEC 2026',                  date: '01 de marzo 2026',   announcementId: 4 },
-  ];
+  showNotifications = signal(false);
+  notifications = signal<NotificationItem[]>([]);
+
+  ngOnInit() {
+    this.announcementService.getAnnouncements().subscribe({
+      next: dtos => {
+        this.notifications.set(dtos.slice(0, 10).map(dto => ({
+          id:    dto.id,
+          title: dto.title,
+          date:  dto.eventDate
+            ? new Date(dto.eventDate).toLocaleDateString('es-CR', { day: 'numeric', month: 'long', year: 'numeric' })
+            : '',
+        })));
+      }
+    });
+  }
 
   toggleNotifications() {
     this.showNotifications.update(v => !v);
   }
 
-  // Cierra el dropdown si se hace click fuera
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
