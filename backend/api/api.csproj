@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>32b67176-2a54-4f48-9755-153773de59b4</UserSecretsId>
+    <UserSecretsId>3fbd2599-fe28-407d-8753-cc289ca86359</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +24,7 @@
     </PackageReference>
     <PackageReference Include="NSwag.AspNetCore" Version="14.6.3" />
     <PackageReference Include="QuestPDF" Version="2026.2.4" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.13.20" />
   </ItemGroup>
 
   <ItemGroup>

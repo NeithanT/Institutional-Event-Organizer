@@ -7,12 +7,13 @@ using Google.Apis.Gmail.v1;
 using Microsoft.EntityFrameworkCore;
 
 using QuestPDF.Infrastructure;
+using Scalar.AspNetCore;
 QuestPDF.Settings.License = LicenseType.Community;
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Configuration.AddUserSecrets<Program>();
 // builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
 // {
 //     options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
@@ -62,7 +63,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseOpenApi();
+    app.MapOpenApi();
+    app.MapScalarApiReference();
     app.UseSwaggerUi(config =>
     {
         config.DocumentTitle = "TodoAPI";
@@ -71,6 +73,7 @@ if (app.Environment.IsDevelopment())
         config.DocExpansion = "list";
     });
 }
+
 
 
 
