@@ -11,6 +11,17 @@ namespace api.Endpoints;
 
 public static class EventEndpoint
 {
+    private static bool IsValidData(DtoEditEvent d)
+    {
+        return !(
+            d.IdEvent < 0
+        || string.IsNullOrEmpty(d.EventDate.ToString())
+        || d.EventDate < DateTime.Now
+        || string.IsNullOrEmpty(d.EventDescription)
+        || string.IsNullOrEmpty(d.Place)
+        || string.IsNullOrEmpty(d.Title));
+    }
+
     public static void mapOrganizerEventEndpoints(WebApplication app)
     {
         //Get all the events from the Events Table (Doesnt fetch the Canceled Events)
@@ -103,6 +114,28 @@ public static class EventEndpoint
 
                 return Results.Created($"/events/{ev.Id}", ev);
             }).DisableAntiforgery();
+
+
+        app.MapPut("organizer/events", async (DtoEditEvent editEventDto, EventOrganizerContext db) =>
+        {
+
+            Event? ev = await db.Events.FindAsync(editEventDto.IdEvent);
+            if (ev == null) return Results.NotFound("Event not found to update");
+            if (ev.OrganizerId != editEventDto.OrganizerId) return Results.Unauthorized();
+
+
+            if (!IsValidData(editEventDto)) return Results.BadRequest("Invalid data to update");
+
+            ev.Title = editEventDto.Title;
+            ev.EventDescription = editEventDto.EventDescription;
+            ev.EventDate = editEventDto.EventDate;
+            ev.Place = editEventDto.Place;
+            ev.IsVirtual = editEventDto.IsVirtual;
+
+            await db.SaveChangesAsync();
+
+            return Results.Ok($"Event updated succesfully");
+        });
 
 
         //##################################################################################
@@ -214,6 +247,5 @@ public static class EventEndpoint
                 return Results.NoContent();
             }
         });
-
     }
 }
