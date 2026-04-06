@@ -64,6 +64,10 @@ export class Navbar implements OnInit {
     this.showNotifications.update(v => !v);
   }
 
+  dismiss(id: number) {
+    this.notifications.update(list => list.filter(n => n.id !== id));
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
