@@ -1,5 +1,7 @@
 :host {
-  width: 50%;
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 .right-section {
   width: 100%;
