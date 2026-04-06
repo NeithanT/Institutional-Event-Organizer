@@ -32,6 +32,9 @@ public static class AdministratorUtilitiesEndpoint
                 Email = user.Email,
                 Role = user.Role.RolName,
                 UserName = user.UserName,
+                Biography = user.Biography,
+                UrlImageProfile = user.UrlImageProfile,
+                PreferredLanguage = user.PreferredLanguage,
                 EventsCreated = quantityEventsCreated,
                 Active = user.Active,
                 IdCard = user.IdCard
@@ -60,6 +63,9 @@ public static class AdministratorUtilitiesEndpoint
                 Email = user.Email,
                 Role = user.Role.RolName,
                 UserName = user.UserName,
+                Biography = user.Biography,
+                UrlImageProfile = user.UrlImageProfile,
+                PreferredLanguage = user.PreferredLanguage,
                 EventsCreated = quantityEventsCreated,
                 Active = user.Active,
                 IdCard = user.IdCard
@@ -88,6 +94,9 @@ public static class AdministratorUtilitiesEndpoint
                     Email = user.Email,
                     Role = user.Role.RolName,
                     UserName = user.UserName,
+                    Biography = user.Biography,
+                    UrlImageProfile = user.UrlImageProfile,
+                    PreferredLanguage = user.PreferredLanguage,
                     EventsCreated = db.Events.Count(e => e.OrganizerId == user.Id),
                     Active = user.Active,
                     IdCard = user.IdCard
@@ -104,6 +113,9 @@ public static class AdministratorUtilitiesEndpoint
                     Email = user.Email,
                     Role = user.Role.RolName,
                     UserName = user.UserName,
+                    Biography = user.Biography,
+                    UrlImageProfile = user.UrlImageProfile,
+                    PreferredLanguage = user.PreferredLanguage,
                     EventsCreated = db.Events.Count(e => e.OrganizerId == user.Id),
                     Active = user.Active,
                     IdCard = user.IdCard

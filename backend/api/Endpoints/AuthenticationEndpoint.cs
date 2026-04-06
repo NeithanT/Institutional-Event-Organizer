@@ -110,6 +110,9 @@ public static class AuthenticationEndpoint
                     user.Id,
                     user.UserName,
                     user.Email,
+                    user.Biography,
+                    user.UrlImageProfile,
+                    user.PreferredLanguage,
                     user.RoleId,
                     RoleName = role.RolName
                 });
@@ -145,11 +148,18 @@ public static class AuthenticationEndpoint
             Role? role = await db.Roles.FirstOrDefaultAsync(r => r.RolName.ToLower() == "student");
             if (role == null) return Results.Problem("No se encontro el Rol de estudiante", statusCode: 500);
 
+            string? biography = register.Biography?.Trim();
+            string? urlImageProfile = register.UrlImageProfile?.Trim();
+            string? preferredLanguage = register.PreferredLanguage?.Trim();
+
             User user = new User
             {
                 UserName = $"{name} {lastName}".Trim(),
                 Email = email,
                 UserPass = password,
+                Biography = string.IsNullOrWhiteSpace(biography) ? null : biography,
+                UrlImageProfile = string.IsNullOrWhiteSpace(urlImageProfile) ? null : urlImageProfile,
+                PreferredLanguage = string.IsNullOrWhiteSpace(preferredLanguage) ? null : preferredLanguage,
                 Active = true,
                 RoleId = role.Id,
                 IdCard = idCard,
@@ -170,6 +180,9 @@ public static class AuthenticationEndpoint
                 user.Id,
                 user.UserName,
                 user.Email,
+                user.Biography,
+                user.UrlImageProfile,
+                user.PreferredLanguage,
                 user.RoleId,
             });
         });

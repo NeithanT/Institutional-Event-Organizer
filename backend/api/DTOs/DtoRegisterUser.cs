@@ -7,4 +7,7 @@ public record class DtoRegisterUser
     public int IdCard { get; set; }
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
+    public string? Biography { get; set; }
+    public string? UrlImageProfile { get; set; }
+    public string? PreferredLanguage { get; set; }
 }

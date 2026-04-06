@@ -221,6 +221,14 @@ public partial class EventOrganizerContext : DbContext
             entity.Property(e => e.UserPass)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            entity.Property(e => e.Biography)
+                .HasMaxLength(2000)
+                .IsUnicode(false);
+            entity.Property(e => e.UrlImageProfile)
+                .IsUnicode(false);
+            entity.Property(e => e.PreferredLanguage)
+                .HasMaxLength(50)
+                .IsUnicode(false);
 
             entity.HasOne(d => d.Role).WithMany(p => p.Users)
                 .HasForeignKey(d => d.RoleId)
