@@ -1,60 +1,105 @@
-<div class="container-fluid">
-  <div class="row">
+<div class="main-container d-flex">
 
-    <!-- SIDEBAR -->
-    <app-sidebar class="col-md-2" [links]="sidebarLinks" logoSrc="assets/logo.png"></app-sidebar>
+  <!-- SIDEBAR -->
+  <app-sidebar class="sidebar-wrapper" [links]="sidebarLinks"></app-sidebar>
 
-    <!-- MAIN -->
-    <div class="col-md-10 p-4 main">
+  <!-- CONTENIDO -->
+  <div class="content p-4 w-100">
 
-      <h4 class="mb-4">Mis Eventos Creados</h4>
+    <h4 class="mb-4">Mis Eventos Creados</h4>
 
-      <!-- RESUMEN -->
-      <div class="row g-3 mb-4">
-        <div class="col-md-4">
-          <div class="card-resumen pendiente text-center p-2">
-            🟡 PENDIENTES DE APROBACIÓN 2
-          </div>
-        </div>
+    <!-- RESUMEN -->
+    <div class="d-flex gap-3 mb-4">
 
-        <div class="col-md-4">
-          <div class="card-resumen aprobado text-center p-2">
-            🟢 APROBADOS 5
-          </div>
-        </div>
-
-        <div class="col-md-4">
-          <div class="card-resumen concluido text-center p-2">
-            🔵 CONCLUIDOS 5
-          </div>
-        </div>
+      <div class="card-resumen pendiente text-center p-2 flex-fill">
+        PENDIENTES {{ pendingCount }}
       </div>
 
-      <!-- LISTA -->
-      <div class="event-container p-3">
+      <div class="card-resumen aprobado text-center p-2 flex-fill">
+        APROBADOS {{ approvedCount }}
+      </div>
 
-        <div class="event-card d-flex align-items-center mb-3 p-2">
+      <div class="card-resumen concluido text-center p-2 flex-fill">
+        CONCLUIDOS {{ finishedCount }}
+      </div>
 
-          <img src="assets/event1.jpg" class="event-img">
+    </div>
 
-          <div class="flex-grow-1 ms-3">
-            <h6 class="mb-0">Título: Super Soccer</h6>
-          </div>
+    <!-- LISTA -->
+    <div class="event-container p-3">
 
-          <div class="text-end">
-            <span class="badge estado pendiente mb-2">Pendiente</span><br>
-            <button class="btn btn-dark btn-sm">Ver más</button>
-          </div>
+      <p>Total eventos: {{ events.length }}</p>
+
+      <!-- SI NO HAY -->
+      <div *ngIf="events.length === 0" class="text-center text-muted">
+        No hay eventos creados
+      </div>
+
+      <!-- EVENTOS PAGINADOS -->
+     <div *ngFor="let event of paginatedEvents"
+     class="event-card d-flex align-items-center mb-4 p-4 w-100">
+
+        <!-- IMAGEN -->
+        <img 
+          [src]="event.imageFileEvent 
+            ? 'http://localhost:5053' + event.imageFileEvent 
+            : 'assets/default.jpg'" 
+          class="event-img">
+
+        <!-- INFO -->
+        <div class="flex-grow-1 ms-3">
+          <h6 class="mb-1">{{ event.title }}</h6>
+        </div>
+
+        <!-- ESTADO -->
+        <div class="text-end">
+
+          <span *ngIf="getEventStatus(event) === 'pending'" 
+                class="badge bg-warning mb-2">
+            Pendiente
+          </span>
+
+          <span *ngIf="getEventStatus(event) === 'approved'" 
+                class="badge bg-success mb-2">
+            Aprobado
+          </span>
+
+          <span *ngIf="getEventStatus(event) === 'finished'" 
+                class="badge bg-primary mb-2">
+            Concluido
+          </span>
+
+          <br>
+          <!-- BOTÓN -->
+          <button 
+            class="btn btn-dark btn-sm mt-4"
+            [routerLink]="['/detail-event', event.id]">
+            Ver más
+          </button>
 
         </div>
 
       </div>
 
       <!-- PAGINACIÓN -->
-      <div class="text-center mt-3">
-        <span class="me-3">← Previous</span>
-        <span class="me-3">1</span>
-        <span>Next →</span>
+      <div class="d-flex justify-content-center mt-3">
+
+        <button class="btn btn-outline-dark me-2"
+                (click)="previousPage()"
+                [disabled]="currentPage === 1">
+          ← Anterior
+        </button>
+
+        <span class="align-self-center">
+          Página {{ currentPage }} de {{ totalPages }}
+        </span>
+
+        <button class="btn btn-outline-dark ms-2"
+                (click)="nextPage()"
+                [disabled]="currentPage === totalPages">
+          Siguiente →
+        </button>
+
       </div>
 
     </div>

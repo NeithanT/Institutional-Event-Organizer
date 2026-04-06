@@ -23,35 +23,40 @@
 
 .pendiente {
   background: #ffd600;
+  color: rgb(0, 0, 0);
 }
 
 .aprobado {
   background: #4caf50;
-  color: white;
+  color: rgb(0, 0, 0);
 }
 
 .concluido {
   background: #2196f3;
-  color: white;
+  color: rgb(0, 0, 0);
 }
 
 /* CONTENEDOR EVENTOS */
 .event-container {
-  background: #d9d9d9;
+  background: #e9e9e9da;
   border-radius: 5px;
+  height: 589px;
 }
 
 /* TARJETA EVENTO */
 .event-card {
   background: #0d3b66;
-  color: white;
+  color: rgb(255, 255, 255);
   border-radius: 10px;
+  width: 100%;
+  min-height: 100px;
+  border-radius: 12px;
 }
 
 /* IMAGEN EVENTO */
 .event-img {
   width: 120px;
-  height: 80px;
+  height: 90px;
   object-fit: cover;
   border-radius: 8px;
 }
@@ -62,3 +67,6 @@
   padding: 6px 10px;
   border-radius: 10px;
 }
+
+
+

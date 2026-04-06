@@ -21,6 +21,21 @@ export const routes: Routes = [
     }
   },
   {
+  path: 'organizer-events',
+  loadComponent: () => import('./pages/organizer-page/organizer-dashboard/organizer-dashboard').then(m => m.OrganizerDashboard),
+  canActivate: [AuthenticationGuard]
+},
+{
+  path: 'detail-event/:id',
+  loadComponent: () => import('./pages/organizer-page/event-detail/event-detail').then(m => m.EventDetail),
+  canActivate: [AuthenticationGuard]
+},
+{
+  path: 'edit-event/:id',
+  loadComponent: () => import('./pages/organizer-page/edit-event/edit-event').then(m => m.EditEvent),
+  canActivate: [AuthenticationGuard]
+},
+  {
      path: 'events',
     loadComponent: () => import('./pages/events-page/events-page').then(m => m.EventsPage),
     canActivate: [AuthenticationGuard]
