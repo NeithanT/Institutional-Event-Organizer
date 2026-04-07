@@ -11,7 +11,30 @@ public static class UserCustomizingEndpoint
 {
     public static void mapUserCustomizingEndpoints(this WebApplication app)
     {
+        app.MapGet("/user/{id:int}", GetUserAsync);
         app.MapPut("/user/customize/{id:int}", UpdateUserCustomizationAsync);
+    }
+
+    private static async Task<IResult> GetUserAsync(int id, EventOrganizerContext db)
+    {
+        if (id <= 0)
+            return Results.BadRequest(new { message = "Id de usuario inválido." });
+
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Id == id);
+        if (user == null)
+            return Results.NotFound(new { message = "Usuario no encontrado." });
+
+        return Results.Ok(new
+        {
+            user.Id,
+            user.UserName,
+            user.Email,
+            user.IdCard,
+            user.Biography,
+            user.UrlImageProfile,
+            user.PreferredLanguage,
+            user.RoleId
+        });
     }
 
     private static async Task<IResult> UpdateUserCustomizationAsync(

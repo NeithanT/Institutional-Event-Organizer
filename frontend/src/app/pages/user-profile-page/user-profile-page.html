@@ -10,8 +10,8 @@
       onerror="this.src='https://ui-avatars.com/api/?name=User&background=1a3a5c&color=fff&size=128'"
     />
     <div class="profile-name">
-      <span class="name-first">{{ user().nombre }} {{ user().apellidos.split(' ')[0] }}</span>
-      <span class="name-last"> {{ user().apellidos.split(' ')[1] }}</span>
+      <span class="name-first">{{ primerNombre() }}</span>
+      <span class="name-last">{{ apellidos() }}</span>
     </div>
   </div>
 </section>
@@ -50,6 +50,10 @@
         </div>
       </div>
 
+      @if (saveSuccess()) {
+        <p class="success-msg">Cambios guardados correctamente.</p>
+      }
+
       <div class="card-actions">
         <button class="btn-edit" (click)="startEdit()">Editar</button>
       </div>
@@ -84,12 +88,24 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Contraseña</label>
+            <label class="form-label">Contraseña actual</label>
             <input
               type="password"
               class="form-input"
-              placeholder="Nueva contraseña"
-              (input)="updateField('contrasena', $any($event.target).value)"
+              placeholder="Contraseña actual"
+              [value]="currentPassword()"
+              (input)="currentPassword.set($any($event.target).value)"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nueva contraseña</label>
+            <input
+              type="password"
+              class="form-input"
+              placeholder="Nueva contraseña (dejar vacío para no cambiar)"
+              [value]="newPassword()"
+              (input)="newPassword.set($any($event.target).value)"
             />
           </div>
         </div>
@@ -120,9 +136,13 @@
         </div>
       </div>
 
+      @if (saveError()) {
+        <p class="error-msg">{{ saveError() }}</p>
+      }
+
       <div class="card-actions">
         <button class="btn-cancel" (click)="cancelEdit()">Cancelar</button>
-        <button class="btn-edit" (click)="saveEdit()">Editar</button>
+        <button class="btn-edit" (click)="saveEdit()">Guardar</button>
       </div>
     </div>
   </main>
