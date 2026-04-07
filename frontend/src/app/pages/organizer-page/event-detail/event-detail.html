@@ -38,10 +38,16 @@
 
             <!-- APROBADO -->
             <ng-container *ngIf="getEventStatus() === 'approved'">
-              <button class="btn btn-success     fw-semibold px-4">📋
-                Asistencia</button>
-              <button class="btn btn-primary     fw-semibold px-4">✉️
-                Comunicado</button>
+              <button 
+              class="btn btn-success fw-semibold px-4"
+              (click)="openAttendanceModal()">
+              📋 Asistencia
+            </button>
+              <button 
+              class="btn btn-primary fw-semibold px-4"
+              (click)="openNoticeModal()">
+              ✉️ Comunicado
+            </button>
               <button
                 class="btn btn-warning fw-semibold px-4"
                 [routerLink]="['/edit-event', event.id]">
@@ -56,8 +62,11 @@
 
             <!-- CONCLUIDO -->
             <ng-container *ngIf="getEventStatus() === 'finished'">
-              <button class="btn btn-primary     fw-semibold px-4">📋
-                Asistencia</button>
+            <button 
+              class="btn btn-success fw-semibold px-4"
+              (click)="openAttendanceModal()">
+              📋 Asistencia
+            </button>
             </ng-container>
 
             <!-- PENDIENTE -->
@@ -116,4 +125,137 @@
     </div>
 
   </div>
+
+
+ <!-- ═══ MODAL COMUNICADO SIMPLE ═══ -->
+<div *ngIf="showNoticeModal" class="custom-modal-backdrop">
+
+  <div class="custom-modal">
+
+    <!-- HEADER -->
+    <div class="custom-modal-header">
+      Enviar Mensaje a Participantes
+    </div>
+
+    <!-- BODY -->
+    <div class="custom-modal-body">
+
+      <p class="mb-3">
+        <strong>Para:</strong>
+        <span class="text-primary">Todos los participantes</span>
+      </p>
+
+      <!-- Asunto -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Asunto</label>
+        <input 
+          type="text"
+          class="form-control"
+          [(ngModel)]="noticeTitle">
+      </div>
+
+      <!-- Mensaje -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Cuerpo del mensaje</label>
+        <textarea 
+          class="form-control"
+          rows="5"
+          [(ngModel)]="noticeBody">
+        </textarea>
+      </div>
+
+      <!-- BOTONES -->
+      <div class="d-flex justify-content-end gap-2">
+
+        <button 
+          class="btn btn-secondary px-4"
+          (click)="closeNoticeModal()">
+          Cancelar
+        </button>
+
+        <button 
+          class="btn btn-primary px-4"
+          (click)="sendNotice()">
+          Enviar
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ═══ MODAL ASISTENCIA ═══ -->
+<div *ngIf="showAttendanceModal" class="custom-modal-backdrop">
+
+  <div class="custom-modal large">
+
+    <!-- HEADER -->
+    <div class="custom-modal-header">
+      Gestión de Inscritos
+    </div>
+
+    <!-- BODY -->
+    <div class="custom-modal-body">
+
+      <!-- TABLA -->
+      <div class="table-responsive">
+
+        <table class="table align-middle">
+
+          <thead>
+            <tr>
+              <th>Asistió</th>
+              <th>Participante</th>
+              <th>Correo</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            <tr *ngFor="let user of participants">
+
+              <td>
+                <input 
+                  type="checkbox"
+                  [checked]="user.attended"
+                  (change)="toggleAttendance(user)">
+              </td>
+
+              <td>{{ user.name }}</td>
+              <td>{{ user.email }}</td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+      <!-- BOTONES -->
+      <div class="d-flex justify-content-end gap-2 mt-3">
+
+        <button 
+          class="btn btn-secondary px-4"
+          (click)="closeAttendanceModal()">
+          Cancelar
+        </button>
+
+        <button 
+          class="btn btn-primary px-4"
+          (click)="saveAttendance()">
+          Guardar
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
 </div>

@@ -50,3 +50,44 @@
   line-height: 1.8;
   white-space: pre-wrap;
 }
+
+.custom-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+
+.custom-modal {
+  width: 650px;
+  max-width: 90%;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.custom-modal-header {
+  background: linear-gradient(to right, #2d6cdf, #1a4faa);
+  color: white;
+  padding: 12px 20px;
+  font-weight: 600;
+}
+
+.custom-modal-body {
+  padding: 20px;
+}
+
+/* Modal grande */
+.custom-modal.large {
+  width: 900px;
+  max-width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
