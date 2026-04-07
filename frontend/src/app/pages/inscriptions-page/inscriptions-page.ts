@@ -4,6 +4,7 @@ import { Navbar } from '../../components/navbar/navbar';
 import { Footer } from '../../components/footer/footer';
 import { InscriptionService } from '../../services/inscription.service';
 import { Authentication } from '../../services/authentication';
+import { EventService } from '../../services/event.service';
 
 interface InscribedEvent {
   id: number;
@@ -33,7 +34,8 @@ export class InscriptionsPage implements OnInit {
 
   constructor(
     private inscriptionService: InscriptionService,
-    private auth: Authentication
+    private auth: Authentication,
+    private eventService: EventService
   ) {}
 
   ngOnInit() {
@@ -46,7 +48,7 @@ export class InscriptionsPage implements OnInit {
           id:    dto.eventId,
           title: dto.title,
           date:  new Date(dto.eventDate).toLocaleDateString('es-CR', { day: 'numeric', month: 'long', year: 'numeric' }),
-          image: dto.imageFileEvent || '',
+          image: this.eventService.imageUrl(dto.imageFileEvent),
           type:  dto.isPast ? 'pasados' : 'proximos',
         })));
       }

@@ -11,7 +11,7 @@
     />
     <div class="profile-name">
       <span class="name-first">{{ primerNombre() }}</span>
-      <span class="name-last">{{ apellidos() }}</span>
+      <span class="name-last"> {{ apellidos() }}</span>
     </div>
   </div>
 </section>
@@ -59,10 +59,9 @@
       </div>
     </div>
   </main>
-}
 
-<!-- Card vista editar -->
-@if (editMode()) {
+} @else {
+  <!-- Card vista editar -->
   <main class="profile-content">
     <div class="profile-card">
       <h2 class="card-title">Mi cuenta</h2>
@@ -78,35 +77,19 @@
               onerror="this.src='https://ui-avatars.com/api/?name=User&background=1a3a5c&color=fff&size=128'"
             />
             <label class="upload-label" for="fotoInput">Subir una imagen</label>
-            <input
-              id="fotoInput"
-              type="file"
-              accept="image/*"
-              class="file-input"
-              (change)="onFotoChange($event)"
-            />
+            <input id="fotoInput" type="file" accept="image/*" class="file-input" (change)="onFotoChange($event)" />
           </div>
 
           <div class="form-group">
             <label class="form-label">Contraseña actual</label>
-            <input
-              type="password"
-              class="form-input"
-              placeholder="Contraseña actual"
-              [value]="currentPassword()"
-              (input)="currentPassword.set($any($event.target).value)"
-            />
+            <input type="password" class="form-input" placeholder="Contraseña actual"
+              [value]="currentPassword()" (input)="currentPassword.set($any($event.target).value)" />
           </div>
 
           <div class="form-group">
             <label class="form-label">Nueva contraseña</label>
-            <input
-              type="password"
-              class="form-input"
-              placeholder="Nueva contraseña (dejar vacío para no cambiar)"
-              [value]="newPassword()"
-              (input)="newPassword.set($any($event.target).value)"
-            />
+            <input type="password" class="form-input" placeholder="Dejar vacío para no cambiar"
+              [value]="newPassword()" (input)="newPassword.set($any($event.target).value)" />
           </div>
         </div>
 
@@ -114,11 +97,8 @@
         <div class="edit-col">
           <div class="form-group">
             <label class="form-label">Lenguaje</label>
-            <select
-              class="form-select"
-              [value]="editData().lenguaje"
-              (change)="updateField('lenguaje', $any($event.target).value)"
-            >
+            <select class="form-select" [value]="editData().lenguaje"
+              (change)="updateField('lenguaje', $any($event.target).value)">
               <option>Español</option>
               <option>English</option>
             </select>
@@ -126,12 +106,8 @@
 
           <div class="form-group">
             <label class="form-label">Biografia</label>
-            <textarea
-              class="form-textarea"
-              [value]="editData().biografia"
-              (input)="updateField('biografia', $any($event.target).value)"
-              rows="8"
-            ></textarea>
+            <textarea class="form-textarea" [value]="editData().biografia"
+              (input)="updateField('biografia', $any($event.target).value)" rows="8"></textarea>
           </div>
         </div>
       </div>

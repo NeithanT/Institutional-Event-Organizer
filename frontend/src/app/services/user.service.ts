@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { BACKEND_BASE } from './event.service';
 
 export interface UserProfileDto {
   id: number;
@@ -22,7 +23,7 @@ export interface UpdateUserDto {
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  private base = 'http://localhost:5053';
+  private base = BACKEND_BASE;
 
   constructor(private http: HttpClient) {}
 
@@ -32,5 +33,25 @@ export class UserService {
 
   updateUser(id: number, dto: UpdateUserDto): Observable<UserProfileDto> {
     return this.http.put<UserProfileDto>(`${this.base}/user/customize/${id}`, dto);
+  }
+
+  uploadPhoto(id: number, file: File): Observable<{ urlImageProfile: string }> {
+    const form = new FormData();
+    form.append('photo', file);
+    return this.http.post<{ urlImageProfile: string }>(`${this.base}/user/${id}/photo`, form);
+  }
+
+  /** Convierte ruta relativa del backend en URL absoluta */
+  imageUrl(path: string | null | undefined): string {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    return `${this.base}${path}`;
+  }
+
+  /** Convierte ruta de imagen de evento (con fallback al default del backend) */
+  eventImageUrl(path: string | null | undefined): string {
+    if (!path) return `${this.base}/images/default.jpg`;
+    if (path.startsWith('http')) return path;
+    return `${this.base}${path}`;
   }
 }

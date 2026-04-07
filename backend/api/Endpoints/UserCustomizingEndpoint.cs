@@ -13,6 +13,7 @@ public static class UserCustomizingEndpoint
     {
         app.MapGet("/user/{id:int}", GetUserAsync);
         app.MapPut("/user/customize/{id:int}", UpdateUserCustomizationAsync);
+        app.MapPost("/user/{id:int}/photo", UploadUserPhotoAsync).DisableAntiforgery();
     }
 
     private static async Task<IResult> GetUserAsync(int id, EventOrganizerContext db)
@@ -113,6 +114,50 @@ public static class UserCustomizingEndpoint
             user.PreferredLanguage,
             user.RoleId
         });
+    }
+
+    private static async Task<IResult> UploadUserPhotoAsync(
+        int id,
+        IFormFile? photo,
+        IWebHostEnvironment env,
+        EventOrganizerContext db)
+    {
+        if (id <= 0)
+            return Results.BadRequest(new { message = "Id de usuario inválido." });
+
+        if (photo == null || photo.Length == 0)
+            return Results.BadRequest(new { message = "Se requiere una imagen." });
+
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Id == id);
+        if (user == null)
+            return Results.NotFound(new { message = "Usuario no encontrado." });
+
+        try
+        {
+            string webRoot = env.WebRootPath
+                ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+
+            string profilePhotosFolder = Path.Combine(webRoot, "profile-photos");
+            Directory.CreateDirectory(profilePhotosFolder);
+
+            string ext = Path.GetExtension(photo.FileName);
+            string uniqueFileName = Guid.NewGuid().ToString() + ext;
+            string filePath = Path.Combine(profilePhotosFolder, uniqueFileName);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await photo.CopyToAsync(fileStream);
+            }
+
+            user.UrlImageProfile = "/profile-photos/" + uniqueFileName;
+            await db.SaveChangesAsync();
+
+            return Results.Ok(new { urlImageProfile = user.UrlImageProfile });
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"Error guardando foto: {ex.Message}", statusCode: 500);
+        }
     }
 
     private static bool IsValidPassword(string password)

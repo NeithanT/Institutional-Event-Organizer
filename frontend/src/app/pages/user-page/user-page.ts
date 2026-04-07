@@ -44,7 +44,7 @@ export class UserPage implements OnInit {
         this.eventos.set(eventDtos.slice(0, 6).map(dto => ({
           id:     dto.id,
           titulo: dto.title,
-          imagen: dto.imageFileEvent || '',
+          imagen: this.eventService.imageUrl(dto.imageFileEvent),
         })));
 
         this.anuncios.set(annDtos.slice(0, 6).map(dto => ({

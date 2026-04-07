@@ -53,7 +53,7 @@ export class EventsPage implements OnInit {
         this.eventos.set(dtos.map(dto => ({
           id:        dto.id,
           titulo:    dto.title,
-          imagen:    dto.imageFileEvent || '',
+          imagen:    this.eventService.imageUrl(dto.imageFileEvent),
           fecha:     dto.eventDate,
           tipo:      dto.category.toLowerCase(),
           modalidad: dto.isVirtual ? 'virtual' : 'presencial',
