@@ -6,7 +6,8 @@
 
     <!-- ═══ TARJETA 1: RESUMEN + ACCIONES ═══ -->
     <div class="card border-0 shadow-sm rounded-4 mb-4">
-      <div class="card-body d-flex flex-column flex-sm-row align-items-start align-items-sm-stretch gap-3 p-3 p-md-4">
+      <div
+        class="card-body d-flex flex-column flex-sm-row align-items-start align-items-sm-stretch gap-3 p-3 p-md-4">
 
         <!-- Imagen -->
         <img
@@ -17,16 +18,19 @@
           alt="Imagen del evento">
 
         <!-- Info + acciones: ocupa todo el espacio y se divide en dos filas -->
-       <div class="d-flex flex-column flex-grow-1 justify-content-start gap-2">
+        <div class="d-flex flex-column flex-grow-1 justify-content-start gap-2">
 
           <!-- Fila superior: Badge + Título + Lugar -->
           <div>
-            <span class="badge rounded-pill status-pending  mb-2" *ngIf="getEventStatus() === 'pending'">● Pendiente</span>
-            <span class="badge rounded-pill status-approved mb-2" *ngIf="getEventStatus() === 'approved'">● Aprobado</span>
-            <span class="badge rounded-pill status-finished mb-2" *ngIf="getEventStatus() === 'finished'">● Concluido</span>
+            <span class="badge rounded-pill status-pending  mb-2"
+              *ngIf="getEventStatus() === 'pending'">● Pendiente</span>
+            <span class="badge rounded-pill status-approved mb-2"
+              *ngIf="getEventStatus() === 'approved'">● Aprobado</span>
+            <span class="badge rounded-pill status-finished mb-2"
+              *ngIf="getEventStatus() === 'finished'">● Concluido</span>
 
             <h2 class="event-title mb-1">{{ event.title }}</h2>
-    
+
           </div>
 
           <!-- Fila inferior: Botones alineados a la derecha -->
@@ -34,29 +38,49 @@
 
             <!-- APROBADO -->
             <ng-container *ngIf="getEventStatus() === 'approved'">
-              <button class="btn btn-success     fw-semibold px-4">📋 Asistencia</button>
-              <button class="btn btn-primary     fw-semibold px-4">✉️ Comunicado</button>
               <button 
+              class="btn btn-success fw-semibold px-4"
+              (click)="openAttendanceModal()">
+              📋 Asistencia
+            </button>
+              <button 
+              class="btn btn-primary fw-semibold px-4"
+              (click)="openNoticeModal()">
+              ✉️ Comunicado
+            </button>
+              <button
                 class="btn btn-warning fw-semibold px-4"
                 [routerLink]="['/edit-event', event.id]">
                 ✏️ Editar
               </button>
-              <button class="btn btn-danger      fw-semibold px-4">🗑️ Eliminar</button>
+             <button
+              class="btn btn-danger fw-semibold px-4"
+              (click)="cancelEvent()">
+              🚫 Cancelar Evento
+            </button>
             </ng-container>
 
             <!-- CONCLUIDO -->
             <ng-container *ngIf="getEventStatus() === 'finished'">
-              <button class="btn btn-primary     fw-semibold px-4">📋 Asistencia</button>
+            <button 
+              class="btn btn-success fw-semibold px-4"
+              (click)="openAttendanceModal()">
+              📋 Asistencia
+            </button>
             </ng-container>
 
             <!-- PENDIENTE -->
             <ng-container *ngIf="getEventStatus() === 'pending'">
-              <button 
+              <button
                 class="btn btn-warning fw-semibold px-4"
                 [routerLink]="['/edit-event', event.id]">
                 ✏️ Editar
               </button>
-              <button class="btn btn-danger      fw-semibold px-4">🗑️ Eliminar</button>
+                <button
+                class="btn btn-danger   fw-semibold px-4"
+                (click)="confirmDelete()">
+                🗑️ Eliminar
+              </button>
             </ng-container>
 
           </div>
@@ -76,7 +100,8 @@
 
           <div class="col-12 col-md-6">
             <p class="detail-label">Fecha</p>
-            <p class="detail-value">{{ event.eventDate | date:'EEEE, d MMMM y – HH:mm' }}</p>
+            <p class="detail-value">{{ event.eventDate |
+              date:'EEEE, d MMMM y – HH:mm' }}</p>
           </div>
 
           <div class="col-12 col-md-6">
@@ -91,7 +116,8 @@
 
           <div class="col-12">
             <p class="detail-label">Descripción</p>
-            <p class="detail-value description-text">{{ event.eventDescription }}</p>
+            <p class="detail-value description-text">{{ event.eventDescription
+              }}</p>
           </div>
 
         </div>
@@ -99,4 +125,137 @@
     </div>
 
   </div>
+
+
+ <!-- ═══ MODAL COMUNICADO SIMPLE ═══ -->
+<div *ngIf="showNoticeModal" class="custom-modal-backdrop">
+
+  <div class="custom-modal">
+
+    <!-- HEADER -->
+    <div class="custom-modal-header">
+      Enviar Mensaje a Participantes
+    </div>
+
+    <!-- BODY -->
+    <div class="custom-modal-body">
+
+      <p class="mb-3">
+        <strong>Para:</strong>
+        <span class="text-primary">Todos los participantes</span>
+      </p>
+
+      <!-- Asunto -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Asunto</label>
+        <input 
+          type="text"
+          class="form-control"
+          [(ngModel)]="noticeTitle">
+      </div>
+
+      <!-- Mensaje -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Cuerpo del mensaje</label>
+        <textarea 
+          class="form-control"
+          rows="5"
+          [(ngModel)]="noticeBody">
+        </textarea>
+      </div>
+
+      <!-- BOTONES -->
+      <div class="d-flex justify-content-end gap-2">
+
+        <button 
+          class="btn btn-secondary px-4"
+          (click)="closeNoticeModal()">
+          Cancelar
+        </button>
+
+        <button 
+          class="btn btn-primary px-4"
+          (click)="sendNotice()">
+          Enviar
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ═══ MODAL ASISTENCIA ═══ -->
+<div *ngIf="showAttendanceModal" class="custom-modal-backdrop">
+
+  <div class="custom-modal large">
+
+    <!-- HEADER -->
+    <div class="custom-modal-header">
+      Gestión de Inscritos
+    </div>
+
+    <!-- BODY -->
+    <div class="custom-modal-body">
+
+      <!-- TABLA -->
+      <div class="table-responsive">
+
+        <table class="table align-middle">
+
+          <thead>
+            <tr>
+              <th>Asistió</th>
+              <th>Participante</th>
+              <th>Correo</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            <tr *ngFor="let user of participants">
+
+              <td>
+                <input 
+                  type="checkbox"
+                  [checked]="user.attended"
+                  (change)="toggleAttendance(user)">
+              </td>
+
+              <td>{{ user.name }}</td>
+              <td>{{ user.email }}</td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+      <!-- BOTONES -->
+      <div class="d-flex justify-content-end gap-2 mt-3">
+
+        <button 
+          class="btn btn-secondary px-4"
+          (click)="closeAttendanceModal()">
+          Cancelar
+        </button>
+
+        <button 
+          class="btn btn-primary px-4"
+          (click)="saveAttendance()">
+          Guardar
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
 </div>
