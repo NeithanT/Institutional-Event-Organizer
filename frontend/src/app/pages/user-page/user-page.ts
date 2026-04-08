@@ -41,7 +41,10 @@ export class UserPage implements OnInit {
       this.announcementService.getAnnouncements()
     ]).subscribe({
       next: ([eventDtos, annDtos]) => {
-        this.eventos.set(eventDtos.slice(0, 6).map(dto => ({
+        const now = new Date();
+        this.eventos.set(eventDtos
+          .filter(dto => new Date(dto.eventDate) > now)
+          .slice(0, 6).map(dto => ({
           id:     dto.id,
           titulo: dto.title,
           imagen: this.eventService.imageUrl(dto.imageFileEvent),

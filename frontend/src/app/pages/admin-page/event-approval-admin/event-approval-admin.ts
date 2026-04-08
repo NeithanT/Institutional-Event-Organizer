@@ -21,6 +21,16 @@ interface PendingEvent {
 export class EventApprovalAdmin implements OnInit {
   events: PendingEvent[] = [];
 
+  currentPage = 1;
+  itemsPerPage = 10;
+  get totalPages() { return Math.max(1, Math.ceil(this.events.length / this.itemsPerPage)); }
+  get pagedEvents() {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    return this.events.slice(start, start + this.itemsPerPage);
+  }
+  prevPage() { if (this.currentPage > 1) this.currentPage--; }
+  nextPage() { if (this.currentPage < this.totalPages) this.currentPage++; }
+
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
@@ -32,6 +42,7 @@ export class EventApprovalAdmin implements OnInit {
       .subscribe({
         next: () => {
           this.events = this.events.filter(event => event.id !== eventId);
+          if (this.currentPage > this.totalPages) this.currentPage = this.totalPages;
         },
         error: (err) => {
           console.error(err);

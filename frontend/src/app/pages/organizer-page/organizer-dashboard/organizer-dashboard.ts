@@ -35,7 +35,7 @@ export class OrganizerDashboard implements OnInit {
 
   // PAGINACIÓN
   currentPage: number = 1;
-  itemsPerPage: number = 3;
+  itemsPerPage: number = 10;
   paginatedEvents: Event[] = [];
   totalPages: number = 1;
 
@@ -92,7 +92,7 @@ export class OrganizerDashboard implements OnInit {
 
   // PAGINACIÓN LOGIC
   updatePagination() {
-    this.totalPages = Math.ceil(this.events.length / this.itemsPerPage);
+    this.totalPages = Math.max(1, Math.ceil(this.events.length / this.itemsPerPage));
 
     const start = (this.currentPage - 1) * this.itemsPerPage;
     const end = start + this.itemsPerPage;
