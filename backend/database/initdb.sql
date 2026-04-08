@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS "User" (
     "Email" VARCHAR(100) NOT NULL,
     "Biography" VARCHAR(2000) NULL,
     "UrlImageProfile" TEXT NULL,
-    "PreferredLanguage" VARCHAR(50) NULL DEFAULT 'English',
+    "PreferredLanguage" VARCHAR(50) NULL DEFAULT 'Spanish',
     "Active" BOOLEAN NOT NULL DEFAULT TRUE,
     "RoleId" INTEGER NOT NULL,
     "IdCard" INTEGER NULL,
