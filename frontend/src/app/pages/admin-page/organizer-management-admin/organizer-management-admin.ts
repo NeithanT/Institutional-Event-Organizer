@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -21,6 +21,7 @@ interface UserSearchResult {
   styleUrl: './organizer-management-admin.css',
 })
 export class OrganizerManagementAdmin implements OnInit {
+  ref: ChangeDetectorRef = inject(ChangeDetectorRef);
   currentOrganizers: UserSearchResult[] = [];
   students: UserSearchResult[] = [];
   organizerPage = 0;
@@ -83,6 +84,7 @@ export class OrganizerManagementAdmin implements OnInit {
           this.currentOrganizers = data.organizers;
           this.students = data.students;
           this.organizerPage = 0;
+          this.ref.markForCheck();
         },
         error: (error) => {
           this.errorMessage = error?.error || 'No se pudo obtener la lista de usuarios.';
