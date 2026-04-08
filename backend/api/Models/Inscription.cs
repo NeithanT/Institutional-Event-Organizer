@@ -11,7 +11,11 @@ public partial class Inscription
 
     public int UserId { get; set; }
 
+    public DateTime InscriptionDate { get; set; }
+
     public virtual Event Event { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;
+
+    
 }
