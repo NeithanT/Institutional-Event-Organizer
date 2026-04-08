@@ -7,8 +7,11 @@ DECLARE
 BEGIN
 
 
-    INSERT INTO "Inscriptions" ("EventId", "UserId")
-    SELECT e."Id", u."Id"
+    INSERT INTO "Inscriptions" ("EventId", "UserId", "InscriptionDate")
+    SELECT
+        e."Id",
+        u."Id",
+        LEAST(NOW(), e."EventDate" - INTERVAL '1 day')
     FROM (
         VALUES
             ('Bienvenida 2026', 'n.vargas.5@estudiantec.cr'),
@@ -33,7 +36,7 @@ BEGIN
     ON CONFLICT ("EventId", "UserId") DO NOTHING;
 
     FOR event_row IN
-        SELECT "Id", "AvalaibleEntries"
+        SELECT "Id", "AvalaibleEntries", "EventDate"
         FROM "Event"
     LOOP
     
@@ -47,8 +50,16 @@ BEGIN
             )
         );
 
-        INSERT INTO "Inscriptions" ("EventId", "UserId")
-        SELECT event_row."Id", u."Id"
+        INSERT INTO "Inscriptions" ("EventId", "UserId", "InscriptionDate")
+        SELECT
+            event_row."Id",
+            u."Id",
+            CASE
+                WHEN event_row."EventDate" <= NOW() THEN
+                    event_row."EventDate" - ((1 + FLOOR(RANDOM() * 30))::TEXT || ' days')::INTERVAL
+                ELSE
+                    NOW() - ((1 + FLOOR(RANDOM() * 60))::TEXT || ' days')::INTERVAL
+            END
         FROM "User" u
         WHERE u."Email" LIKE 'student%@estudiantec.cr'
         ORDER BY md5(event_row."Id"::TEXT || '-' || u."Id"::TEXT)
