@@ -113,6 +113,13 @@
 
 .bio-text {
   line-height: 1.5;
+  white-space: pre-line;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
+  max-height: 10rem;
+  overflow-y: auto;
+  padding-right: 0.25rem;
 }
 
 /* =====================
