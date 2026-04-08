@@ -36,7 +36,7 @@ export class Navbar implements OnInit {
 
     if (this.authenticationService.authenticatedState === AuthenticationState.Admin) {
       console.log('User is admin, adding admin links to navbar');
-      this.navbarLinks.push({ label: 'Crear Evento', route: '/create-event' });
+      this.navbarLinks.push({ label: 'Organizar', route: '/create-event' });
       this.navbarLinks.push({ label: 'Administrar', route: '/admin' });
     } else if (this.authenticationService.authenticatedState === AuthenticationState.Organizer) {
       this.navbarLinks.push({ label: 'Crear Evento', route: '/create-event' });
