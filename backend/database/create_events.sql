@@ -36,10 +36,11 @@ INSERT INTO "OrganizerEntity" ("EntityName") VALUES ('Otro') ON CONFLICT ("Entit
 
 INSERT INTO "Event" (
     "EventDate", "Place", "Title", "EventDescription", "CategoryId",
-    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
+    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual", "ImageFileEvent"
 )
 SELECT TIMESTAMP '2026-02-16 09:00:00', 'Centro de las Artes', 'Bienvenida 2026', 'Evento de bienvenida para nuevos estudiantes con una visión general de los recursos institucionales.',
-       c."Id", u."Id", oe."Id", 300, TRUE, FALSE
+       c."Id", u."Id", oe."Id", 300, TRUE, FALSE,
+       '/uploads/76148739-9c85-4d06-a009-86351aa5332d_WhatsApp Image 2026-03-06 at 7.33.42 PM.jpeg'
 FROM "Category" c
 JOIN "User" u ON u."Email" = 'organizer@itcr.ac.cr'
 JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Oficina de Eventos ITCR'
@@ -48,10 +49,11 @@ WHERE c."NameCategory" = 'Academico'
 
 INSERT INTO "Event" (
     "EventDate", "Place", "Title", "EventDescription", "CategoryId",
-    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
+    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual", "ImageFileEvent"
 )
 SELECT TIMESTAMP '2026-04-22 14:00:00', 'B3', 'Taller Hackathon', 'Taller sobre ciberseguridad',
-       c."Id", u."Id", oe."Id", 80, TRUE, TRUE
+       c."Id", u."Id", oe."Id", 80, TRUE, TRUE,
+       '/uploads/headway-F2KRf_QfCqw-unsplash.jpg'
 FROM "Category" c
 JOIN "User" u ON u."Email" = 'organizer@itcr.ac.cr'
 JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Oficina de Eventos ITCR'
@@ -60,10 +62,11 @@ WHERE c."NameCategory" = 'Academico'
 
 INSERT INTO "Event" (
     "EventDate", "Place", "Title", "EventDescription", "CategoryId",
-    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
+    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual", "ImageFileEvent"
 )
 SELECT TIMESTAMP '2026-05-10 10:00:00', 'Salón de la Biblioteca', 'Feria del Libro', 'Feria del libro con editoriales, charlas y actividades de lectura.',
-       c."Id", u."Id", oe."Id", 250, TRUE, FALSE
+       c."Id", u."Id", oe."Id", 250, TRUE, FALSE,
+       '/uploads/c6967e92-8cb5-4ba6-9817-0301d0c9d20f_Feria del Libro.jpg'
 FROM "Category" c
 JOIN "User" u ON u."Email" = 'organizer@itcr.ac.cr'
 JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Oficina de Eventos ITCR'
@@ -72,10 +75,11 @@ WHERE c."NameCategory" = 'Cultural'
 
 INSERT INTO "Event" (
     "EventDate", "Place", "Title", "EventDescription", "CategoryId",
-    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
+    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual", "ImageFileEvent"
 )
 SELECT TIMESTAMP '2026-05-18 08:30:00', 'Cancha Campus Cartago', 'Copa de Fútbol', 'Torneo entre equipos de facultades.',
-       c."Id", u."Id", oe."Id", 400, TRUE, FALSE
+       c."Id", u."Id", oe."Id", 400, TRUE, FALSE,
+       '/uploads/nicholas-green-nPz8akkUmDI-unsplash.jpg'
 FROM "Category" c
 JOIN "User" u ON u."Email" = 'organizer@itcr.ac.cr'
 JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Oficina de Eventos ITCR'
@@ -84,10 +88,11 @@ WHERE c."NameCategory" = 'Deportivo'
 
 INSERT INTO "Event" (
     "EventDate", "Place", "Title", "EventDescription", "CategoryId",
-    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
+    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual", "ImageFileEvent"
 )
 SELECT TIMESTAMP '2026-05-25 07:00:00', 'Forestal', 'Carrera Campus 5Km', 'Carrera alrededor del campus de 5Km.',
-       c."Id", u."Id", oe."Id", 600, TRUE, FALSE
+       c."Id", u."Id", oe."Id", 600, TRUE, FALSE,
+       '/uploads/15d9315c-774a-4dfe-9f36-693748d59478_Carrera Campus.jpg'
 FROM "Category" c
 JOIN "User" u ON u."Email" = 'organizer@itcr.ac.cr'
 JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Oficina de Eventos ITCR'
@@ -96,10 +101,11 @@ WHERE c."NameCategory" = 'Deportivo'
 
 INSERT INTO "Event" (
     "EventDate", "Place", "Title", "EventDescription", "CategoryId",
-    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual"
+    "OrganizerId", "OrganizerEntityId", "AvalaibleEntries", "ApprovedState", "IsVirtual", "ImageFileEvent"
 )
 SELECT TIMESTAMP '2026-06-05 09:30:00', 'Centro de Investigacion de Computacion', 'Charla sobre IA', 'Charlas y demostraciones sobre aplicaciones de IA en educación.',
-       c."Id", u."Id", oe."Id", 220, TRUE, TRUE
+       c."Id", u."Id", oe."Id", 220, TRUE, TRUE,
+       '/uploads/1927c6e5-665f-4e63-aa35-ebdb23aec4d2_Charla IA.jpg'
 FROM "Category" c
 JOIN "User" u ON u."Email" = 'organizer@itcr.ac.cr'
 JOIN "OrganizerEntity" oe ON oe."EntityName" = 'Oficina de Eventos ITCR'
