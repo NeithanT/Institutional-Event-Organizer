@@ -28,7 +28,7 @@ export class EventsPage implements OnInit {
   filterModalidad = signal('');
   filterUnidad = signal('');
   currentPage = signal(1);
-  itemsPerPage = 3;
+  itemsPerPage = 10;
 
   selectedDate = '';
 
@@ -48,17 +48,20 @@ export class EventsPage implements OnInit {
     if (this.filterUnidad())    filters.organizerEntity = this.filterUnidad();
     if (this.filterFecha())     filters.date            = this.filterFecha().split('T')[0];
 
+    const now = new Date();
     this.eventService.getEvents(filters).subscribe({
       next: dtos => {
-        this.eventos.set(dtos.map(dto => ({
-          id:        dto.id,
-          titulo:    dto.title,
-          imagen:    this.eventService.imageUrl(dto.imageFileEvent),
-          fecha:     dto.eventDate,
-          tipo:      dto.category.toLowerCase(),
-          modalidad: dto.isVirtual ? 'virtual' : 'presencial',
-          unidad:    dto.organizerEntity,
-        })));
+        this.eventos.set(dtos
+          .filter(dto => new Date(dto.eventDate) > now)
+          .map(dto => ({
+            id:        dto.id,
+            titulo:    dto.title,
+            imagen:    this.eventService.imageUrl(dto.imageFileEvent),
+            fecha:     dto.eventDate,
+            tipo:      dto.category.toLowerCase(),
+            modalidad: dto.isVirtual ? 'virtual' : 'presencial',
+            unidad:    dto.organizerEntity,
+          })));
       }
     });
   }
@@ -69,7 +72,7 @@ export class EventsPage implements OnInit {
   });
 
   totalPages = computed(() =>
-    Math.ceil(this.eventos().length / this.itemsPerPage)
+    Math.max(1, Math.ceil(this.eventos().length / this.itemsPerPage))
   );
 
   setFiltro(tipo: string, valor: string) {

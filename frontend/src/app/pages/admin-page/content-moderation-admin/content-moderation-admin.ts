@@ -25,6 +25,16 @@ export class ContentModerationAdmin implements OnInit {
   isLoading = false;
   errorMessage = '';
 
+  currentPage = 1;
+  itemsPerPage = 10;
+  get totalPages() { return Math.max(1, Math.ceil(this.events.length / this.itemsPerPage)); }
+  get pagedEvents() {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    return this.events.slice(start, start + this.itemsPerPage);
+  }
+  prevPage() { if (this.currentPage > 1) { this.currentPage--; this.cdr.detectChanges(); } }
+  nextPage() { if (this.currentPage < this.totalPages) { this.currentPage++; this.cdr.detectChanges(); } }
+
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
 

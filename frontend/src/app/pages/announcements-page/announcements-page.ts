@@ -21,7 +21,7 @@ interface AnnouncementItem {
 export class AnnouncementsPage implements OnInit {
 
   currentPage = signal(1);
-  itemsPerPage = 3;
+  itemsPerPage = 10;
   filterFecha = signal('');
   selectedDate = '';
 
@@ -49,7 +49,7 @@ export class AnnouncementsPage implements OnInit {
   }
 
   totalPages = computed(() =>
-    Math.ceil(this.allAnnouncements().length / this.itemsPerPage)
+    Math.max(1, Math.ceil(this.allAnnouncements().length / this.itemsPerPage))
   );
 
   pagedAnnouncements = computed(() => {

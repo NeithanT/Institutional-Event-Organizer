@@ -70,17 +70,15 @@
   </section>
 
   <!-- PAGINACIÓN -->
-  @if (totalPages() > 1) {
-    <div class="pagination">
-      <button class="page-btn" (click)="prevPage()" [disabled]="currentPage() === 1">
-        &#8592; Anterior
-      </button>
-      <span class="page-info">{{ currentPage() }} / {{ totalPages() }}</span>
-      <button class="page-btn" (click)="nextPage()" [disabled]="currentPage() === totalPages()">
-        Siguiente &#8594;
-      </button>
-    </div>
-  }
+  <div class="pagination">
+    <button class="page-btn" (click)="prevPage()" [disabled]="currentPage() === 1">
+      &#8592; Anterior
+    </button>
+    <span class="page-info">{{ currentPage() }} / {{ totalPages() }}</span>
+    <button class="page-btn" (click)="nextPage()" [disabled]="currentPage() === totalPages()">
+      Siguiente &#8594;
+    </button>
+  </div>
 
   <app-footer />
 </div>

@@ -28,7 +28,7 @@ export class InscriptionsPage implements OnInit {
   showModal = signal(false);
   selectedEventId = signal<number | null>(null);
   currentPage = signal(1);
-  itemsPerPage = 3;
+  itemsPerPage = 10;
 
   allEvents = signal<InscribedEvent[]>([]);
 
@@ -60,7 +60,7 @@ export class InscriptionsPage implements OnInit {
   );
 
   totalPages = computed(() =>
-    Math.ceil(this.filteredEvents().length / this.itemsPerPage)
+    Math.max(1, Math.ceil(this.filteredEvents().length / this.itemsPerPage))
   );
 
   pagedEvents = computed(() => {
