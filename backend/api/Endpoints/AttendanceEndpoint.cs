@@ -26,6 +26,8 @@ public static class AttendanceEndpoint
                 guest.UserId,
                 guest.User.UserName,
                 guest.User.IdCard,
+                guest.User.Email,
+                guest.InscriptionDate,
 
                 assisted = db.Attendances.Any(
                     a => a.EventId == guest.EventId

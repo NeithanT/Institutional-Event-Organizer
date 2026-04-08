@@ -5,8 +5,11 @@ ENV POSTGRES_PASSWORD=postgres123
 ENV POSTGRES_DB=EventOrganizer
 
 COPY initdb.sql /docker-entrypoint-initdb.d/01_initdb.sql
-COPY seed_events.sql /docker-entrypoint-initdb.d/02_seed_events.sql
-COPY seed_users_inscriptions_attendance.sql /docker-entrypoint-initdb.d/03_seed_users_inscriptions_attendance.sql
-COPY seed_massive_participation.sql /docker-entrypoint-initdb.d/04_seed_massive_participation.sql
+COPY create_users.sql /docker-entrypoint-initdb.d/02_create_users.sql
+COPY create_events.sql /docker-entrypoint-initdb.d/03_create_events.sql
+COPY migrate_inscription_columns.sql /docker-entrypoint-initdb.d/04_migrate_inscription_columns.sql
+COPY create_inscriptions.sql /docker-entrypoint-initdb.d/05_create_inscriptions.sql
+COPY create_attendance.sql /docker-entrypoint-initdb.d/06_create_attendance.sql
+COPY create_announcements.sql /docker-entrypoint-initdb.d/07_create_announcements.sql
 
 EXPOSE 5432
