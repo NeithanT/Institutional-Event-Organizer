@@ -54,5 +54,27 @@
       </form>
 
     </div>
+
+        <!-- ═══ MODAL ═══ -->
+    <div class="modal-overlay" *ngIf="showModal">
+      <div class="modal-box">
+
+        <div class="modal-icon" [ngClass]="modalSuccess ? 'icon-success' : 'icon-error'">
+          <span *ngIf="modalSuccess">✓</span>
+          <span *ngIf="!modalSuccess">!</span>
+        </div>
+
+        <h4 class="modal-title-text">{{ modalTitle }}</h4>
+        <p class="modal-message">{{ modalMessage }}</p>
+
+        <button
+          class="btn modal-btn"
+          [ngClass]="modalSuccess ? 'btn-success-custom' : 'btn-error-custom'"
+          (click)="closeModal()">
+          Continuar
+        </button>
+
+      </div>
+    </div>
   </div>
 </div>
