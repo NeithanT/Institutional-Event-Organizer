@@ -76,8 +76,9 @@
 .custom-modal-header {
   background: linear-gradient(to right, #2d6cdf, #1a4faa);
   color: white;
-  padding: 12px 20px;
-  font-weight: 600;
+  padding: 20px 20px;
+  font-weight: 400px;
+  font-size: 2.0rem;
 }
 
 .custom-modal-body {
@@ -86,8 +87,35 @@
 
 /* Modal grande */
 .custom-modal.large {
-  width: 900px;
+  width: 1000px;
   max-width: 95%;
   max-height: 90vh;
   overflow-y: auto;
+}
+
+.search-wrapper {
+  flex: 1;        
+  max-width: 500px; 
+}
+
+.search-input {
+  height: 45px;
+  font-size: 0.95rem;
+}
+
+.filter-wrapper {
+  width: 280px;   
+  flex-shrink: 0;  
+}
+
+.filter-select {
+  height: 45px;    
+  font-size: 0.9rem;
+}
+
+.custom-label {
+  font-size: 1.0rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 4px;
 }
