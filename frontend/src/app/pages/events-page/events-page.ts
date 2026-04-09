@@ -3,7 +3,13 @@ import { Navbar } from '../../components/navbar/navbar';
 import { Footer } from '../../components/footer/footer';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { EventService, EventFilters } from '../../services/event.service';
+import { HttpClient } from '@angular/common/http';
+import { EventService, EventFilters, BACKEND_BASE } from '../../services/event.service';
+
+interface OrganizerEntity {
+  id: number;
+  entityName: string;
+}
 
 interface Event {
   id: number;
@@ -33,11 +39,19 @@ export class EventsPage implements OnInit {
   selectedDate = '';
 
   eventos = signal<Event[]>([]);
+  organizerEntities = signal<OrganizerEntity[]>([]);
+  categories = signal<{ id: number; nameCategory: string }[]>([]);
 
-  constructor(private eventService: EventService) {}
+  constructor(private eventService: EventService, private http: HttpClient) {}
 
   ngOnInit() {
     this.loadEvents();
+    this.http.get<OrganizerEntity[]>(`${BACKEND_BASE}/organizer/get-entities`).subscribe({
+      next: data => this.organizerEntities.set(data)
+    });
+    this.http.get<{ id: number; nameCategory: string }[]>(`${BACKEND_BASE}/organizer/get-events-categories`).subscribe({
+      next: data => this.categories.set(data)
+    });
   }
 
   private loadEvents() {

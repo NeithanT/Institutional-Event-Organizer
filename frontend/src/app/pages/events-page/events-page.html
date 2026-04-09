@@ -10,9 +10,9 @@
           <label>Tipo de evento</label>
           <select (change)="setFiltro('tipo', $any($event.target).value)">
             <option value="">Todos</option>
-            <option value="academico">Académico</option>
-            <option value="cultural">Cultural</option>
-            <option value="recreativo">Recreativo</option>
+            @for (cat of categories(); track cat.id) {
+              <option [value]="cat.nameCategory.toLowerCase()">{{ cat.nameCategory }}</option>
+            }
           </select>
         </div>
         <div class="filter-group">
@@ -39,9 +39,9 @@
           <label>Unidad organizadora</label>
           <select (change)="setFiltro('unidad', $any($event.target).value)">
             <option value="">Todas</option>
-            <option value="Deportes">Deportes</option>
-            <option value="CASIE">CASIE</option>
-            <option value="DATIC">DATIC</option>
+            @for (entity of organizerEntities(); track entity.id) {
+              <option [value]="entity.entityName">{{ entity.entityName }}</option>
+            }
           </select>
         </div>
       </div>
