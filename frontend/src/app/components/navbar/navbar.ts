@@ -52,8 +52,8 @@ export class Navbar implements OnInit {
         this.notifications.set(dtos.slice(0, 10).map(dto => ({
           id:    dto.id,
           title: dto.title,
-          date:  dto.eventDate
-            ? new Date(dto.eventDate).toLocaleDateString('es-CR', { day: 'numeric', month: 'long', year: 'numeric' })
+          date:  dto.publicationDate
+            ? (() => { const [y,m,d] = dto.publicationDate.split('-').map(Number); return new Date(y, m-1, d).toLocaleDateString('es-CR', { day: 'numeric', month: 'long', year: 'numeric' }); })()
             : '',
         })));
       }

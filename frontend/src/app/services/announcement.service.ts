@@ -8,7 +8,7 @@ export interface AnnouncementSummaryDto {
   about: string;
   writerName: string;
   eventTitle: string | null;
-  eventDate: string | null;
+  publicationDate: string;
 }
 
 export interface AnnouncementDetailDto {

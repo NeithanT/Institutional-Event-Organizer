@@ -25,14 +25,13 @@ public class AnnouncementService : IAnnouncementService
         {
             var date = filters.Date.Value;
             query = query.Where(a =>
-                a.Event != null &&
-                a.Event.EventDate.Year == date.Year &&
-                a.Event.EventDate.Month == date.Month &&
-                a.Event.EventDate.Day == date.Day);
+                a.PublicationDate.Year == date.Year &&
+                a.PublicationDate.Month == date.Month &&
+                a.PublicationDate.Day == date.Day);
         }
 
         return await query
-            .OrderByDescending(a => a.Id)
+            .OrderByDescending(a => a.PublicationDate)
             .Select(a => new AnnouncementSummaryDto
             {
                 Id = a.Id,
@@ -40,7 +39,7 @@ public class AnnouncementService : IAnnouncementService
                 About = a.About,
                 WriterName = a.Writer.UserName,
                 EventTitle = a.Event != null ? a.Event.Title : null,
-                EventDate = a.Event != null ? a.Event.EventDate : null
+                PublicationDate = DateOnly.FromDateTime(a.PublicationDate)
             })
             .ToListAsync();
     }

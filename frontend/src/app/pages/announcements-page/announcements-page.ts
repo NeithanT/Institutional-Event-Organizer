@@ -35,14 +35,14 @@ export class AnnouncementsPage implements OnInit {
 
   private loadAnnouncements() {
     this.currentPage.set(1);
-    const date = this.filterFecha() ? this.filterFecha().split('T')[0] : undefined;
+    const date = this.filterFecha() || undefined;
 
     this.announcementService.getAnnouncements(date).subscribe({
       next: dtos => {
         this.allAnnouncements.set(dtos.map(dto => ({
           id:    dto.id,
           title: dto.title,
-          date:  dto.eventDate || '',
+          date:  dto.publicationDate,
         })));
       }
     });
@@ -70,7 +70,8 @@ export class AnnouncementsPage implements OnInit {
 
   formatFecha(date: string): string {
     if (!date) return '';
-    return new Date(date).toLocaleDateString('es-CR', { day: 'numeric', month: 'long', year: 'numeric' });
+    const [year, month, day] = date.split('-').map(Number);
+    return new Date(year, month - 1, day).toLocaleDateString('es-CR', { day: 'numeric', month: 'long', year: 'numeric' });
   }
 
   prevPage() { if (this.currentPage() > 1) this.currentPage.update(p => p - 1); }

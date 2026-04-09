@@ -53,8 +53,8 @@ export class UserPage implements OnInit {
         this.anuncios.set(annDtos.slice(0, 6).map(dto => ({
           id:     dto.id,
           titulo: dto.title,
-          fecha:  dto.eventDate
-            ? new Date(dto.eventDate).toLocaleDateString('es-CR', { day: 'numeric', month: 'long', year: 'numeric' })
+          fecha:  dto.publicationDate
+            ? (() => { const [y,m,d] = dto.publicationDate.split('-').map(Number); return new Date(y, m-1, d).toLocaleDateString('es-CR', { day: 'numeric', month: 'long', year: 'numeric' }); })()
             : '',
         })));
       }

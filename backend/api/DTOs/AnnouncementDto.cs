@@ -7,7 +7,7 @@ public class AnnouncementSummaryDto
     public string About { get; set; } = string.Empty;
     public string WriterName { get; set; } = string.Empty;
     public string? EventTitle { get; set; }
-    public DateTime? EventDate { get; set; }
+    public DateOnly PublicationDate { get; set; }
 }
 
 public class AnnouncementDetailDto
