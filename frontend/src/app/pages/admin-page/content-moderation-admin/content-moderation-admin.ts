@@ -23,6 +23,7 @@ interface ContentModerationEvent {
 export class ContentModerationAdmin implements OnInit {
   events: ContentModerationEvent[] = [];
   isLoading = false;
+  modifying = false;
   errorMessage = '';
 
   currentPage = 1;
@@ -81,5 +82,22 @@ export class ContentModerationAdmin implements OnInit {
           this.cdr.detectChanges();
         },
       });
+  }
+
+  modifyEvent(eventId: number): void {
+
+    //interface ContentModerationEvent {
+    //  id: number;
+    //  title: string;
+    //  organizer: string;
+    //  category: string;
+    //  reports: number;
+    //  approved: boolean;
+    //  date: string;
+    //  location: string;
+    //}
+
+    const eventData = this.events.find(event => event.id === eventId);
+
   }
 }

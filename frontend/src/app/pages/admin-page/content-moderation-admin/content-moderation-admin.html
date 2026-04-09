@@ -8,6 +8,7 @@
 		<div class="alert alert-danger">{{ errorMessage }}</div>
 	}
 
+  @if(!modifying)
 	<div class="table-responsive card border-0 shadow-sm center">
 		<table class="table align-middle mb-0">
 			<thead>
@@ -16,7 +17,7 @@
 					<th>Organizador</th>
 					<th>Categoria</th>
 					<th>Reportes</th>
-					<th class="text-end">Accion</th>
+					<th>Accion</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -43,7 +44,10 @@
 									{{ event.reports }}
 								</span>
 							</td>
-							<td class="text-end">
+							<td class="d-flex gap-4">
+                <button class="btn btn-outline-primary btn-sm">
+									Modificar
+								</button>
 								<button class="btn btn-outline-danger btn-sm" (click)="removeEvent(event.id)">
 									Eliminar
 								</button>
