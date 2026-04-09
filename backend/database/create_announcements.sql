@@ -1,7 +1,8 @@
-INSERT INTO "Announcement" ("WriterId", "EventId", "Title", "About", "Body")
+INSERT INTO "Announcement" ("WriterId", "EventId", "PublicationDate", "Title", "About", "Body")
 SELECT
     u."Id",
     e."Id",
+    TIMESTAMP '2026-02-10 08:00:00',
     'Anuncio de participacion',
     'Participation update',
     'Pronto se acabaran las entradas'

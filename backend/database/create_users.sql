@@ -22,7 +22,7 @@ FROM (
     VALUES
         ('Neithan Vargas Vargas', 'n.vargas.5@estudiantec.cr', 1950000000),
         ('Erik Zhou Feng', 'e.zhou.1@estudiantec.cr', 1950000002),
-        ('Sebastian Chaves Rojas', 's.chaves.5@estudiantec.cr', 1950000004),
+        ('Sebastian Chaves Rojas', 's.chaves.4@estudiantec.cr', 1950000004),
         ('Dayanna Hernandez Castellon', 'd.hernandez.7@estudiantec.cr', 1950000012)
 ) AS src("UserName", "Email", "IdCard")
 JOIN "Role" r ON r."RolName" = 'Admin'
