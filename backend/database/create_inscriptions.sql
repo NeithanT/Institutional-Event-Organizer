@@ -16,11 +16,11 @@ BEGIN
         VALUES
             ('Bienvenida 2026', 'n.vargas.5@estudiantec.cr'),
             ('Bienvenida 2026', 'e.zhou.1@estudiantec.cr'),
-            ('Taller Hackathon', 's.chaves.5@estudiantec.cr'),
+            ('Taller Hackathon', 's.chaves.4@estudiantec.cr'),
             ('Taller Hackathon', 'e.zhou.1@estudiantec.cr'),
             ('Feria del Libro', 'n.vargas.5@estudiantec.cr'),
             ('Feria del Libro', 'blafaro07@gmail.com'),
-            ('Copa de Fútbol', 's.chaves.5@estudiantec.cr'),
+            ('Copa de Fútbol', 's.chaves.4@estudiantec.cr'),
             ('Copa de Fútbol', 'blafaro07@gmail.com'),
             ('Copa de Fútbol', 'd.hernandez.7@estudiantec.cr'),
             ('Carrera Campus 5Km', 'd.hernandez.7@estudiantec.cr'),
