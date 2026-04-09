@@ -3,7 +3,8 @@
   <app-sidebar class="sidebar-wrapper" [links]="sidebarLinks"></app-sidebar>
 
   <!-- CONTENIDO -->
-  <div class="content d-flex justify-content-center align-items-center" style="width: 100%">
+  <div class="content d-flex justify-content-center align-items-center"
+    style="width: 100%">
 
     <div class="form-card card shadow p-4" style="width: 80%;">
 
@@ -26,28 +27,32 @@
         </div>
         <div class="mb-3">
           <label class="form-label">Imagen del Evento</label>
-         <input type="file" class="form-control" (change)="onFileSelected($event)">
+          <input type="file" class="form-control"
+            (change)="onFileSelected($event)">
         </div>
         <div class="row mb-3">
           <div class="col">
             <label class="form-label">Categoría</label>
-            <select class="form-select" [(ngModel)]="categoryId" name="categoryId">
-            <option [ngValue]="0" disabled>Seleccione una categoría</option>
-            <option *ngFor="let cat of categories" [ngValue]="cat.id">
-              {{ cat.nameCategory }}
-            </option>
-          </select>
+            <select class="form-select" [(ngModel)]="categoryId"
+              name="categoryId">
+              <option [ngValue]="0" disabled>Seleccione una categoría</option>
+              <option *ngFor="let cat of categories" [ngValue]="cat.id">
+                {{ cat.nameCategory }}
+              </option>
+            </select>
           </div>
 
           <div class="col">
             <label class="form-label">Unidad Organizadora</label>
-           <select [(ngModel)]="organizerEntityId" name="organizerEntityId" class="form-select">
-             <option [ngValue]="0" disabled>Seleccione una unidad</option>
-            <option *ngFor="let entity of organizerEntities" [value]="entity.id">
-              {{ entity.entityName }}
-            </option>
+            <select [(ngModel)]="organizerEntityId" name="organizerEntityId"
+              class="form-select">
+              <option [ngValue]="0" disabled>Seleccione una unidad</option>
+              <option *ngFor="let entity of organizerEntities"
+                [value]="entity.id">
+                {{ entity.entityName }}
+              </option>
 
-          </select>
+            </select>
           </div>
         </div>
 
@@ -73,30 +78,55 @@
 
         <div class="mb-3">
           <label class="form-label">Modalidad</label><br>
-         <div class="form-check">
-          <input
-            type="checkbox"
-            class="form-check-input"
-            [(ngModel)]="isVirtual"
-            name="isVirtual"
-            id="isVirtual">
-          <label class="form-check-label" for="isVirtual">
-            Evento virtual
-          </label>
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [(ngModel)]="isVirtual"
+              name="isVirtual"
+              id="isVirtual">
+            <label class="form-check-label" for="isVirtual">
+              Evento virtual
+            </label>
+          </div>
         </div>
+
+        <div class="text-end">
+          <button type="submit" class="btn btn-primary">
+            Guardar Evento
+          </button>
         </div>
 
-
-       <div class="text-end">
-        <button type="submit" class="btn btn-primary">
-          Guardar Evento
-        </button>
-       </div>
-
-        </form>
-
-      </div>
+      </form>
 
     </div>
 
+    <!-- ═══ MODAL ═══ -->
+    <div class="modal-overlay" *ngIf="showModal">
+      <div class="modal-box">
+
+        <!-- Ícono -->
+        <div class="modal-icon"
+          [ngClass]="modalSuccess ? 'icon-success' : 'icon-error'">
+          <span *ngIf="modalSuccess">✓</span>
+          <span *ngIf="!modalSuccess">!</span>
+        </div>
+
+        <!-- Texto -->
+        <h4 class="modal-title-text">{{ modalTitle }}</h4>
+        <p class="modal-message">{{ modalMessage }}</p>
+
+        <!-- Botón -->
+        <button
+          class="btn modal-btn"
+          [ngClass]="modalSuccess ? 'btn-success-custom' : 'btn-error-custom'"
+          (click)="closeModal()">
+          Continuar
+        </button>
+
+      </div>
+    </div>
+
   </div>
+
+</div>

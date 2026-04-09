@@ -55,7 +55,7 @@
               </button>
              <button
               class="btn btn-danger fw-semibold px-4"
-              (click)="cancelEvent()">
+              (click)="openCancelModal()">
               🚫 Cancelar Evento
             </button>
             </ng-container>
@@ -291,4 +291,80 @@
     </div>
 
   </div>
+
+    <!-- ═══ MODALGENERAL ═══ -->
+  <div class="modal-overlay" *ngIf="showModal">
+    <div class="modal-box">
+
+      <div class="modal-icon" [ngClass]="modalSuccess ? 'icon-success' : 'icon-error'">
+        <span *ngIf="modalSuccess">✓</span>
+        <span *ngIf="!modalSuccess">!</span>
+      </div>
+
+      <h4 class="modal-title-text">{{ modalTitle }}</h4>
+      <p class="modal-message">{{ modalMessage }}</p>
+
+      <button
+        class="btn modal-btn"
+        [ngClass]="modalSuccess ? 'btn-success-custom' : 'btn-error-custom'"
+        (click)="closeModal()">
+        Continuar
+      </button>
+
+    </div>
+  </div>
+    <!-- ═══ MODAL CANCELAR ═══ -->
+  <div *ngIf="showCancelModal" class="modal-overlay">
+  <div class="modal-box">
+
+    <h4 class="modal-title-text">Cancelar Evento</h4>
+
+    <p class="modal-message">
+      Escribe el motivo de cancelación:
+    </p>
+
+    <textarea
+      class="form-control mb-3"
+      rows="3"
+      [(ngModel)]="cancelReason">
+    </textarea>
+
+    <div class="d-flex gap-2">
+      <button class="btn btn-secondary w-50" (click)="closeCancelModal()">
+        Volver
+      </button>
+
+      <button class="btn btn-danger w-50" (click)="confirmCancelEvent()">
+        Cancelar Evento
+      </button>
+    </div>
+
+  </div>
+</div>
+ <!-- ═══ MODAL ELIMINAR ═══ -->
+<div *ngIf="showDeleteModal" class="modal-overlay">
+  <div class="modal-box">
+
+    <div class="modal-icon icon-error">
+      !
+    </div>
+
+    <h4 class="modal-title-text">Eliminar Evento</h4>
+
+    <p class="modal-message">
+      ¿Estás seguro de que deseas eliminar este evento? Esta acción no se puede deshacer.
+    </p>
+
+    <div class="d-flex gap-2">
+      <button class="btn btn-secondary w-50" (click)="closeDeleteModal()">
+        Cancelar
+      </button>
+
+      <button class="btn btn-danger w-50" (click)="deleteEvent()">
+        Eliminar
+      </button>
+    </div>
+
+  </div>
+</div>
 </div>

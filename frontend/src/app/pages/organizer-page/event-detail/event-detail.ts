@@ -35,6 +35,18 @@ export class EventDetail implements OnInit {
   filteredParticipants: any[] = [];
   filterStatus: string = 'all';
 
+  //Modal
+  showModal: boolean = false;
+  modalSuccess: boolean = true;
+  modalTitle: string = '';
+  modalMessage: string = '';
+
+  // Modal cancelar
+  showCancelModal: boolean = false;
+
+  // Modal eliminar
+  showDeleteModal: boolean = false;
+
   sidebarLinks = [
     { label: 'Crear Eventos', route: '/create-event' },
     { label: 'Mis Eventos', route: '/organizer-events' }
@@ -74,6 +86,17 @@ export class EventDetail implements OnInit {
     if (!this.event.approvedState) return 'pending';
     if (eventDate > now) return 'approved';
     return 'finished';
+  }
+
+  openModal(success: boolean, title: string, message: string) {
+  this.modalSuccess = success;
+  this.modalTitle = title;
+  this.modalMessage = message;
+  this.showModal = true;
+}
+
+  closeModal() {
+    this.showModal = false;
   }
 
 // ── ASISTENCIA ─────────────────────────────
@@ -147,15 +170,14 @@ closeAttendanceModal() {
 saveAttendance() {
 
   if (this.getEventStatus() === 'finished') {
-    alert('No se puede modificar la asistencia de un evento finalizado');
+    this.openModal(false, 'No permitido', 'No se puede modificar la asistencia de un evento finalizado');
     return;
   }
 
   this.participants.forEach(user => {
     if (user.attended) {
       this.http.post(
-        `http://localhost:5053/organizer/events/${this.eventId}/check-list/${user.userId}`,
-        {}
+        `http://localhost:5053/organizer/events/${this.eventId}/check-list/${user.userId}`, {}
       ).subscribe();
     } else {
       this.http.delete(
@@ -164,7 +186,7 @@ saveAttendance() {
     }
   });
 
-  alert('Asistencia actualizada');
+  this.openModal(true, '¡Éxito!', 'Asistencia actualizada correctamente');
   this.closeAttendanceModal();
 }
 
@@ -182,10 +204,12 @@ saveAttendance() {
 
 sendNotice() {
 
-  console.log("ENVIANDO COMUNICADO");
-
   if (!this.noticeTitle.trim() || !this.noticeBody.trim()) {
-    alert('Debes completar todos los campos');
+    this.showNoticeModal = false;
+    this.cdr.detectChanges();
+    Promise.resolve().then(() => {
+      this.openModal(false, '¡Atención!', 'Debes completar todos los campos');
+    });
     return;
   }
 
@@ -196,53 +220,89 @@ sendNotice() {
     body: this.noticeBody.trim()
   };
 
+  this.showNoticeModal = false;
+  this.cdr.detectChanges();
+
+  // Mostrar éxito inmediatamente sin esperar emails
+  Promise.resolve().then(() => {
+    this.openModal(true, '¡Enviado!', 'El comunicado se está enviando a todos los participantes');
+  });
+
   this.http.post(
     `http://localhost:5053/organizer/events/${this.eventId}/notice`,
     body
   ).subscribe({
-    next: () => {
-      alert('Comunicado enviado a todos los participantes');
-      this.closeNoticeModal();
-      this.cdr.detectChanges(); 
-      // limpiar (tipo cancelar)
-      this.noticeTitle = '';
-      this.noticeBody = '';
-    },
-    error: (err) => {
-      console.error(err);
-      alert('Error al enviar comunicado');
+    error: () => {
+      this.showModal = false;
+      this.cdr.detectChanges();
+      Promise.resolve().then(() => {
+        this.openModal(false, '¡Error!', 'No se pudo enviar el comunicado');
+      });
     }
   });
 }
+
   // CANCELAR 
-  cancelEvent() {
-    const confirmacion = confirm('¿Estás seguro de que deseas cancelar este evento?');
-    if (!confirmacion) return;
-
-    const reason = prompt('Escribe el motivo de cancelación (se enviará a todos los participantes):');
-    if (!reason || !reason.trim()) {
-      alert('Debes escribir un motivo de cancelación');
-      return;
-    }
-
-    const body = { organizerId: this.organizerId, reason: reason.trim() };
-
-    this.http.post(
-      `http://localhost:5053/organizer/events/${this.eventId}/cancel`,
-      body
-    ).subscribe({
-      error: (err) => console.error("ERROR CANCELANDO:", err)
-    });
-
-    alert('Evento cancelado. Se notificará a todos los participantes.');
-    this.router.navigate(['/organizer-events']);
+  openCancelModal() {
+    this.cancelReason = '';
+    this.showCancelModal = true;
   }
 
-  // ── ELIMINAR ─────────────────────────────────
-  confirmDelete() {
-    if (confirm('¿Estás seguro de que deseas eliminar este evento?')) {
-      this.deleteEvent();
+  closeCancelModal() {
+    this.showCancelModal = false;
+  }
+
+confirmCancelEvent() {
+
+  if (!this.cancelReason.trim()) {
+    this.showCancelModal = false;
+    this.cdr.detectChanges();
+    Promise.resolve().then(() => {
+      this.openModal(false, '¡Atención!', 'Debes escribir un motivo');
+    });
+    return;
+  }
+
+  const body = {
+    organizerId: this.organizerId,
+    reason: this.cancelReason.trim()
+  };
+
+  this.showCancelModal = false;
+  this.cdr.detectChanges();
+
+  // Mostrar éxito inmediatamente sin esperar emails
+  Promise.resolve().then(() => {
+    this.openModal(true, '¡Cancelado!', 'El evento se está cancelando y notificando a los participantes');
+  });
+
+  this.http.post(
+    `http://localhost:5053/organizer/events/${this.eventId}/cancel`,
+    body
+  ).subscribe({
+    next: () => {
+      this.router.navigate(['/organizer-events']);
+    },
+    error: () => {
+      this.showModal = false;
+      this.cdr.detectChanges();
+      Promise.resolve().then(() => {
+        this.openModal(false, '¡Error!', 'No se pudo cancelar el evento');
+      });
     }
+  });
+}
+  // ── ELIMINAR ─────────────────────────────────
+  openDeleteModal() {
+    this.showDeleteModal = true;
+  }
+
+  closeDeleteModal() {
+    this.showDeleteModal = false;
+  }
+
+  confirmDelete() {
+    this.openDeleteModal();
   }
 
   deleteEvent() {
@@ -250,12 +310,12 @@ sendNotice() {
       `http://localhost:5053/organizer/events/${this.eventId}?organizerId=${this.organizerId}`
     ).subscribe({
       next: () => {
-        alert('Evento eliminado correctamente');
+        this.closeDeleteModal();
+        this.openModal(true, 'Eliminado', 'Evento eliminado correctamente');
         this.router.navigate(['/organizer-events']);
       },
-      error: (err) => {
-        console.error("ERROR ELIMINANDO:", err);
-        alert('Error al eliminar el evento');
+      error: () => {
+        this.openModal(false, 'Error', 'No se pudo eliminar el evento');
       }
     });
   }

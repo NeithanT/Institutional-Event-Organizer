@@ -119,3 +119,67 @@
   color: #555;
   margin-bottom: 4px;
 }
+
+/* ── Modal General ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 360px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+
+.modal-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.icon-success { background: #29b6f6; }
+.icon-error   { background: #ef5350; }
+
+.modal-title-text {
+  font-weight: 800;
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.modal-message {
+  color: #555;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+.modal-btn {
+  width: 100%;
+  padding: 0.65rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+}
+
+.btn-success-custom { background: #29b6f6; color: #fff; }
+.btn-error-custom   { background: #ef5350; color: #fff; }
+
+.btn-success-custom:hover { background: #0398d4; color: #fff; }
+.btn-error-custom:hover   { background: #c62828; color: #fff; }

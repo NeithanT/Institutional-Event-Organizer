@@ -32,6 +32,13 @@ export class EditEvent implements OnInit {
   place: string = '';
   isVirtual: boolean = false;
 
+  //MODAL
+  showModal: boolean = false;
+  modalSuccess: boolean = true;
+  modalTitle: string = '';
+  modalMessage: string = '';
+
+
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
@@ -39,7 +46,19 @@ export class EditEvent implements OnInit {
     private auth: Authentication,
     private cdr: ChangeDetectorRef
   ) {}
+  openModal(success: boolean, title: string, message: string) {
+    this.modalSuccess = success;
+    this.modalTitle = title;
+    this.modalMessage = message;
+    this.showModal = true;
+  }
 
+  closeModal() {
+  this.showModal = false;
+  if (this.modalSuccess) {
+    this.router.navigate(['/organizer-events']);
+  }
+}
   ngOnInit() {
     this.eventId = Number(this.route.snapshot.paramMap.get('id'));
     this.organizerId = this.auth.userId;
@@ -62,7 +81,7 @@ export class EditEvent implements OnInit {
       },
       error: (err) => {
         console.error("ERROR CARGANDO EVENTO:", err);
-        alert("Error al cargar el evento");
+        this.openModal(false, 'Error', 'No se pudo cargar el evento');
       }
     });
   }
@@ -75,27 +94,27 @@ export class EditEvent implements OnInit {
       !this.date ||
       !this.place.trim()
     ) {
-      alert('Todos los campos son obligatorios');
+      this.openModal(false, '¡Atención!', 'Todos los campos son obligatorios');
       return;
     }
 
     if (new Date(this.date) < new Date()) {
-      alert('No puedes seleccionar una fecha pasada');
+      this.openModal(false, '¡Atención!', 'No puedes seleccionar una fecha pasada');
       return;
     }
 
     if (this.title.length > 300) {
-      alert('El título no puede superar los 300 caracteres');
+      this.openModal(false, '¡Atención!', 'El título no puede superar los 300 caracteres');
       return;
     }
 
     if (this.description.length > 300) {
-      alert('La descripción no puede superar los 300 caracteres');
+      this.openModal(false, '¡Atención!', 'La descripción no puede superar los 300 caracteres');
       return;
     }
 
     if (this.place.length > 300) {
-      alert('El lugar no puede superar los 300 caracteres');
+      this.openModal(false, '¡Atención!', 'El lugar no puede superar los 300 caracteres');
       return;
     }
 
@@ -116,13 +135,14 @@ export class EditEvent implements OnInit {
       body
     ).subscribe({
       next: () => {
-        alert('Evento actualizado correctamente');
-        this.router.navigate(['/organizer-events']);
-      },
-      error: (err) => {
-        console.error("ERROR ACTUALIZANDO:", err);
-        alert('Error al actualizar el evento');
-      }
+
+      this.openModal(true, '¡Éxito!', 'Evento actualizado correctamente');
+      this.cdr.detectChanges();
+
+    },
+      error: () => {
+      this.openModal(false, 'Error', 'No se pudo actualizar el evento');
+    }
     });
   }
 }
