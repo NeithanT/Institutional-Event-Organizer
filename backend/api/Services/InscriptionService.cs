@@ -8,10 +8,12 @@ namespace api.Services;
 public class InscriptionService : IInscriptionService
 {
     private readonly EventOrganizerContext _db;
+    private readonly IEmailService _mailService;
 
-    public InscriptionService(EventOrganizerContext db)
+    public InscriptionService(EventOrganizerContext db, IEmailService mailService)
     {
         _db = db;
+        _mailService = mailService;
     }
 
     public async Task<IEnumerable<InscriptionSummaryDto>> GetUserInscriptionsAsync(int userId)
@@ -69,6 +71,21 @@ public class InscriptionService : IInscriptionService
 
         _db.Inscriptions.Add(inscription);
         await _db.SaveChangesAsync();
+
+        var user = await _db.Users.FindAsync(dto.UserId);
+        if (user is not null)
+        {
+            var eventDate = ev.EventDate.ToString("dd 'de' MMMM 'de' yyyy, HH:mm", new System.Globalization.CultureInfo("es-CR"));
+            await _mailService.SendEmailAsync(
+                user.Email,
+                $"Confirmación de inscripción: {ev.Title}",
+                $"Hola {user.UserName},\n\n" +
+                $"Te has inscrito exitosamente al evento \"{ev.Title}\".\n\n" +
+                $"Fecha: {eventDate}\n" +
+                $"Lugar: {ev.Place}\n\n" +
+                $"¡Te esperamos!"
+            );
+        }
 
         return Results.Created($"/api/inscripciones/{dto.EventId}", new { message = "Inscripción exitosa." });
     }
