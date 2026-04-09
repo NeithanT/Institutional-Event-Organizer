@@ -105,6 +105,18 @@ public class InscriptionService : IInscriptionService
         _db.Inscriptions.Remove(inscription);
         await _db.SaveChangesAsync();
 
+        var user = await _db.Users.FindAsync(userId);
+        if (user is not null && ev is not null)
+        {
+            await _mailService.SendEmailAsync(
+                user.Email,
+                $"Desinscripción confirmada: {ev.Title}",
+                $"Hola {user.UserName},\n\n" +
+                $"Te has desinscrito exitosamente del evento \"{ev.Title}\".\n\n" +
+                $"Si fue un error, puedes volver a inscribirte mientras haya cupos disponibles."
+            );
+        }
+
         return Results.Ok(new { message = "Desinscripción exitosa." });
     }
 }
