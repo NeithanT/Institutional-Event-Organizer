@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
@@ -18,7 +18,9 @@ interface AnnouncementForm {
   styleUrl: './announcement-system-admin.css',
 })
 export class AnnouncementSystemAdmin {
+  ref: ChangeDetectorRef = inject(ChangeDetectorRef);
   sent = false;
+  error = false;
 
   form: AnnouncementForm = {
     title: '',
@@ -46,16 +48,21 @@ export class AnnouncementSystemAdmin {
       .subscribe({
         next: () => {
           this.sent = true;
+          this.error = false;
           this.form = {
             title: '',
             about: 'General',
             content: '',
           };
+          this.ref.markForCheck();
         },
         error: (error) => {
           console.error('Unable to send announcement', error);
           this.sent = false;
+          this.error = true;
+          this.ref.markForCheck();
         }
       });
+
   }
 }
