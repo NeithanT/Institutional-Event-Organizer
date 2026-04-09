@@ -30,6 +30,11 @@ export class EventDetail implements OnInit {
   showAttendanceModal: boolean = false;
   participants: any[] = [];
 
+  //Filtrado
+  searchTerm: string = '';
+  filteredParticipants: any[] = [];
+  filterStatus: string = 'all';
+
   sidebarLinks = [
     { label: 'Crear Eventos', route: '/create-event' },
     { label: 'Mis Eventos', route: '/organizer-events' }
@@ -72,11 +77,41 @@ export class EventDetail implements OnInit {
   }
 
 // ── ASISTENCIA ─────────────────────────────
+
+
+// ABRIR MODAL
 openAttendanceModal() {
   this.showAttendanceModal = true;
   this.loadParticipants();
 }
 
+filterParticipants() {
+
+  const term = this.searchTerm.toLowerCase().trim();
+
+  this.filteredParticipants = this.participants.filter(user => {
+
+    const name = (user.fullName || '').toLowerCase();
+    const id = (user.studentId || '').toString();
+
+    //FILTRO DE TEXTO
+    const matchesSearch = name.includes(term) || id.includes(term);
+
+    // FILTRO DE ESTADO
+    let matchesStatus = true;
+
+    if (this.filterStatus === 'attended') {
+      matchesStatus = user.attended === true;
+    } 
+    else if (this.filterStatus === 'not-attended') {
+      matchesStatus = user.attended === false;
+    }
+
+    return matchesSearch && matchesStatus;
+  });
+}
+
+// GET PARTICIPANTES
 loadParticipants() {
 
   this.http.get<any[]>(
@@ -87,29 +122,36 @@ loadParticipants() {
       console.log("PARTICIPANTES:", data);
 
       this.participants = data.map(p => ({
-        ...p,
-        attended: p.attended || false
-      }));
+      userId: p.userId,
+      fullName: p.userName,
+      studentId: p.idCard,
+      email: p.email,
+      inscriptionDate: p.inscriptionDate,
+      attended: p.assisted
+    }));
 
+      this.filteredParticipants = [...this.participants];
       this.cdr.detectChanges();
     },
     error: (err) => console.error(err)
   });
 }
 
-toggleAttendance(user: any) {
-  user.attended = !user.attended;
-}
-
+// CERRAR MODAL
 closeAttendanceModal() {
   this.showAttendanceModal = false;
   this.cdr.detectChanges();
 }
 
+// GUARDAR ASISTENCIA
 saveAttendance() {
 
-  this.participants.forEach(user => {
+  if (this.getEventStatus() === 'finished') {
+    alert('No se puede modificar la asistencia de un evento finalizado');
+    return;
+  }
 
+  this.participants.forEach(user => {
     if (user.attended) {
       this.http.post(
         `http://localhost:5053/organizer/events/${this.eventId}/check-list/${user.userId}`,
@@ -120,12 +162,9 @@ saveAttendance() {
         `http://localhost:5053/organizer/events/${this.eventId}/check-list/${user.userId}`
       ).subscribe();
     }
-
   });
 
-  alert('✅ Asistencia actualizada');
-
-  // 🔥 cerrar modal automáticamente
+  alert('Asistencia actualizada');
   this.closeAttendanceModal();
 }
 

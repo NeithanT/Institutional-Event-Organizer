@@ -6,21 +6,21 @@
   <!-- CONTENIDO -->
   <div class="content p-4 w-100">
 
-    <h4 class="mb-4">Mis Eventos Creados</h4>
+    <h3 class="mb-4"><strong>Mis Eventos Creados</strong></h3>
 
     <!-- RESUMEN -->
     <div class="d-flex gap-3 mb-4">
 
       <div class="card-resumen pendiente text-center p-2 flex-fill">
-        PENDIENTES {{ pendingCount }}
+        PENDIENTES: {{ pendingCount }}
       </div>
 
       <div class="card-resumen aprobado text-center p-2 flex-fill">
-        APROBADOS {{ approvedCount }}
+        APROBADOS: {{ approvedCount }}
       </div>
 
       <div class="card-resumen concluido text-center p-2 flex-fill">
-        CONCLUIDOS {{ finishedCount }}
+        CONCLUIDOS: {{ finishedCount }}
       </div>
 
     </div>
@@ -48,24 +48,24 @@
 
         <!-- INFO -->
         <div class="flex-grow-1 ms-3">
-          <h6 class="mb-1">{{ event.title }}</h6>
+          <h5 class="mb-1">{{ event.title }}</h5>
         </div>
 
         <!-- ESTADO -->
         <div class="text-end">
 
           <span *ngIf="getEventStatus(event) === 'pending'" 
-                class="badge bg-warning mb-2">
+                class="badge bg-warning mb-2 d-flex align-items-center justify-content-center">
             Pendiente
           </span>
 
           <span *ngIf="getEventStatus(event) === 'approved'" 
-                class="badge bg-success mb-2">
+                class="badge bg-success mb-2 d-flex align-items-center justify-content-center">
             Aprobado
           </span>
 
           <span *ngIf="getEventStatus(event) === 'finished'" 
-                class="badge bg-primary mb-2">
+                class="badge bg-primary mb-2 d-flex align-items-center justify-content-center">
             Concluido
           </span>
 

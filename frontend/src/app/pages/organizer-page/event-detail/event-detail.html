@@ -127,57 +127,59 @@
   </div>
 
 
- <!-- ═══ MODAL COMUNICADO SIMPLE ═══ -->
-<div *ngIf="showNoticeModal" class="custom-modal-backdrop">
+  <!-- ═══ MODAL COMUNICADO SIMPLE ═══ -->
+  <div *ngIf="showNoticeModal" class="custom-modal-backdrop">
 
-  <div class="custom-modal">
+    <div class="custom-modal">
 
-    <!-- HEADER -->
-    <div class="custom-modal-header">
-      Enviar Mensaje a Participantes
-    </div>
-
-    <!-- BODY -->
-    <div class="custom-modal-body">
-
-      <p class="mb-3">
-        <strong>Para:</strong>
-        <span class="text-primary">Todos los participantes</span>
-      </p>
-
-      <!-- Asunto -->
-      <div class="mb-3">
-        <label class="form-label fw-semibold">Asunto</label>
-        <input 
-          type="text"
-          class="form-control"
-          [(ngModel)]="noticeTitle">
+      <!-- HEADER -->
+      <div class="custom-modal-header">
+        Enviar Mensaje a Participantes
       </div>
 
-      <!-- Mensaje -->
-      <div class="mb-4">
-        <label class="form-label fw-semibold">Cuerpo del mensaje</label>
-        <textarea 
-          class="form-control"
-          rows="5"
-          [(ngModel)]="noticeBody">
-        </textarea>
-      </div>
+      <!-- BODY -->
+      <div class="custom-modal-body">
 
-      <!-- BOTONES -->
-      <div class="d-flex justify-content-end gap-2">
+        <p class="mb-3">
+          <strong>Para:</strong>
+          <span class="text-primary">Todos los participantes</span>
+        </p>
 
-        <button 
-          class="btn btn-secondary px-4"
-          (click)="closeNoticeModal()">
-          Cancelar
-        </button>
+        <!-- Asunto -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Asunto</label>
+          <input 
+            type="text"
+            class="form-control"
+            [(ngModel)]="noticeTitle">
+        </div>
 
-        <button 
-          class="btn btn-primary px-4"
-          (click)="sendNotice()">
-          Enviar
-        </button>
+        <!-- Mensaje -->
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Cuerpo del mensaje</label>
+          <textarea 
+            class="form-control"
+            rows="5"
+            [(ngModel)]="noticeBody">
+          </textarea>
+        </div>
+
+        <!-- BOTONES -->
+        <div class="d-flex justify-content-end gap-2">
+
+          <button 
+            class="btn btn-secondary px-4"
+            (click)="closeNoticeModal()">
+            Cancelar
+          </button>
+
+          <button 
+            class="btn btn-primary px-4"
+            (click)="sendNotice()">
+            Enviar
+          </button>
+
+        </div>
 
       </div>
 
@@ -185,77 +187,108 @@
 
   </div>
 
-</div>
+
+  <!-- ═══ MODAL ASISTENCIA ═══ -->
+  <div *ngIf="showAttendanceModal" class="custom-modal-backdrop">
+
+    <div class="custom-modal large">
+
+      <!-- HEADER -->
+      <div class="custom-modal-header">
+        Gestión de Inscritos
+      </div>
+
+      <!-- BODY -->
+      <div class="custom-modal-body">
+        <div class="d-flex justify-content-between align-items-end mb-3 gap-3">
+
+        <!-- BUSCADOR  -->
+        <div class="search-wrapper">
+          <label class="custom-label">Búsqueda</label>
+          <input 
+            type="text"
+            class="form-control search-input"
+            placeholder="Buscar por nombre o carné"
+            [(ngModel)]="searchTerm"
+            (input)="filterParticipants()">
+        </div>
+
+        <!-- FILTRO  -->
+        <div class="filter-wrapper">
+          <label class="custom-label">Filtro</label>
+          <select 
+            class="form-select filter-select"
+            [(ngModel)]="filterStatus"
+            (change)="filterParticipants()">
+            <option value="all">Todos</option>
+            <option value="attended">Asistieron</option>
+            <option value="not-attended">No asistieron</option>
+          </select>
+        </div>
 
 
-<!-- ═══ MODAL ASISTENCIA ═══ -->
-<div *ngIf="showAttendanceModal" class="custom-modal-backdrop">
 
-  <div class="custom-modal large">
+      </div>
+        <!-- TABLA -->
+        <div class="table-responsive">
 
-    <!-- HEADER -->
-    <div class="custom-modal-header">
-      Gestión de Inscritos
-    </div>
+          <table class="table align-middle">
 
-    <!-- BODY -->
-    <div class="custom-modal-body">
+            <thead>
+              <tr>
+                <th>Asistió</th>
+                <th>Nombre</th>
+                <th>Carné</th>
+                <th>Correo</th>
+                <th>Fecha Inscripción</th>
+              </tr>
+            </thead>
 
-      <!-- TABLA -->
-      <div class="table-responsive">
+            <tbody>
 
-        <table class="table align-middle">
+              <tr *ngFor="let user of filteredParticipants">
 
-          <thead>
-            <tr>
-              <th>Asistió</th>
-              <th>Participante</th>
-              <th>Correo</th>
-            </tr>
-          </thead>
-
-          <tbody>
-
-            <tr *ngFor="let user of participants">
-
-              <td>
-                <input 
+                <td>
+                 <input 
                   type="checkbox"
-                  [checked]="user.attended"
-                  (change)="toggleAttendance(user)">
-              </td>
+                  [(ngModel)]="user.attended"
+                  [disabled]="getEventStatus() === 'finished'" />
+                </td>
 
-              <td>{{ user.name }}</td>
-              <td>{{ user.email }}</td>
+                <td>{{ user.fullName }}</td>
+                <td>{{ user.studentId }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.inscriptionDate | date:'short' }}</td>
 
-            </tr>
+              </tr>
 
-          </tbody>
+            </tbody>
 
-        </table>
+          </table>
 
-      </div>
+        </div>
 
-      <!-- BOTONES -->
-      <div class="d-flex justify-content-end gap-2 mt-3">
+        <!-- BOTONES -->
+        <div class="d-flex justify-content-end gap-2 mt-3">
 
-        <button 
-          class="btn btn-secondary px-4"
-          (click)="closeAttendanceModal()">
-          Cancelar
-        </button>
+          <button 
+            class="btn btn-secondary px-4"
+            (click)="closeAttendanceModal()">
+            Cancelar
+          </button>
 
-        <button 
-          class="btn btn-primary px-4"
-          (click)="saveAttendance()">
-          Guardar
-        </button>
+          <button 
+            class="btn btn-primary px-4"
+            (click)="saveAttendance()"
+            [disabled]="getEventStatus() === 'finished'">
+            Guardar
+          </button>
+
+        </div>
 
       </div>
 
     </div>
 
   </div>
-
-</div>
 </div>

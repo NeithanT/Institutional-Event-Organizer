@@ -35,7 +35,7 @@ export class OrganizerDashboard implements OnInit {
 
   // PAGINACIÓN
   currentPage: number = 1;
-  itemsPerPage: number = 10;
+  itemsPerPage: number = 3;
   paginatedEvents: Event[] = [];
   totalPages: number = 1;
 
