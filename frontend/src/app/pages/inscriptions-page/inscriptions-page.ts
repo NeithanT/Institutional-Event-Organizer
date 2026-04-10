@@ -26,6 +26,7 @@ export class InscriptionsPage implements OnInit {
 
   activeTab = signal<'proximos' | 'pasados'>('proximos');
   showModal = signal(false);
+  showSuccessModal = signal(false);
   selectedEventId = signal<number | null>(null);
   currentPage = signal(1);
   itemsPerPage = 10;
@@ -89,13 +90,18 @@ export class InscriptionsPage implements OnInit {
   confirmUnsubscribe() {
     const id = this.selectedEventId();
     const userId = this.auth.userId;
+    this.closeModal();
     if (id !== null && userId > 0) {
       this.inscriptionService.unsubscribe(id, userId).subscribe({
         next: () => {
           this.allEvents.update(events => events.filter(e => e.id !== id));
+          this.showSuccessModal.set(true);
         }
       });
     }
-    this.closeModal();
+  }
+
+  closeSuccessModal() {
+    this.showSuccessModal.set(false);
   }
 }

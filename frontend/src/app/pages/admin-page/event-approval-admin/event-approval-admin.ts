@@ -39,7 +39,7 @@ export class EventApprovalAdmin implements OnInit {
   prevPage() { if (this.currentPage > 1) this.currentPage--; }
   nextPage() { if (this.currentPage < this.totalPages) this.currentPage++; }
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef, public eventService: EventService) {}
 
   ngOnInit() {
     this.getEvents();
@@ -49,13 +49,11 @@ export class EventApprovalAdmin implements OnInit {
 
     this.http.post(`http://localhost:5053/administrator/${eventId}/approve`, {})
       .subscribe({
-        next: () => {
-          this.events = this.events.filter(event => event.id !== eventId);
-          if (this.currentPage > this.totalPages) this.currentPage = this.totalPages;
+        next: (data) => {
+          this.events = data;
+          this.cdr.detectChanges();
         },
-        error: (err) => {
-          console.error(err);
-        }
+        error: (err) => { console.error(err); }
       });
   }
 
@@ -97,9 +95,7 @@ export class EventApprovalAdmin implements OnInit {
           this.errorMessage = '';
           this.getEvents();
         },
-        error: (err) => {
-          console.error(err);
-        }
+        error: (err) => { console.error(err); }
       });
   }
 

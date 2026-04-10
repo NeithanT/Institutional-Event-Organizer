@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { finalize, timeout } from 'rxjs';
 
 interface UserSearchResult {
   id: number;
@@ -21,6 +22,8 @@ interface UserSearchResult {
   styleUrl: './organizer-management-admin.css',
 })
 export class OrganizerManagementAdmin implements OnInit {
+  private static readonly SEARCH_TIMEOUT_MS = 10000;
+
   ref: ChangeDetectorRef = inject(ChangeDetectorRef);
   currentOrganizers: UserSearchResult[] = [];
   students: UserSearchResult[] = [];
@@ -42,11 +45,18 @@ export class OrganizerManagementAdmin implements OnInit {
   }
 
   get canPromote(): boolean {
-    return !!this.searchedUser && this.searchedUser.active && this.searchedUser.role !== 'Organizer';
+    return (
+      !!this.searchedUser &&
+      this.searchedUser.active &&
+      this.searchedUser.role !== 'Organizer' &&
+      this.searchedUser.role !== 'Admin'
+    );
   }
 
   get canDemote(): boolean {
-    return !!this.searchedUser && this.searchedUser.active && this.searchedUser.role === 'Organizer';
+    return (
+      !!this.searchedUser && this.searchedUser.active && this.searchedUser.role === 'Organizer'
+    );
   }
 
   get canActivate(): boolean {
@@ -78,7 +88,10 @@ export class OrganizerManagementAdmin implements OnInit {
   loadCurrentUsers(): void {
     this.clearMessages();
     this.http
-      .get<{ organizers: UserSearchResult[]; students: UserSearchResult[] }>('http://localhost:5053/administrator/users/grouped')
+      .get<{
+        organizers: UserSearchResult[];
+        students: UserSearchResult[];
+      }>('http://localhost:5053/administrator/users/grouped')
       .subscribe({
         next: (data) => {
           this.currentOrganizers = data.organizers;
@@ -104,16 +117,23 @@ export class OrganizerManagementAdmin implements OnInit {
     this.searchedUser = null;
 
     this.http
-      .get<UserSearchResult>(`http://localhost:5053/administrator/search-user-by-name/${encodeURIComponent(this.searchName.trim())}`)
+      .get<UserSearchResult>(
+        `http://localhost:5053/administrator/search-user-by-name/${encodeURIComponent(this.searchName.trim())}`,
+      )
+      .pipe(
+        timeout(OrganizerManagementAdmin.SEARCH_TIMEOUT_MS),
+        finalize(() => (this.isSearching = false)),
+      )
       .subscribe({
         next: (user) => {
           this.searchedUser = user;
+          this.loadCurrentUsers();
         },
         error: (error) => {
-          this.errorMessage = error?.error || 'No se encontró ningún usuario con ese nombre.';
-        },
-        complete: () => {
-          this.isSearching = false;
+          this.errorMessage =
+            error?.name === 'TimeoutError'
+              ? 'La búsqueda tardó demasiado. Inténtelo de nuevo.'
+              : error?.error || 'No se encontró ningún usuario con ese nombre.';
         },
       });
   }
@@ -132,15 +152,20 @@ export class OrganizerManagementAdmin implements OnInit {
 
     this.http
       .get<UserSearchResult>(`http://localhost:5053/administrator/search-user-by-idcard/${idCard}`)
+      .pipe(
+        timeout(OrganizerManagementAdmin.SEARCH_TIMEOUT_MS),
+        finalize(() => (this.isSearching = false)),
+      )
       .subscribe({
         next: (user) => {
           this.searchedUser = user;
+          this.loadCurrentUsers();
         },
         error: (error) => {
-          this.errorMessage = error?.error || 'No se encontró ningún usuario con esa cédula.';
-        },
-        complete: () => {
-          this.isSearching = false;
+          this.errorMessage =
+            error?.name === 'TimeoutError'
+              ? 'La búsqueda tardó demasiado. Inténtelo de nuevo.'
+              : error?.error || 'No se encontró ningún usuario con esa cédula.';
         },
       });
   }
@@ -154,7 +179,11 @@ export class OrganizerManagementAdmin implements OnInit {
     this.isUpdating = true;
 
     this.http
-      .post(`http://localhost:5053/administrator/change-rol/to-organizer/${this.searchedUser.id}`, {})
+      .post(
+        `http://localhost:5053/administrator/change-rol/to-organizer/${this.searchedUser.id}`,
+        {},
+      )
+      .pipe(finalize(() => (this.isUpdating = false)))
       .subscribe({
         next: () => {
           this.successMessage = 'El usuario ha sido promovido a organizador.';
@@ -163,9 +192,6 @@ export class OrganizerManagementAdmin implements OnInit {
         },
         error: (error) => {
           this.errorMessage = error?.error || 'No se pudo promover al usuario.';
-        },
-        complete: () => {
-          this.isUpdating = false;
         },
       });
   }
@@ -180,6 +206,7 @@ export class OrganizerManagementAdmin implements OnInit {
 
     this.http
       .post(`http://localhost:5053/administrator/change-rol/to-student/${this.searchedUser.id}`, {})
+      .pipe(finalize(() => (this.isUpdating = false)))
       .subscribe({
         next: () => {
           this.successMessage = 'El organizador ha sido removido y ahora es estudiante.';
@@ -188,9 +215,6 @@ export class OrganizerManagementAdmin implements OnInit {
         },
         error: (error) => {
           this.errorMessage = error?.error || 'No se pudo remover el rol de organizador.';
-        },
-        complete: () => {
-          this.isUpdating = false;
         },
       });
   }
@@ -205,6 +229,7 @@ export class OrganizerManagementAdmin implements OnInit {
 
     this.http
       .post(`http://localhost:5053/administrator/set-active/${this.searchedUser.id}`, {})
+      .pipe(finalize(() => (this.isUpdating = false)))
       .subscribe({
         next: () => {
           this.successMessage = 'El usuario ha sido activado.';
@@ -213,9 +238,6 @@ export class OrganizerManagementAdmin implements OnInit {
         },
         error: (error) => {
           this.errorMessage = error?.error || 'No se pudo activar el usuario.';
-        },
-        complete: () => {
-          this.isUpdating = false;
         },
       });
   }
@@ -230,6 +252,7 @@ export class OrganizerManagementAdmin implements OnInit {
 
     this.http
       .post(`http://localhost:5053/administrator/set-inactive/${this.searchedUser.id}`, {})
+      .pipe(finalize(() => (this.isUpdating = false)))
       .subscribe({
         next: () => {
           this.successMessage = 'El usuario ha sido desactivado.';
@@ -238,9 +261,6 @@ export class OrganizerManagementAdmin implements OnInit {
         },
         error: (error) => {
           this.errorMessage = error?.error || 'No se pudo desactivar el usuario.';
-        },
-        complete: () => {
-          this.isUpdating = false;
         },
       });
   }
