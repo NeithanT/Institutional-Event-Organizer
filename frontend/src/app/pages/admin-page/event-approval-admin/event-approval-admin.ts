@@ -20,7 +20,9 @@ interface EventDetail {
   isVirtual: boolean;
   eventDate: string;
   imageFileEvent: string | null;
+  ImageFileEvent?: string | null;
   avalaibleEntries: number;
+  AvalaibleEntries?: number;
 }
 
 @Component({
@@ -83,7 +85,7 @@ export class EventApprovalAdmin implements OnInit {
   }
 
   imageUrl(path: string | null | undefined): string {
-    if (!path) return `${BACKEND_BASE}/images/default.jpg`;
+    if (!path || path.toLowerCase().includes('default')) return `${BACKEND_BASE}/images/default.jpg`;
     if (path.startsWith('http')) return path;
     return `${BACKEND_BASE}${path}`;
   }

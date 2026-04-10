@@ -56,14 +56,14 @@
       <div class="event-detail-card">
         <div class="detail-img-wrap">
           <span class="img-label">IMG</span>
-          <img [src]="imageUrl(selectedEvent.imageFileEvent)" [alt]="selectedEvent.title" class="detail-img" />
+          <img [src]="imageUrl(selectedEvent.imageFileEvent ?? selectedEvent.ImageFileEvent)" [alt]="selectedEvent.title" class="detail-img" />
         </div>
 
         <div class="detail-body">
           <h2 class="detail-title">Titulo: {{ selectedEvent.title }}</h2>
           <p class="detail-desc">Descripción: {{ selectedEvent.eventDescription }}</p>
           <p class="detail-meta">Modalidad: {{ selectedEvent.isVirtual ? 'Virtual' : 'Presencial' }}</p>
-          <p class="detail-meta">Cupos: {{ selectedEvent.avalaibleEntries }} cupos</p>
+          <p class="detail-meta">Cupos: {{ selectedEvent.avalaibleEntries ?? selectedEvent.AvalaibleEntries }} cupos</p>
           <p class="detail-meta">Lugar: {{ selectedEvent.place }}</p>
           <p class="detail-meta">Fecha: {{ formatDate(selectedEvent.eventDate) }}</p>
         </div>
