@@ -1,8 +1,8 @@
 using System;
-using System.Text.Json;
 using api.DTOs;
 using api.Interfaces;
 using api.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Endpoints;
@@ -19,6 +19,11 @@ public static class AdministratorEventEndpoint
         var eventDate = NormalizeEventDate(d.EventDate);
 
         return d.IdEvent > 0
+            && d.OrganizerId > 0
+            && d.OrganizerEntityId.HasValue
+            && d.OrganizerEntityId.Value > 0
+            && d.CategoryId.HasValue
+            && d.CategoryId.Value > 0
             && !string.IsNullOrWhiteSpace(d.EventDescription)
             && !string.IsNullOrWhiteSpace(d.Place)
             && !string.IsNullOrWhiteSpace(d.Title)
@@ -50,8 +55,8 @@ public static class AdministratorEventEndpoint
                 .Where(e => !db.CanceledEvents.Any(c => c.EventId == e.Id))
                 .Select(e => new
                 {
-                    e.Id,
-                    e.Title,
+                    id = e.Id,
+                    title = e.Title,
                     organizer = e.OrganizerEntity.EntityName,
                     category = e.Category.NameCategory,
                     date = e.EventDate,
@@ -70,28 +75,20 @@ public static class AdministratorEventEndpoint
             var ev = await db.Events
                 .Include(e => e.Category)
                 .Include(e => e.OrganizerEntity)
+                .AsNoTracking()
                 .Where(e => e.Id == id)
-                .Select(e => new
+                .Select(e => new DtoEditEvent
                 {
-                    id = e.Id,
-                    title = e.Title,
-                    eventDescription = e.EventDescription,
-                    eventDate = e.EventDate,
-                    place = e.Place,
-                    isVirtual = e.IsVirtual,
-                    organizerUserId = e.OrganizerId,
-                    organizerEntityId = e.OrganizerEntityId,
-                    organizerEntity = new
-                    {
-                        id = e.OrganizerEntity.Id,
-                        entityName = e.OrganizerEntity.EntityName
-                    },
-                    category = new
-                    {
-                        id = e.Category.Id,
-                        nameCategory = e.Category.NameCategory
-                    },
-                    approved = e.ApprovedState
+                    OrganizerId = e.OrganizerId,
+                    OrganizerEntityId = e.OrganizerEntityId,
+                    CategoryId = e.CategoryId,
+                    ApprovedState = e.ApprovedState,
+                    IdEvent = e.Id,
+                    Title = e.Title,
+                    EventDescription = e.EventDescription,
+                    Place = e.Place,
+                    IsVirtual = e.IsVirtual,
+                    EventDate = e.EventDate
                 })
                 .FirstOrDefaultAsync();
 
@@ -109,8 +106,8 @@ public static class AdministratorEventEndpoint
                 .Where(e => !db.CanceledEvents.Any(c => c.EventId == e.Id))
                 .Select(e => new
                 {
-                    e.Id,
-                    e.Title,
+                    id = e.Id,
+                    title = e.Title,
                     organizer = e.OrganizerEntity.EntityName,
                     date = e.EventDate,
                     location = e.Place,
@@ -175,77 +172,48 @@ public static class AdministratorEventEndpoint
         });
 
         //##################################################################################################################
-        app.MapPut("/administrator/events", async (HttpRequest req, EventOrganizerContext db) =>
-               {
-                   DtoEditEvent? editEventDto = null;
+        app.MapPut("/administrator/events/{id:int}", async (int id, [FromBody] DtoEditEvent editEventDto, EventOrganizerContext db) =>
+        {
+            if (id != editEventDto.IdEvent) return Results.BadRequest("Route id does not match payload id");
 
-                   try
-                   {
-                       using var doc = await JsonDocument.ParseAsync(req.Body);
-                       var root = doc.RootElement;
+            Event? ev = await db.Events.FindAsync(id);
+            if (ev == null) return Results.NotFound("Event not found to update");
 
-                       JsonElement payloadElement = root;
+            if (!IsValidData(editEventDto)) return Results.BadRequest("Invalid data to update");
 
-                       // Accept either the DTO directly or wrapped in an object like { "editEventDto": { ... } }
-                       if (root.ValueKind == JsonValueKind.Object)
-                       {
-                           if (root.TryGetProperty("editEventDto", out var nested)) payloadElement = nested;
-                           else if (root.TryGetProperty("dto", out var nested2)) payloadElement = nested2;
-                           else if (root.TryGetProperty("event", out var nested3)) payloadElement = nested3;
-                       }
+            var normalizedEventDate = NormalizeEventDate(editEventDto.EventDate);
 
-                       var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                       editEventDto = JsonSerializer.Deserialize<DtoEditEvent>(payloadElement.GetRawText(), options);
-                   }
-                   catch (Exception)
-                   {
-                       return Results.BadRequest("Invalid payload");
-                   }
+            if (!await db.Categories.AnyAsync(c => c.Id == editEventDto.CategoryId!.Value))
+                return Results.BadRequest("Invalid category id");
 
-                   if (editEventDto == null) return Results.BadRequest("Invalid payload");
+            if (!await db.OrganizerEntities.AnyAsync(o => o.Id == editEventDto.OrganizerEntityId!.Value))
+                return Results.BadRequest("Invalid organizer entity id");
 
-                   Event? ev = await db.Events.FindAsync(editEventDto.IdEvent);
-                   if (ev == null) return Results.NotFound("Event not found to update");
+            if (!await db.Users.AnyAsync(u => u.Id == editEventDto.OrganizerId))
+                return Results.BadRequest("Invalid organizer user id");
 
-                   if (!IsValidData(editEventDto)) return Results.BadRequest("Invalid data to update");
+            if (editEventDto.CategoryId is not int categoryId)
+                return Results.BadRequest("Invalid category id");
 
-                   var normalizedEventDate = NormalizeEventDate(editEventDto.EventDate);
+            if (editEventDto.OrganizerEntityId is not int organizerEntityId)
+                return Results.BadRequest("Invalid organizer entity id");
 
-                   if (editEventDto.CategoryId.HasValue)
-                   {
-                       if (editEventDto.CategoryId.Value <= 0 || !await db.Categories.AnyAsync(c => c.Id == editEventDto.CategoryId.Value))
-                       {
-                           return Results.BadRequest("Invalid category id");
-                       }
-                   }
+            ev.Title = editEventDto.Title.Trim();
+            ev.EventDescription = editEventDto.EventDescription.Trim();
+            ev.EventDate = normalizedEventDate;
+            ev.Place = editEventDto.Place.Trim();
+            ev.IsVirtual = editEventDto.IsVirtual;
+            ev.CategoryId = categoryId;
+            ev.OrganizerEntityId = organizerEntityId;
+            ev.OrganizerId = editEventDto.OrganizerId;
 
-                   if (editEventDto.OrganizerEntityId.HasValue)
-                   {
-                       if (editEventDto.OrganizerEntityId.Value <= 0 || !await db.OrganizerEntities.AnyAsync(o => o.Id == editEventDto.OrganizerEntityId.Value))
-                       {
-                           return Results.BadRequest("Invalid organizer entity id");
-                       }
-                   }
+            if (editEventDto.ApprovedState.HasValue)
+                ev.ApprovedState = editEventDto.ApprovedState.Value;
 
-                   ev.Title = editEventDto.Title;
-                   ev.EventDescription = editEventDto.EventDescription;
-                   ev.EventDate = normalizedEventDate;
-                   ev.Place = editEventDto.Place;
-                   ev.IsVirtual = editEventDto.IsVirtual;
+            await db.SaveChangesAsync();
 
-                   if (editEventDto.CategoryId.HasValue)
-                       ev.CategoryId = editEventDto.CategoryId.Value;
-
-                   if (editEventDto.OrganizerEntityId.HasValue)
-                       ev.OrganizerEntityId = editEventDto.OrganizerEntityId.Value;
-
-                   if (editEventDto.ApprovedState.HasValue)
-                       ev.ApprovedState = editEventDto.ApprovedState.Value;
-
-                   await db.SaveChangesAsync();
-
-                   return Results.Ok($"Event updated succesfully");
-               });
+            return Results.Ok("Event updated succesfully");
+        });
 
         //##################################################################################################################
         //Changes the status of an event to approved = false and add it to the canceled table
