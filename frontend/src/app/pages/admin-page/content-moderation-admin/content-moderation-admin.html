@@ -1,63 +1,115 @@
 <section class="admin-section">
 	<header class="mb-4">
 		<h2 class="fw-bold mb-1">Moderacion de contenido</h2>
-		<p class="text-muted mb-0">Eventos publicados con opción de eliminación.</p>
 	</header>
 
 	@if (errorMessage) {
 		<div class="alert alert-danger">{{ errorMessage }}</div>
 	}
 
-	<div class="table-responsive card border-0 shadow-sm center">
-		<table class="table align-middle mb-0">
-			<thead>
-				<tr>
-					<th>Evento</th>
-					<th>Organizador</th>
-					<th>Categoria</th>
-					<th>Reportes</th>
-					<th class="text-end">Accion</th>
-				</tr>
-			</thead>
-			<tbody>
-				@if (isLoading) {
-					<tr>
-						<td colspan="5" class="text-center text-muted py-4">Cargando eventos...</td>
-					</tr>
-				}
+  @if(!modifying) {
+    <div class="table-responsive card border-0 shadow-sm center">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Evento</th>
+            <th>Organizador</th>
+            <th>Categoria</th>
+            <th>Accion</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (isLoading) {
+            <tr>
+              <td colspan="5" class="text-center text-muted py-4">Cargando eventos...</td>
+            </tr>
+          }
 
-				@if (!isLoading && events.length === 0) {
-					<tr>
-						<td colspan="5" class="text-center text-muted py-4">No hay eventos para moderar.</td>
-					</tr>
-				}
+          @if (!isLoading && events.length === 0) {
+            <tr>
+              <td colspan="5" class="text-center text-muted py-4">No hay eventos para moderar.</td>
+            </tr>
+          }
 
-				@if (!isLoading && events.length > 0) {
-					@for (event of pagedEvents; track event.id) {
-						<tr>
-							<td class="fw-semibold">{{ event.title }}</td>
-							<td>{{ event.organizer }}</td>
-							<td>{{ event.category }}</td>
-							<td>
-								<span class="badge" [class.bg-warning]="event.reports > 0" [class.bg-success]="event.reports === 0">
-									{{ event.reports }}
-								</span>
-							</td>
-							<td class="text-end">
-								<button class="btn btn-outline-danger btn-sm" (click)="removeEvent(event.id)">
-									Eliminar
-								</button>
-							</td>
-						</tr>
-					}
-				}
-			</tbody>
-		</table>
-	</div>
+          @if (!isLoading && events.length > 0) {
+            @for (event of pagedEvents; track event.id) {
+              <tr>
+                <td class="fw-semibold">{{ event.title }}</td>
+                <td>{{ event.organizer }}</td>
+                <td>{{ event.category }}</td>
+                <td class="d-flex gap-4">
+                  <button class="btn btn-outline-primary btn-sm" (click)="modifyEvent(event)">
+                    Modificar
+                  </button>
+                  <button class="btn btn-outline-danger btn-sm" (click)="removeEvent(event.id)">
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
 
-	<div class="d-flex justify-content-center align-items-center gap-3 mt-3">
-		<button class="btn btn-outline-dark btn-sm" (click)="prevPage()" [disabled]="currentPage === 1">&#8592; Anterior</button>
-		<span>{{ currentPage }} / {{ totalPages }}</span>
-		<button class="btn btn-outline-dark btn-sm" (click)="nextPage()" [disabled]="currentPage === totalPages">Siguiente &#8594;</button>
-	</div>
+    <div class="d-flex justify-content-center align-items-center gap-3 mt-3">
+      <button class="btn btn-outline-dark btn-sm" (click)="prevPage()" [disabled]="currentPage === 1">&#8592; Anterior</button>
+      <span>{{ currentPage }} / {{ totalPages }}</span>
+      <button class="btn btn-outline-dark btn-sm" (click)="nextPage()" [disabled]="currentPage === totalPages">Siguiente &#8594;</button>
+    </div>
+
+  } @else {
+    <form>
+			<div class="row g-3">
+				<div class="col-md-8">
+          <label class="form-label">Titulo</label>
+          <input class="form-control" type="text" name="title" [(ngModel)]="modifiedEvent.title" [placeholder]="modifiedEvent.title" required>
+				</div>
+  			<div class="col-md-8">
+            <label class="form-label">Organizador</label>
+            <select class="form-select" name="organizer" [(ngModel)]="modifiedOrganizerEntityId" required>
+              <option *ngFor="let o of organizers" [ngValue]="o.id">{{ o.entityName }}</option>
+            </select>
+  			</div>
+  			<div class="col-md-8">
+            <label class="form-label">Categoria</label>
+            <select class="form-select" name="category" [(ngModel)]="modifiedCategoryId" required>
+              <option *ngFor="let c of categories" [ngValue]="c.id">{{ c.nameCategory }}</option>
+            </select>
+  			</div>
+		<div class="col-md-8">
+          <label class="form-label">Lugar</label>
+          <input class="form-control" type="text" name="place" [(ngModel)]="modifiedEvent.place" required>
+		</div>
+		<div class="col-md-8">
+          <label class="form-label">Descripcion</label>
+          <textarea class="form-control" rows="4" name="eventDescription" [(ngModel)]="modifiedEvent.eventDescription" required></textarea>
+		</div>
+		<div class="col-md-8">
+          <label class="form-label">Aprobado</label>
+          <select class="form-select" name="approvedState" [(ngModel)]="modifiedEvent.approvedState" required>
+            <option [ngValue]="true">Aprobado</option>
+            <option [ngValue]="false">Rechazado</option>
+          </select>
+		</div>
+		<div class="col-md-8">
+          <label class="form-label">Modalidad</label>
+          <select class="form-select" name="isVirtual" [(ngModel)]="modifiedEvent.isVirtual" required>
+            <option [ngValue]="false">Presencial</option>
+            <option [ngValue]="true">Virtual</option>
+          </select>
+		</div>
+		<div class="col-md-8">
+          <label class="form-label">Fecha</label>
+          <input class="form-control" type="date" name="eventDate" [(ngModel)]="modifiedEvent.eventDate" [min]="minDate" required>
+		</div>
+			</div>
+
+      <div class="d-flex justify-content-end mt-4">
+        <button class="btn btn-secondary me-2" type="button" (click)="cancelModify()">Cancelar</button>
+        <button class="btn btn-primary" type="button" (click)="saveModifiedEvent()">Guardar cambios</button>
+      </div>
+    </form>
+  }
+
 </section>

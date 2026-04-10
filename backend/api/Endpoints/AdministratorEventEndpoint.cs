@@ -2,21 +2,32 @@ using System;
 using api.DTOs;
 using api.Interfaces;
 using api.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Endpoints;
 
 public static class AdministratorEventEndpoint
 {
+    private static DateTime NormalizeEventDate(DateTime value)
+    {
+        return DateTime.SpecifyKind(value, DateTimeKind.Unspecified);
+    }
+
     private static bool IsValidData(DtoEditEvent d)
     {
-        return !(
-            d.IdEvent < 0
-        || string.IsNullOrEmpty(d.EventDate.ToString())
-        || d.EventDate < DateTime.Now
-        || string.IsNullOrEmpty(d.EventDescription)
-        || string.IsNullOrEmpty(d.Place)
-        || string.IsNullOrEmpty(d.Title));
+        var eventDate = NormalizeEventDate(d.EventDate);
+
+        return d.IdEvent > 0
+            && d.OrganizerId > 0
+            && d.OrganizerEntityId.HasValue
+            && d.OrganizerEntityId.Value > 0
+            && d.CategoryId.HasValue
+            && d.CategoryId.Value > 0
+            && !string.IsNullOrWhiteSpace(d.EventDescription)
+            && !string.IsNullOrWhiteSpace(d.Place)
+            && !string.IsNullOrWhiteSpace(d.Title)
+            && eventDate.Date > DateTime.UtcNow.Date;
     }
     public static void mapAdministratorEndpoints(WebApplication app)
     {
@@ -44,18 +55,47 @@ public static class AdministratorEventEndpoint
                 .Where(e => !db.CanceledEvents.Any(c => c.EventId == e.Id))
                 .Select(e => new
                 {
-                    e.Id,
-                    e.Title,
+                    id = e.Id,
+                    title = e.Title,
                     organizer = e.OrganizerEntity.EntityName,
                     category = e.Category.NameCategory,
                     date = e.EventDate,
                     location = e.Place,
-                    approved = e.ApprovedState,
-                    reports = 0
+                    approved = e.ApprovedState
                 })
                 .ToListAsync();
 
             return Results.Ok(evs);
+        });
+
+        //##################################################################################################################
+        //Get single event full details for admin
+        app.MapGet("/administrator/events/{id}", async (int id, EventOrganizerContext db) =>
+        {
+            var ev = await db.Events
+                .Include(e => e.Category)
+                .Include(e => e.OrganizerEntity)
+                .AsNoTracking()
+                .Where(e => e.Id == id)
+                .Select(e => new DtoEditEvent
+                {
+                    OrganizerId = e.OrganizerId,
+                    OrganizerEntityId = e.OrganizerEntityId,
+                    CategoryId = e.CategoryId,
+                    ApprovedState = e.ApprovedState,
+                    IdEvent = e.Id,
+                    Title = e.Title,
+                    EventDescription = e.EventDescription,
+                    Place = e.Place,
+                    IsVirtual = e.IsVirtual,
+                    EventDate = e.EventDate
+                })
+                .FirstOrDefaultAsync();
+
+            if (ev == null) return Results.NotFound("Event not found");
+            if (await db.CanceledEvents.AnyAsync(c => c.EventId == id)) return Results.BadRequest("Event has been canceled or denied");
+
+            return Results.Ok(ev);
         });
 
         //###################################################################################################################
@@ -66,8 +106,8 @@ public static class AdministratorEventEndpoint
                 .Where(e => !db.CanceledEvents.Any(c => c.EventId == e.Id))
                 .Select(e => new
                 {
-                    e.Id,
-                    e.Title,
+                    id = e.Id,
+                    title = e.Title,
                     organizer = e.OrganizerEntity.EntityName,
                     date = e.EventDate,
                     location = e.Place,
@@ -132,24 +172,48 @@ public static class AdministratorEventEndpoint
         });
 
         //##################################################################################################################
-        app.MapPut("administrator/events", async (DtoEditEvent editEventDto, EventOrganizerContext db) =>
-               {
+        app.MapPut("/administrator/events/{id:int}", async (int id, [FromBody] DtoEditEvent editEventDto, EventOrganizerContext db) =>
+        {
+            if (id != editEventDto.IdEvent) return Results.BadRequest("Route id does not match payload id");
 
-                   Event? ev = await db.Events.FindAsync(editEventDto.IdEvent);
-                   if (ev == null) return Results.NotFound("Event not found to update");
+            Event? ev = await db.Events.FindAsync(id);
+            if (ev == null) return Results.NotFound("Event not found to update");
 
-                   if (!IsValidData(editEventDto)) return Results.BadRequest("Invalid data to update");
+            if (!IsValidData(editEventDto)) return Results.BadRequest("Invalid data to update");
 
-                   ev.Title = editEventDto.Title;
-                   ev.EventDescription = editEventDto.EventDescription;
-                   ev.EventDate = editEventDto.EventDate;
-                   ev.Place = editEventDto.Place;
-                   ev.IsVirtual = editEventDto.IsVirtual;
+            var normalizedEventDate = NormalizeEventDate(editEventDto.EventDate);
 
-                   await db.SaveChangesAsync();
+            if (!await db.Categories.AnyAsync(c => c.Id == editEventDto.CategoryId!.Value))
+                return Results.BadRequest("Invalid category id");
 
-                   return Results.Ok($"Event updated succesfully");
-               });
+            if (!await db.OrganizerEntities.AnyAsync(o => o.Id == editEventDto.OrganizerEntityId!.Value))
+                return Results.BadRequest("Invalid organizer entity id");
+
+            if (!await db.Users.AnyAsync(u => u.Id == editEventDto.OrganizerId))
+                return Results.BadRequest("Invalid organizer user id");
+
+            if (editEventDto.CategoryId is not int categoryId)
+                return Results.BadRequest("Invalid category id");
+
+            if (editEventDto.OrganizerEntityId is not int organizerEntityId)
+                return Results.BadRequest("Invalid organizer entity id");
+
+            ev.Title = editEventDto.Title.Trim();
+            ev.EventDescription = editEventDto.EventDescription.Trim();
+            ev.EventDate = normalizedEventDate;
+            ev.Place = editEventDto.Place.Trim();
+            ev.IsVirtual = editEventDto.IsVirtual;
+            ev.CategoryId = categoryId;
+            ev.OrganizerEntityId = organizerEntityId;
+            ev.OrganizerId = editEventDto.OrganizerId;
+
+            if (editEventDto.ApprovedState.HasValue)
+                ev.ApprovedState = editEventDto.ApprovedState.Value;
+
+            await db.SaveChangesAsync();
+
+            return Results.Ok("Event updated succesfully");
+        });
 
         //##################################################################################################################
         //Changes the status of an event to approved = false and add it to the canceled table

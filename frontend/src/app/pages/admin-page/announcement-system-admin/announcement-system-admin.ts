@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Authentication } from '../../../services/authentication';
 
 interface AnnouncementForm {
@@ -13,7 +13,7 @@ interface AnnouncementForm {
 @Component({
   selector: 'app-announcement-system-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './announcement-system-admin.html',
   styleUrl: './announcement-system-admin.css',
 })
