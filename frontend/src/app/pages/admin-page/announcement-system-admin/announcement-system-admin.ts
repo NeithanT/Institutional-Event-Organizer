@@ -19,8 +19,10 @@ interface AnnouncementForm {
 })
 export class AnnouncementSystemAdmin {
   ref: ChangeDetectorRef = inject(ChangeDetectorRef);
-  sent = false;
-  error = false;
+  showModal = false;
+  modalSuccess = true;
+  modalTitle = '';
+  modalMessage = '';
 
   form: AnnouncementForm = {
     title: '',
@@ -29,6 +31,11 @@ export class AnnouncementSystemAdmin {
   };
 
   constructor(private http: HttpClient, private auth: Authentication) {}
+
+  closeModal(): void {
+    this.showModal = false;
+    this.ref.markForCheck();
+  }
 
   submitAnnouncement(): void {
     const writerId = this.auth.userId;
@@ -47,19 +54,18 @@ export class AnnouncementSystemAdmin {
     this.http.post('http://localhost:5053/administrator/announcements', payload)
       .subscribe({
         next: () => {
-          this.sent = true;
-          this.error = false;
-          this.form = {
-            title: '',
-            about: 'General',
-            content: '',
-          };
+          this.form = { title: '', about: '', content: '' };
+          this.modalSuccess = true;
+          this.modalTitle = '¡Éxito!';
+          this.modalMessage = 'El anuncio fue publicado correctamente.';
+          this.showModal = true;
           this.ref.markForCheck();
         },
-        error: (error) => {
-          console.error('Unable to send announcement', error);
-          this.sent = false;
-          this.error = true;
+        error: () => {
+          this.modalSuccess = false;
+          this.modalTitle = '¡Error!';
+          this.modalMessage = 'No se pudo enviar el anuncio. Intente nuevamente.';
+          this.showModal = true;
           this.ref.markForCheck();
         }
       });

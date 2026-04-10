@@ -223,21 +223,17 @@ sendNotice() {
   this.showNoticeModal = false;
   this.cdr.detectChanges();
 
-  // Mostrar éxito inmediatamente sin esperar emails
-  Promise.resolve().then(() => {
-    this.openModal(true, '¡Enviado!', 'El comunicado se está enviando a todos los participantes');
-  });
-
   this.http.post(
     `http://localhost:5053/organizer/events/${this.eventId}/notice`,
     body
   ).subscribe({
-    error: () => {
-      this.showModal = false;
+    next: () => {
+      this.openModal(true, '¡Enviado!', 'El comunicado fue enviado a todos los participantes');
       this.cdr.detectChanges();
-      Promise.resolve().then(() => {
-        this.openModal(false, '¡Error!', 'No se pudo enviar el comunicado');
-      });
+    },
+    error: () => {
+      this.openModal(false, '¡Error!', 'No se pudo enviar el comunicado');
+      this.cdr.detectChanges();
     }
   });
 }

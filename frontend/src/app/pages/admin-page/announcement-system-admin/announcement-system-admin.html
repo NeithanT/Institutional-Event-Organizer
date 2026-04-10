@@ -12,8 +12,8 @@
 					<input class="form-control" type="text" name="title" [(ngModel)]="form.title" required>
 				</div>
 				<div class="col-md-4">
-				<label class="form-label">About</label>
-				<input class="form-control" type="text" name="about" [(ngModel)]="form.about" required>
+					<label class="form-label">About</label>
+					<input class="form-control" type="text" name="about" [(ngModel)]="form.about" required>
 				</div>
 				<div class="col-12">
 					<label class="form-label">Contenido</label>
@@ -25,16 +25,23 @@
 				<button class="btn btn-primary" type="button" (click)="submitAnnouncement()">Enviar anuncio</button>
 			</div>
 		</form>
-
-		@if (sent) {
-			<div class="alert alert-success mt-3 mb-0" role="alert">
-				Anuncio enviado correctamente.
-			</div>
-		} @else if (error) {
-      <div class="alert alert-danger mt-3 mb-0" role="alert">
-        Error al enviar el anuncio. Intente nuevamente.
-      </div>
-    }
-
 	</div>
 </section>
+
+@if (showModal) {
+	<div class="modal-backdrop" style="position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1040;display:flex;align-items:center;justify-content:center;">
+		<div class="modal-box card p-4 shadow" style="width:360px;text-align:center;border-radius:12px;">
+			<div style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:1.6rem;"
+				[style.background]="modalSuccess ? '#d1fae5' : '#fee2e2'"
+				[style.color]="modalSuccess ? '#065f46' : '#991b1b'">
+				{{ modalSuccess ? '✓' : '!' }}
+			</div>
+			<h5 class="fw-bold mb-2">{{ modalTitle }}</h5>
+			<p class="text-muted mb-4">{{ modalMessage }}</p>
+			<button class="btn w-100"
+				[class.btn-success]="modalSuccess"
+				[class.btn-danger]="!modalSuccess"
+				(click)="closeModal()">Continuar</button>
+		</div>
+	</div>
+}
