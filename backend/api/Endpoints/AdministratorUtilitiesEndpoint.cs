@@ -29,6 +29,7 @@ public static class AdministratorUtilitiesEndpoint
 
             DtoUserInformation userData = new DtoUserInformation
             {
+                Id = user.Id,
                 Email = user.Email,
                 Role = user.Role.RolName,
                 UserName = user.UserName,
@@ -60,6 +61,7 @@ public static class AdministratorUtilitiesEndpoint
 
             DtoUserInformation userData = new DtoUserInformation
             {
+                Id = user.Id,
                 Email = user.Email,
                 Role = user.Role.RolName,
                 UserName = user.UserName,
@@ -79,10 +81,8 @@ public static class AdministratorUtilitiesEndpoint
         app.MapGet("/administrator/users/grouped", async (EventOrganizerContext db) =>
         {
             var organizerRole = await db.Roles.FirstOrDefaultAsync(r => r.RolName == "Organizer");
-            var studentRole = await db.Roles.FirstOrDefaultAsync(r => r.RolName == "Student");
-
-            if (organizerRole == null || studentRole == null)
-                return Results.Problem("Required roles are not configured on the server", statusCode: 500);
+            if (organizerRole == null)
+                return Results.Problem("Organizer role is not configured on the server", statusCode: 500);
 
             var organizers = await db.Users
                 .Include(u => u.Role)
@@ -105,7 +105,7 @@ public static class AdministratorUtilitiesEndpoint
 
             var students = await db.Users
                 .Include(u => u.Role)
-                .Where(u => u.RoleId == studentRole.Id)
+                .Where(u => u.RoleId != organizerRole.Id)
                 .OrderBy(u => u.UserName)
                 .Select(user => new DtoUserInformation
                 {
@@ -144,6 +144,9 @@ public static class AdministratorUtilitiesEndpoint
 
             if (user.Role.RolName == organizerRol.RolName)
                 return Results.BadRequest("User is already an organizer");
+
+            if (string.Equals(user.Role.RolName, "Admin", StringComparison.OrdinalIgnoreCase))
+                return Results.BadRequest("Admin users cannot be promoted to organizer");
 
             user.RoleId = organizerRol.Id;
 
