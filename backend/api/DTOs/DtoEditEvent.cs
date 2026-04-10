@@ -14,4 +14,6 @@ public class DtoEditEvent
     public string Place { get; set; } = string.Empty;
     public bool IsVirtual { get; set; }
     public DateTime EventDate { get; set; }
+    public string? ImageFileEvent { get; set; }
+    public int AvalaibleEntries { get; set; }
 }

@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { EventService } from '../../../services/event.service';
 
 interface PendingEvent {
   id: number;
@@ -20,6 +21,7 @@ interface PendingEvent {
 })
 export class EventApprovalAdmin implements OnInit {
   events: PendingEvent[] = [];
+  selectedEvent: any = null;
 
   currentPage = 1;
   itemsPerPage = 10;
@@ -31,23 +33,10 @@ export class EventApprovalAdmin implements OnInit {
   prevPage() { if (this.currentPage > 1) this.currentPage--; }
   nextPage() { if (this.currentPage < this.totalPages) this.currentPage++; }
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef, public eventService: EventService) {}
 
   ngOnInit() {
     this.getEvents();
-  }
-
-  approveEvent(eventId: number): void {
-    this.http.post(`http://localhost:5053/administrator/${eventId}/approve`, {})
-      .subscribe({
-        next: () => {
-          this.events = this.events.filter(event => event.id !== eventId);
-          if (this.currentPage > this.totalPages) this.currentPage = this.totalPages;
-        },
-        error: (err) => {
-          console.error(err);
-        }
-      });
   }
 
   getEvents() {
@@ -55,10 +44,45 @@ export class EventApprovalAdmin implements OnInit {
       .subscribe({
         next: (data) => {
           this.events = data;
+          this.cdr.detectChanges();
         },
-        error: (err) => {
-          console.error(err);
-        }
+        error: (err) => { console.error(err); }
       });
+  }
+
+  openDetail(event: PendingEvent) {
+    this.http.get<any>(`http://localhost:5053/administrator/events/${event.id}`)
+      .subscribe({
+        next: (data) => {
+          this.selectedEvent = data;
+          this.cdr.detectChanges();
+        },
+        error: (err) => { console.error(err); }
+      });
+  }
+
+  closeDetail() {
+    this.selectedEvent = null;
+    this.cdr.detectChanges();
+  }
+
+  approveEvent(eventId: number): void {
+    this.http.post(`http://localhost:5053/administrator/${eventId}/approve`, {})
+      .subscribe({
+        next: () => {
+          this.events = this.events.filter(e => e.id !== eventId);
+          if (this.currentPage > this.totalPages) this.currentPage = this.totalPages;
+          this.selectedEvent = null;
+          this.cdr.detectChanges();
+        },
+        error: (err) => { console.error(err); }
+      });
+  }
+
+  formatDate(date: string): string {
+    return new Date(date).toLocaleDateString('es-CR', {
+      day: 'numeric', month: 'long', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
   }
 }
