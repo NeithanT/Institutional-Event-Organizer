@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { BACKEND_BASE } from '../../../services/event.service';
 
 interface PendingEvent {
   id: number;
@@ -9,6 +10,17 @@ interface PendingEvent {
   date: string;
   location: string;
   approved: boolean;
+}
+
+interface EventDetail {
+  idEvent: number;
+  title: string;
+  eventDescription: string;
+  place: string;
+  isVirtual: boolean;
+  eventDate: string;
+  imageFileEvent: string | null;
+  avalaibleEntries: number;
 }
 
 @Component({
@@ -20,6 +32,7 @@ interface PendingEvent {
 })
 export class EventApprovalAdmin implements OnInit {
   events: PendingEvent[] = [];
+  selectedEvent: EventDetail | null = null;
 
   currentPage = 1;
   itemsPerPage = 10;
@@ -37,28 +50,45 @@ export class EventApprovalAdmin implements OnInit {
     this.getEvents();
   }
 
-  approveEvent(eventId: number): void {
-    this.http.post(`http://localhost:5053/administrator/${eventId}/approve`, {})
+  getEvents() {
+    this.http.get<PendingEvent[]>(`${BACKEND_BASE}/administrator/events/pending`)
       .subscribe({
-        next: () => {
-          this.events = this.events.filter(event => event.id !== eventId);
-          if (this.currentPage > this.totalPages) this.currentPage = this.totalPages;
-        },
-        error: (err) => {
-          console.error(err);
-        }
+        next: (data) => { this.events = data; },
+        error: (err) => { console.error(err); }
       });
   }
 
-  getEvents() {
-    this.http.get<PendingEvent[]>('http://localhost:5053/administrator/events/pending')
+  openDetail(event: PendingEvent) {
+    this.http.get<EventDetail>(`${BACKEND_BASE}/administrator/events/${event.id}`)
       .subscribe({
-        next: (data) => {
-          this.events = data;
-        },
-        error: (err) => {
-          console.error(err);
-        }
+        next: (data) => { this.selectedEvent = data; },
+        error: (err) => { console.error(err); }
       });
+  }
+
+  closeDetail() {
+    this.selectedEvent = null;
+  }
+
+  approveEvent(eventId: number): void {
+    this.http.post(`${BACKEND_BASE}/administrator/${eventId}/approve`, {})
+      .subscribe({
+        next: () => {
+          this.events = this.events.filter(e => e.id !== eventId);
+          if (this.currentPage > this.totalPages) this.currentPage = this.totalPages;
+          this.selectedEvent = null;
+        },
+        error: (err) => { console.error(err); }
+      });
+  }
+
+  imageUrl(path: string | null | undefined): string {
+    if (!path) return `${BACKEND_BASE}/images/default.jpg`;
+    if (path.startsWith('http')) return path;
+    return `${BACKEND_BASE}${path}`;
+  }
+
+  formatDate(date: string): string {
+    return new Date(date).toLocaleDateString('es-CR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
 }

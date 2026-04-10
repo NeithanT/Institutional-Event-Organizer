@@ -1,11 +1,89 @@
-
 .card {
-	border-radius: 12px;
+  border-radius: 12px;
 }
 
 th {
-	font-size: 0.85rem;
-	color: #6b7280;
-	text-transform: uppercase;
-	letter-spacing: 0.03em;
+  font-size: 0.85rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
+
+/* ── Detail card ── */
+.detail-wrapper {
+  max-width: 420px;
+}
+
+.event-detail-card {
+  background: #1e4fa3;
+  border-radius: 16px;
+  padding: 20px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-img-wrap {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.img-label {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  background: rgba(0,0,0,0.45);
+  color: #fff;
+  font-size: 0.7rem;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.detail-img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.detail-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.detail-desc {
+  font-size: 0.95rem;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.detail-meta {
+  font-size: 0.9rem;
+  margin: 0;
+  opacity: 0.85;
+}
+
+.detail-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.btn-action {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 28px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-action:hover:not(:disabled) { opacity: 0.85; }
+.btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-reject  { background: #ef4444; color: #fff; }
+.btn-approve { background: #22c55e; color: #fff; }

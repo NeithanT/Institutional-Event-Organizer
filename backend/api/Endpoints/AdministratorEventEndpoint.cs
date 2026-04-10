@@ -88,7 +88,9 @@ public static class AdministratorEventEndpoint
                     EventDescription = e.EventDescription,
                     Place = e.Place,
                     IsVirtual = e.IsVirtual,
-                    EventDate = e.EventDate
+                    EventDate = e.EventDate,
+                    ImageFileEvent = e.ImageFileEvent,
+                    AvalaibleEntries = e.AvalaibleEntries
                 })
                 .FirstOrDefaultAsync();
 

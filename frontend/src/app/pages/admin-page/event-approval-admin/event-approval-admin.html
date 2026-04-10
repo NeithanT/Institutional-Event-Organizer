@@ -1,48 +1,82 @@
 <section class="admin-section">
-	<header class="mb-4">
-		<h2 class="fw-bold mb-1">Aprobacion de eventos</h2>
-		<p class="text-muted mb-0">Vista de eventos pendientes de aprobacion.</p>
-	</header>
+  <header class="mb-4">
+    <h2 class="fw-bold mb-1">Aprobacion de eventos</h2>
+    <p class="text-muted mb-0">Vista de eventos pendientes de aprobacion.</p>
+  </header>
 
-	<div class="table-responsive card shadow-sm border-0">
-		<table class="table align-middle mb-0">
-			<thead>
-				<tr>
-					<th>Evento</th>
-					<th>Organizador</th>
-					<th>Fecha</th>
-					<th>Lugar</th>
-					<th class="text-end">Accion</th>
-				</tr>
-			</thead>
-			<tbody>
-				@if (events.length === 0) {
-					<tr>
-						<td colspan="5" class="text-center text-muted py-4">
-							No hay eventos pendientes de aprobación.
-						</td>
-					</tr>
-				}
-				@for (event of pagedEvents; track event.id) {
-					<tr>
-						<td class="fw-semibold">{{ event.title }}</td>
-						<td>{{ event.organizer }}</td>
-						<td>{{ event.date | date:'yyyy-MM-dd' }}</td>
-						<td>{{ event.location }}</td>
-						<td class="text-end">
-							<button class="btn btn-success btn-sm" (click)="approveEvent(event.id)">
-								Aprobar
-							</button>
-						</td>
-					</tr>
-				}
-			</tbody>
-		</table>
-	</div>
+  @if (!selectedEvent) {
+    <div class="table-responsive card shadow-sm border-0">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Evento</th>
+            <th>Organizador</th>
+            <th>Fecha</th>
+            <th>Lugar</th>
+            <th class="text-end">Accion</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (events.length === 0) {
+            <tr>
+              <td colspan="5" class="text-center text-muted py-4">
+                No hay eventos pendientes de aprobación.
+              </td>
+            </tr>
+          }
+          @for (event of pagedEvents; track event.id) {
+            <tr>
+              <td class="fw-semibold">{{ event.title }}</td>
+              <td>{{ event.organizer }}</td>
+              <td>{{ formatDate(event.date) }}</td>
+              <td>{{ event.location }}</td>
+              <td class="text-end">
+                <button class="btn btn-primary btn-sm" (click)="openDetail(event)">
+                  Gestionar
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
 
-	<div class="d-flex justify-content-center align-items-center gap-3 mt-3">
-		<button class="btn btn-outline-dark btn-sm" (click)="prevPage()" [disabled]="currentPage === 1">&#8592; Anterior</button>
-		<span>{{ currentPage }} / {{ totalPages }}</span>
-		<button class="btn btn-outline-dark btn-sm" (click)="nextPage()" [disabled]="currentPage === totalPages">Siguiente &#8594;</button>
-	</div>
+    <div class="d-flex justify-content-center align-items-center gap-3 mt-3">
+      <button class="btn btn-outline-dark btn-sm" (click)="prevPage()" [disabled]="currentPage === 1">&#8592; Anterior</button>
+      <span>{{ currentPage }} / {{ totalPages }}</span>
+      <button class="btn btn-outline-dark btn-sm" (click)="nextPage()" [disabled]="currentPage === totalPages">Siguiente &#8594;</button>
+    </div>
+
+  } @else {
+    <div class="detail-wrapper">
+      <button class="btn btn-outline-secondary btn-sm mb-3" (click)="closeDetail()">
+        &#8592; Volver a la lista
+      </button>
+
+      <div class="event-detail-card">
+        <div class="detail-img-wrap">
+          <span class="img-label">IMG</span>
+          <img [src]="imageUrl(selectedEvent.imageFileEvent)" [alt]="selectedEvent.title" class="detail-img" />
+        </div>
+
+        <div class="detail-body">
+          <h2 class="detail-title">Titulo: {{ selectedEvent.title }}</h2>
+          <p class="detail-desc">Descripción: {{ selectedEvent.eventDescription }}</p>
+          <p class="detail-meta">Modalidad: {{ selectedEvent.isVirtual ? 'Virtual' : 'Presencial' }}</p>
+          <p class="detail-meta">Cupos: {{ selectedEvent.avalaibleEntries }} cupos</p>
+          <p class="detail-meta">Lugar: {{ selectedEvent.place }}</p>
+          <p class="detail-meta">Fecha: {{ formatDate(selectedEvent.eventDate) }}</p>
+        </div>
+
+        <div class="detail-actions">
+          <button class="btn-action btn-reject" disabled title="En desarrollo por otro colaborador">
+            Rechazar
+          </button>
+          <button class="btn-action btn-approve" (click)="approveEvent(selectedEvent.idEvent)">
+            Aprobar
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </section>
