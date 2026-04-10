@@ -4,6 +4,26 @@
 		<p class="text-muted mb-0">Vista de eventos pendientes de aprobacion.</p>
 	</header>
 
+	@if(rejectingEvent) {
+		<div class="modal-overlay" style="position:fixed;inset:0;background-color:rgba(0,0,0,0.55);z-index:2000;display:flex;align-items:center;justify-content:center;">
+			<div class="card mb-4 shadow-sm" style="z-index:2100;max-width:640px;width:90%;">
+				<div class="card-body">
+					<h5 class="card-title">Rechazar evento</h5>
+					<p class="card-text">Por favor, ingresa una razón válida para rechazar el evento (100-500 caracteres).</p>
+					<textarea class="form-control mb-2" [(ngModel)]="rejectReason" rows="4" placeholder="Razón de rechazo..."></textarea>
+					@if(errorMessage) {
+						<div class="alert alert-danger mb-2">{{ errorMessage }}</div>
+					}
+
+					<div class="d-flex justify-content-end gap-2 mt-3">
+						<button class="btn btn-outline-secondary btn-sm" (click)="cancelReject()">Cancelar</button>
+						<button class="btn btn-danger btn-sm" (click)="submitRejection()">Enviar rechazo</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	}
 	<div class="table-responsive card shadow-sm border-0">
 		<table class="table align-middle mb-0">
 			<thead>
@@ -12,7 +32,7 @@
 					<th>Organizador</th>
 					<th>Fecha</th>
 					<th>Lugar</th>
-					<th class="text-end">Accion</th>
+					<th >Accion</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -29,9 +49,12 @@
 						<td>{{ event.organizer }}</td>
 						<td>{{ event.date | date:'yyyy-MM-dd' }}</td>
 						<td>{{ event.location }}</td>
-						<td class="text-end">
+						<td class="d-flex gap-2">
 							<button class="btn btn-success btn-sm" (click)="approveEvent(event.id)">
 								Aprobar
+							</button>
+              <button class="btn btn-danger btn-sm" (click)="startRejecting(event.id)">
+								Rechazar
 							</button>
 						</td>
 					</tr>

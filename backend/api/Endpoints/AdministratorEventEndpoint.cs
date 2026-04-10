@@ -114,6 +114,9 @@ public static class AdministratorEventEndpoint
                     approved = e.ApprovedState
                 })
                 .ToListAsync();
+
+            // check that this events are not in the canceled events table
+            evs = evs.Where(e => !db.CanceledEvents.Any(c => c.EventId == e.id)).ToList();
             return Results.Ok(evs);
         });
         //##################################################################################################################
@@ -169,6 +172,29 @@ public static class AdministratorEventEndpoint
             eventToApprove.ApprovedState = true; ;
             await db.SaveChangesAsync();
             return Results.Ok("Event has been approved successfully");
+        });
+
+        //##################################################################################################################
+
+        //Changes the status of an event to approved = true
+        app.MapPost("/administrator/{id:int}/reject", async (int id, RejectEventDto rejectDto,EventOrganizerContext db) =>
+        {
+
+            Event? eventToReject = await db.Events.FindAsync(id);
+            if (eventToReject == null) return Results.NotFound("Event not found");
+            if (eventToReject.ApprovedState == true) return Results.BadRequest("Event has already been approved");
+            if (await db.CanceledEvents.AnyAsync(e => e.EventId == id)) return Results.BadRequest("Event already been canceled by organizer");
+
+
+            eventToReject.ApprovedState = false;
+            CanceledEvent canceledEvent = new CanceledEvent
+            {
+                EventId = id,
+                Reason = rejectDto.Reason,
+            };
+            await db.CanceledEvents.AddAsync(canceledEvent);
+            await db.SaveChangesAsync();
+            return Results.Ok("Event has been rejected successfully");
         });
 
         //##################################################################################################################
