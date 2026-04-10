@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 
@@ -19,6 +19,7 @@ interface PendingEvent {
   styleUrl: './event-approval-admin.css',
 })
 export class EventApprovalAdmin implements OnInit {
+  ref: ChangeDetectorRef = inject(ChangeDetectorRef);
   events: PendingEvent[] = [];
 
   currentPage = 1;
@@ -55,6 +56,7 @@ export class EventApprovalAdmin implements OnInit {
       .subscribe({
         next: (data) => {
           this.events = data;
+          this.ref.markForCheck();
         },
         error: (err) => {
           console.error(err);
