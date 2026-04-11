@@ -67,7 +67,7 @@ public static class EventEndpoint
         //Creates an event on the Events Table
         app.MapPost("/api/organizer/events", async ([FromForm] DtoCreateEvent createEventDto, IWebHostEnvironment env, EventOrganizerContext db) =>
             {
-                string imagePath = "/Images/default.jpg";
+                string imagePath = "/images/default.jpg";
 
 
                 if (createEventDto.ImageFileEvent != null
