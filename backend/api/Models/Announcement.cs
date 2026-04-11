@@ -8,7 +8,7 @@ public partial class Announcement
     public int Id { get; set; }
     public int WriterId { get; set; }
     public int? EventId { get; set; }
-    public DateTime PublicationDate { get; set; } = DateTime.UtcNow;
+    public DateTime PublicationDate { get; set; } = DateTime.Now;
     public string Title { get; set; } = null!;
     public string About { get; set; } = null!;
     public string Body { get; set; } = null!;

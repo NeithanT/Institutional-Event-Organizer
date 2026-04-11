@@ -157,7 +157,7 @@ public static class AdministratorEventEndpoint
         //##################################################################################################################
 
         //Changes the status of an event to approved = true
-        app.MapPost("/administrator/{id:int}/approve", async (int id, EventOrganizerContext db) =>
+        app.MapPost("/administrator/{id:int}/approve", async (int id, int? moderatorUserId, EventOrganizerContext db) =>
         {
 
             Event? eventToApprove = await db.Events.FindAsync(id);
@@ -167,6 +167,16 @@ public static class AdministratorEventEndpoint
 
 
             eventToApprove.ApprovedState = true; ;
+
+            db.ModerationActionLogs.Add(new ModerationActionLog
+            {
+                EventId = id,
+                ModeratorUserId = moderatorUserId,
+                Action = "APPROVED",
+                Reason = null,
+                ActionDate = DateTime.Now
+            });
+
             await db.SaveChangesAsync();
             return Results.Ok("Event has been approved successfully");
         });
@@ -217,7 +227,7 @@ public static class AdministratorEventEndpoint
 
         //##################################################################################################################
         //Changes the status of an event to approved = false and add it to the canceled table
-        app.MapPost("/administrator/{id:int}/deny", async (DtoDenyEvent dtoDeny, int id, EventOrganizerContext db) =>
+        app.MapPost("/administrator/{id:int}/deny", async (DtoDenyEvent dtoDeny, int id, int? moderatorUserId, IEmailService mailService, EventOrganizerContext db) =>
         {
 
             Event? eventToDeny = await db.Events.FindAsync(id);
@@ -229,18 +239,48 @@ public static class AdministratorEventEndpoint
             if (await db.CanceledEvents.AnyAsync(e => e.EventId == id))
                 return Results.BadRequest("Event already been denied");
 
+            var denyReason = dtoDeny.reason?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(denyReason))
+                return Results.BadRequest("A deny reason is required");
+
 
             eventToDeny.ApprovedState = false;
 
             CanceledEvent canceledEvent = new CanceledEvent
             {
                 EventId = id,
-                Reason = dtoDeny.reason,
+                Reason = denyReason,
             };
 
             await db.CanceledEvents.AddAsync(canceledEvent);
 
+            db.ModerationActionLogs.Add(new ModerationActionLog
+            {
+                EventId = id,
+                ModeratorUserId = moderatorUserId,
+                Action = "DENIED",
+                Reason = denyReason,
+                ActionDate = DateTime.Now
+            });
+
             await db.SaveChangesAsync();
+
+            try
+            {
+                var organizer = await db.Users.FindAsync(eventToDeny.OrganizerId);
+                if (organizer is not null)
+                {
+                    await mailService.SendEmailAsync(
+                        organizer.Email,
+                        $"Evento rechazado: {eventToDeny.Title}",
+                        $"<p>Hola {organizer.UserName},</p>" +
+                        $"<p>Tu evento <strong>{eventToDeny.Title}</strong> fue rechazado por administración.</p>" +
+                        $"<p><strong>Justificación:</strong> {denyReason}</p>"
+                    );
+                }
+            }
+            catch { /* El email es best-effort; no cancela el rechazo */ }
+
             return Results.Ok("Event has been denied successfully");
         });
     }
