@@ -38,7 +38,7 @@ export class EventApprovalAdmin implements OnInit {
   }
 
   approveEvent(eventId: number): void {
-    this.http.post(`http://localhost:5053/administrator/${eventId}/approve`, {})
+    this.http.post(`/api/administrator/${eventId}/approve`, {})
       .subscribe({
         next: () => {
           this.events = this.events.filter(event => event.id !== eventId);
@@ -51,7 +51,7 @@ export class EventApprovalAdmin implements OnInit {
   }
 
   getEvents() {
-    this.http.get<PendingEvent[]>('http://localhost:5053/administrator/events/pending')
+    this.http.get<PendingEvent[]>('/api/administrator/events/pending')
       .subscribe({
         next: (data) => {
           this.events = data;

@@ -30,12 +30,30 @@ fi
 
 echo "==> Building frontend inside a Node container..."
 # use a node container to avoid installing node on host
-sudo docker run --rm -u $(id -u):$(id -g) -v "$REPO_ROOT/frontend":/src -w /src node:18 bash -lc "npm ci && npm run build -- --configuration production"
+# fallback to `npm install` when package-lock.json is missing
+# use Node 22.12 to satisfy Angular CLI minimum requirement
+sudo docker run --rm -u $(id -u):$(id -g) -v "$REPO_ROOT/frontend":/src -w /src node:22.12 bash -lc '
+  if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then
+    npm ci
+  else
+    npm install
+  fi
+  npm run build -- --configuration production
+'
 
 echo "==> Preparing nginx static folder for container"
 mkdir -p "$REPO_ROOT/deploy/nginx/html"
 rm -rf "$REPO_ROOT/deploy/nginx/html"/* || true
-cp -r "$REPO_ROOT/frontend/dist"/* "$REPO_ROOT/deploy/nginx/html/"
+# New Angular builds (Angular 17+) place browser output under dist/<project>/browser
+# Prefer copying the `browser` folder contents directly so index.html lands at nginx root.
+BROWSER_DIR=$(find "$REPO_ROOT/frontend/dist" -type d -name browser -print -quit || true)
+if [ -n "$BROWSER_DIR" ]; then
+  echo "Found browser build at: $BROWSER_DIR"
+  cp -r "$BROWSER_DIR"/* "$REPO_ROOT/deploy/nginx/html/"
+else
+  echo "No browser folder found under frontend/dist, falling back to copying dist/*"
+  cp -r "$REPO_ROOT/frontend/dist"/* "$REPO_ROOT/deploy/nginx/html/"
+fi
 
 echo "==> Bringing up docker-compose stack"
 cd "$REPO_ROOT/deploy"

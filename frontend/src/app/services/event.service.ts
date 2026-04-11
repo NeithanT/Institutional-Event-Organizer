@@ -37,11 +37,11 @@ export interface EventFilters {
   date?: string;
 }
 
-export const BACKEND_BASE = 'http://localhost:5053';
+export const BACKEND_BASE = '/api';
 
 @Injectable({ providedIn: 'root' })
 export class EventService {
-  private base = `${BACKEND_BASE}/api`;
+  private base = `${BACKEND_BASE}`;
 
   /** Convierte una ruta relativa del backend (/uploads/...) en URL absoluta */
   imageUrl(path: string | null | undefined): string {

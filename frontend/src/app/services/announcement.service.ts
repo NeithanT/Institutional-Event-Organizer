@@ -22,7 +22,7 @@ export interface AnnouncementDetailDto {
 
 @Injectable({ providedIn: 'root' })
 export class AnnouncementService {
-  private base = 'http://localhost:5053/api';
+  private base = '/api';
 
   constructor(private http: HttpClient) {}
 

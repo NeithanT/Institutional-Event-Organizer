@@ -67,7 +67,7 @@ export class EditEvent implements OnInit {
 
   loadEvent() {
     this.http.get<any>(
-      `http://localhost:5053/organizer/my-events/${this.eventId}?organizerId=${this.organizerId}`
+      `/api/organizer/my-events/${this.eventId}?organizerId=${this.organizerId}`
     ).subscribe({
       next: (event) => {
         this.title            = event.title;
@@ -125,13 +125,13 @@ export class EditEvent implements OnInit {
       eventDescription: this.description,
       place:            this.place,
       isVirtual:        this.isVirtual,
-      eventDate:        this.date + ':00',  
+      eventDate:        this.date + ':00',
       categoryId:       this.categoryId,
       avalaibleEntries: this.avalaibleEntries
     };
 
     this.http.put(
-      `http://localhost:5053/organizer/events`,
+      `/api/organizer/events`,
       body
     ).subscribe({
       next: () => {

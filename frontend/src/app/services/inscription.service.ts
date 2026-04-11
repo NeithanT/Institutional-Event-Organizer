@@ -16,7 +16,7 @@ export interface InscriptionSummaryDto {
 
 @Injectable({ providedIn: 'root' })
 export class InscriptionService {
-  private base = 'http://localhost:5053/api';
+  private base = '/api';
 
   constructor(private http: HttpClient) {}
 

@@ -37,7 +37,7 @@ export class ReportGenerationAdmin {
       dateEnd: this.dateEnd,
     };
 
-    this.http.post('http://localhost:5053/administrator/generate-report', payload, {
+    this.http.post('/api/administrator/generate-report', payload, {
       responseType: 'blob' as const,
       headers: {
         Accept: 'application/pdf',

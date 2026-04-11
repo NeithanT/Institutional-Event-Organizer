@@ -176,7 +176,7 @@ export class ContentModerationAdmin implements OnInit {
     this.errorMessage = '';
     this.isLoading = true;
 
-    this.http.get<ModerationEventRow[]>('http://localhost:5053/administrator/events/moderation').subscribe({
+    this.http.get<ModerationEventRow[]>('/api/administrator/events/moderation').subscribe({
       next: (data) => {
         this.events = data ?? [];
 
@@ -199,7 +199,7 @@ export class ContentModerationAdmin implements OnInit {
     this.errorMessage = '';
 
     this.http
-      .post(`http://localhost:5053/administrator/${eventId}/deny`, {
+      .post(`/api/administrator/${eventId}/deny`, {
         reason: 'El evento fue removido por moderación.',
       })
       .subscribe({
@@ -222,7 +222,7 @@ export class ContentModerationAdmin implements OnInit {
   modifyEvent(event: ModerationEventRow): void {
     this.errorMessage = '';
 
-    this.http.get<EditEventDto>(`http://localhost:5053/administrator/events/${event.id}`).subscribe({
+    this.http.get<EditEventDto>(`/api/administrator/events/${event.id}`).subscribe({
       next: (full) => {
         this.modifiedEvent = {
           ...full,
@@ -242,7 +242,7 @@ export class ContentModerationAdmin implements OnInit {
   }
 
   loadCategories(): void {
-    this.http.get<CategoryOption[]>('http://localhost:5053/organizer/get-events-categories').subscribe({
+    this.http.get<CategoryOption[]>('/api/organizer/get-events-categories').subscribe({
       next: (data) => {
         this.categories = data ?? [];
         this.cdr.detectChanges();
@@ -254,7 +254,7 @@ export class ContentModerationAdmin implements OnInit {
   }
 
   loadOrganizers(): void {
-    this.http.get<OrganizerOption[]>('http://localhost:5053/organizer/get-entities').subscribe({
+    this.http.get<OrganizerOption[]>('/api/organizer/get-entities').subscribe({
       next: (data) => {
         this.organizers = data ?? [];
         this.cdr.detectChanges();
@@ -307,7 +307,7 @@ export class ContentModerationAdmin implements OnInit {
       eventDate: `${this.modifiedEvent.eventDate}T00:00:00`,
     };
 
-    this.http.put(`http://localhost:5053/administrator/events/${payload.idEvent}`, payload).subscribe({
+    this.http.put(`/api/administrator/events/${payload.idEvent}`, payload).subscribe({
       next: () => {
         const idx = this.events.findIndex((event) => event.id === payload.idEvent);
         if (idx !== -1) {

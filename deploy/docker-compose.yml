@@ -19,8 +19,9 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=EventOrganizer;Username=postgres;Password=postgres123"
-    expose:
-      - "80"
+      
+    ports:
+      - "5053:80"
     depends_on:
       - db
 
