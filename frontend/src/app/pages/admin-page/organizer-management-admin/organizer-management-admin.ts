@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { finalize, timeout } from 'rxjs';
 
 interface UserSearchResult {
   id: number;
@@ -21,6 +22,8 @@ interface UserSearchResult {
   styleUrl: './organizer-management-admin.css',
 })
 export class OrganizerManagementAdmin implements OnInit {
+  private static readonly SEARCH_TIMEOUT_MS = 10000;
+
   ref: ChangeDetectorRef = inject(ChangeDetectorRef);
   currentOrganizers: UserSearchResult[] = [];
   students: UserSearchResult[] = [];
@@ -42,11 +45,18 @@ export class OrganizerManagementAdmin implements OnInit {
   }
 
   get canPromote(): boolean {
-    return !!this.searchedUser && this.searchedUser.active && this.searchedUser.role !== 'Organizer';
+    return (
+      !!this.searchedUser &&
+      this.searchedUser.active &&
+      this.searchedUser.role !== 'Organizer' &&
+      this.searchedUser.role !== 'Admin'
+    );
   }
 
   get canDemote(): boolean {
-    return !!this.searchedUser && this.searchedUser.active && this.searchedUser.role === 'Organizer';
+    return (
+      !!this.searchedUser && this.searchedUser.active && this.searchedUser.role === 'Organizer'
+    );
   }
 
   get canActivate(): boolean {
@@ -108,12 +118,13 @@ export class OrganizerManagementAdmin implements OnInit {
       .subscribe({
         next: (user) => {
           this.searchedUser = user;
+          this.loadCurrentUsers();
         },
         error: (error) => {
-          this.errorMessage = error?.error || 'No se encontró ningún usuario con ese nombre.';
-        },
-        complete: () => {
-          this.isSearching = false;
+          this.errorMessage =
+            error?.name === 'TimeoutError'
+              ? 'La búsqueda tardó demasiado. Inténtelo de nuevo.'
+              : error?.error || 'No se encontró ningún usuario con ese nombre.';
         },
       });
   }
@@ -135,12 +146,13 @@ export class OrganizerManagementAdmin implements OnInit {
       .subscribe({
         next: (user) => {
           this.searchedUser = user;
+          this.loadCurrentUsers();
         },
         error: (error) => {
-          this.errorMessage = error?.error || 'No se encontró ningún usuario con esa cédula.';
-        },
-        complete: () => {
-          this.isSearching = false;
+          this.errorMessage =
+            error?.name === 'TimeoutError'
+              ? 'La búsqueda tardó demasiado. Inténtelo de nuevo.'
+              : error?.error || 'No se encontró ningún usuario con esa cédula.';
         },
       });
   }
@@ -164,9 +176,6 @@ export class OrganizerManagementAdmin implements OnInit {
         error: (error) => {
           this.errorMessage = error?.error || 'No se pudo promover al usuario.';
         },
-        complete: () => {
-          this.isUpdating = false;
-        },
       });
   }
 
@@ -188,9 +197,6 @@ export class OrganizerManagementAdmin implements OnInit {
         },
         error: (error) => {
           this.errorMessage = error?.error || 'No se pudo remover el rol de organizador.';
-        },
-        complete: () => {
-          this.isUpdating = false;
         },
       });
   }
@@ -214,9 +220,6 @@ export class OrganizerManagementAdmin implements OnInit {
         error: (error) => {
           this.errorMessage = error?.error || 'No se pudo activar el usuario.';
         },
-        complete: () => {
-          this.isUpdating = false;
-        },
       });
   }
 
@@ -238,9 +241,6 @@ export class OrganizerManagementAdmin implements OnInit {
         },
         error: (error) => {
           this.errorMessage = error?.error || 'No se pudo desactivar el usuario.';
-        },
-        complete: () => {
-          this.isUpdating = false;
         },
       });
   }

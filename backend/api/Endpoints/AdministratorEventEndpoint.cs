@@ -88,7 +88,9 @@ public static class AdministratorEventEndpoint
                     EventDescription = e.EventDescription,
                     Place = e.Place,
                     IsVirtual = e.IsVirtual,
-                    EventDate = e.EventDate
+                    EventDate = e.EventDate,
+                    ImageFileEvent = e.ImageFileEvent,
+                    AvalaibleEntries = e.AvalaibleEntries
                 })
                 .FirstOrDefaultAsync();
 
@@ -114,6 +116,9 @@ public static class AdministratorEventEndpoint
                     approved = e.ApprovedState
                 })
                 .ToListAsync();
+
+            // check that this events are not in the canceled events table
+            evs = evs.Where(e => !db.CanceledEvents.Any(c => c.EventId == e.id)).ToList();
             return Results.Ok(evs);
         });
         //##################################################################################################################

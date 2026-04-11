@@ -51,13 +51,17 @@ export class ContentModerationAdmin implements OnInit {
   isLoading = false;
   modifying = false;
   errorMessage = '';
+  showModal = false;
+  modalSuccess = true;
+  modalTitle = '';
+  modalMessage = '';
 
   modifiedEvent: EditEventDto = this.createEmptyEditEvent();
   modifiedOrganizerEntityId: number | null = null;
   modifiedOrganizerUserId: number | null = null;
   modifiedCategoryId: number | null = null;
 
-  minDate = '';
+  minDateTime = '';
 
   currentPage = 1;
   itemsPerPage = 10;
@@ -89,10 +93,23 @@ export class ContentModerationAdmin implements OnInit {
   }
 
   ngOnInit(): void {
-    this.minDate = this.computeMinDate();
+    this.minDateTime = this.computeMinDateTime();
     this.loadCategories();
     this.loadOrganizers();
     this.loadEvents();
+  }
+
+  openModal(success: boolean, title: string, message: string): void {
+    this.modalSuccess = success;
+    this.modalTitle = title;
+    this.modalMessage = message;
+    this.showModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeModal(): void {
+    this.showModal = false;
+    this.cdr.detectChanges();
   }
 
   private createEmptyEditEvent(): EditEventDto {
@@ -124,7 +141,7 @@ export class ContentModerationAdmin implements OnInit {
 
       if (backendError.errors && typeof backendError.errors === 'object') {
         const firstFieldErrors = Object.values(backendError.errors).find(
-          (messages) => Array.isArray(messages) && messages.length > 0
+          (messages) => Array.isArray(messages) && messages.length > 0,
         ) as string[] | undefined;
 
         if (firstFieldErrors?.[0]) {
@@ -140,13 +157,9 @@ export class ContentModerationAdmin implements OnInit {
     return fallback;
   }
 
-  private toDateInputValue(value: string | Date | undefined): string {
+  private toDateTimeInputValue(value: string | Date | undefined): string {
     if (!value) {
       return '';
-    }
-
-    if (typeof value === 'string') {
-      return value.split('T')[0];
     }
 
     const parsed = new Date(value);
@@ -158,18 +171,22 @@ export class ContentModerationAdmin implements OnInit {
     const month = String(parsed.getMonth() + 1).padStart(2, '0');
     const day = String(parsed.getDate()).padStart(2, '0');
 
-    return `${year}-${month}-${day}`;
+    const hours = String(parsed.getHours()).padStart(2, '0');
+    const minutes = String(parsed.getMinutes()).padStart(2, '0');
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 
-  private computeMinDate(): string {
+  private computeMinDateTime(): string {
     const date = new Date();
     date.setDate(date.getDate() + 1);
+    date.setHours(0, 0, 0, 0);
 
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
 
-    return `${year}-${month}-${day}`;
+    return `${year}-${month}-${day}T00:00`;
   }
 
   loadEvents(): void {
@@ -180,19 +197,22 @@ export class ContentModerationAdmin implements OnInit {
       next: (data) => {
         this.events = data ?? [];
 
-        if (this.currentPage > this.totalPages) {
-          this.currentPage = this.totalPages;
-        }
+          if (this.currentPage > this.totalPages) {
+            this.currentPage = this.totalPages;
+          }
 
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.errorMessage = this.getErrorMessage(err, 'No se pudo cargar los eventos para moderación.');
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
-    });
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.errorMessage = this.getErrorMessage(
+            err,
+            'No se pudo cargar los eventos para moderación.',
+          );
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   removeEvent(eventId: number): void {
@@ -280,16 +300,29 @@ export class ContentModerationAdmin implements OnInit {
     const title = this.modifiedEvent.title.trim();
     const eventDescription = this.modifiedEvent.eventDescription.trim();
     const place = this.modifiedEvent.place.trim();
-    const eventDate = this.modifiedEvent.eventDate ? new Date(`${this.modifiedEvent.eventDate}T00:00:00`) : null;
+    const eventDate = this.modifiedEvent.eventDate ? new Date(this.modifiedEvent.eventDate) : null;
 
-    if (!this.modifiedEvent.idEvent || !this.modifiedOrganizerUserId || !this.modifiedOrganizerEntityId || !this.modifiedCategoryId) {
+    if (
+      !this.modifiedEvent.idEvent ||
+      !this.modifiedOrganizerUserId ||
+      !this.modifiedOrganizerEntityId ||
+      !this.modifiedCategoryId
+    ) {
       this.errorMessage = 'Seleccione un organizador, una entidad y una categoría válidos.';
       this.cdr.detectChanges();
       return;
     }
 
-    if (!title || !eventDescription || !place || !eventDate || isNaN(eventDate.getTime()) || eventDate < new Date()) {
-      this.errorMessage = 'Por favor complete título, descripción, lugar y fecha futura antes de guardar.';
+    if (
+      !title ||
+      !eventDescription ||
+      !place ||
+      !eventDate ||
+      isNaN(eventDate.getTime()) ||
+      eventDate.getTime() <= Date.now()
+    ) {
+      this.errorMessage =
+        'Por favor complete título, descripción, lugar y fecha futura antes de guardar.';
       this.cdr.detectChanges();
       return;
     }
@@ -304,7 +337,7 @@ export class ContentModerationAdmin implements OnInit {
       eventDescription,
       place,
       isVirtual: this.modifiedEvent.isVirtual,
-      eventDate: `${this.modifiedEvent.eventDate}T00:00:00`,
+      eventDate: eventDate.toISOString(),
     };
 
     this.http.put(`/api/administrator/events/${payload.idEvent}`, payload).subscribe({
@@ -325,12 +358,13 @@ export class ContentModerationAdmin implements OnInit {
           };
         }
 
-        this.cancelModify();
-      },
-      error: (err) => {
-        this.errorMessage = this.getErrorMessage(err, 'No se pudo guardar el evento.');
-        this.cdr.detectChanges();
-      },
-    });
+          this.cancelModify();
+          this.openModal(true, '¡Éxito!', 'El evento fue modificado correctamente.');
+        },
+        error: (err) => {
+          this.errorMessage = this.getErrorMessage(err, 'No se pudo guardar el evento.');
+          this.cdr.detectChanges();
+        },
+      });
   }
 }
