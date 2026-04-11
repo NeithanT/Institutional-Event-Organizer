@@ -41,9 +41,7 @@
 
         <!-- IMAGEN -->
         <img
-          [src]="event.imageFileEvent
-            ? '/api' + event.imageFileEvent
-            : 'assets/default.jpg'"
+          [src]="eventService.imageUrl(event.imageFileEvent)"
           class="event-img">
 
         <!-- INFO -->

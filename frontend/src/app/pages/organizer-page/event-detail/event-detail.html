@@ -11,9 +11,7 @@
 
         <!-- Imagen -->
         <img
-          [src]="event.imageFileEvent
-            ? '/api' + event.imageFileEvent
-            : 'assets/default.jpg'"
+          [src]="eventService.imageUrl(event.imageFileEvent)"
           class="event-thumb rounded-3 flex-shrink-0"
           alt="Imagen del evento">
 
