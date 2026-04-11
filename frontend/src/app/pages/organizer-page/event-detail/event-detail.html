@@ -12,7 +12,7 @@
         <!-- Imagen -->
         <img
           [src]="event.imageFileEvent
-            ? 'http://localhost:5053' + event.imageFileEvent
+            ? '/api' + event.imageFileEvent
             : 'assets/default.jpg'"
           class="event-thumb rounded-3 flex-shrink-0"
           alt="Imagen del evento">
@@ -38,12 +38,12 @@
 
             <!-- APROBADO -->
             <ng-container *ngIf="getEventStatus() === 'approved'">
-              <button 
+              <button
               class="btn btn-success fw-semibold px-4"
               (click)="openAttendanceModal()">
               📋 Asistencia
             </button>
-              <button 
+              <button
               class="btn btn-primary fw-semibold px-4"
               (click)="openNoticeModal()">
               ✉️ Comunicado
@@ -62,7 +62,7 @@
 
             <!-- CONCLUIDO -->
             <ng-container *ngIf="getEventStatus() === 'finished'">
-            <button 
+            <button
               class="btn btn-success fw-semibold px-4"
               (click)="openAttendanceModal()">
               📋 Asistencia
@@ -148,7 +148,7 @@
         <!-- Asunto -->
         <div class="mb-3">
           <label class="form-label fw-semibold">Asunto</label>
-          <input 
+          <input
             type="text"
             class="form-control"
             [(ngModel)]="noticeTitle">
@@ -157,7 +157,7 @@
         <!-- Mensaje -->
         <div class="mb-4">
           <label class="form-label fw-semibold">Cuerpo del mensaje</label>
-          <textarea 
+          <textarea
             class="form-control"
             rows="5"
             [(ngModel)]="noticeBody">
@@ -167,13 +167,13 @@
         <!-- BOTONES -->
         <div class="d-flex justify-content-end gap-2">
 
-          <button 
+          <button
             class="btn btn-secondary px-4"
             (click)="closeNoticeModal()">
             Cancelar
           </button>
 
-          <button 
+          <button
             class="btn btn-primary px-4"
             (click)="sendNotice()">
             Enviar
@@ -205,7 +205,7 @@
         <!-- BUSCADOR  -->
         <div class="search-wrapper">
           <label class="custom-label">Búsqueda</label>
-          <input 
+          <input
             type="text"
             class="form-control search-input"
             placeholder="Buscar por nombre o carné"
@@ -216,7 +216,7 @@
         <!-- FILTRO  -->
         <div class="filter-wrapper">
           <label class="custom-label">Filtro</label>
-          <select 
+          <select
             class="form-select filter-select"
             [(ngModel)]="filterStatus"
             (change)="filterParticipants()">
@@ -249,7 +249,7 @@
               <tr *ngFor="let user of filteredParticipants">
 
                 <td>
-                 <input 
+                 <input
                   type="checkbox"
                   [(ngModel)]="user.attended"
                   [disabled]="getEventStatus() === 'finished'" />
@@ -271,13 +271,13 @@
         <!-- BOTONES -->
         <div class="d-flex justify-content-end gap-2 mt-3">
 
-          <button 
+          <button
             class="btn btn-secondary px-4"
             (click)="closeAttendanceModal()">
             Cancelar
           </button>
 
-          <button 
+          <button
             class="btn btn-primary px-4"
             (click)="saveAttendance()"
             [disabled]="getEventStatus() === 'finished'">

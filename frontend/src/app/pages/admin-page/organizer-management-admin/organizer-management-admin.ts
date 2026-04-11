@@ -88,10 +88,7 @@ export class OrganizerManagementAdmin implements OnInit {
   loadCurrentUsers(): void {
     this.clearMessages();
     this.http
-      .get<{
-        organizers: UserSearchResult[];
-        students: UserSearchResult[];
-      }>('http://localhost:5053/administrator/users/grouped')
+      .get<{ organizers: UserSearchResult[]; students: UserSearchResult[] }>('/api/administrator/users/grouped')
       .subscribe({
         next: (data) => {
           this.currentOrganizers = data.organizers;
@@ -117,13 +114,7 @@ export class OrganizerManagementAdmin implements OnInit {
     this.searchedUser = null;
 
     this.http
-      .get<UserSearchResult>(
-        `http://localhost:5053/administrator/search-user-by-name/${encodeURIComponent(this.searchName.trim())}`,
-      )
-      .pipe(
-        timeout(OrganizerManagementAdmin.SEARCH_TIMEOUT_MS),
-        finalize(() => (this.isSearching = false)),
-      )
+      .get<UserSearchResult>(`/api/administrator/search-user-by-name/${encodeURIComponent(this.searchName.trim())}`)
       .subscribe({
         next: (user) => {
           this.searchedUser = user;
@@ -151,11 +142,7 @@ export class OrganizerManagementAdmin implements OnInit {
     this.searchedUser = null;
 
     this.http
-      .get<UserSearchResult>(`http://localhost:5053/administrator/search-user-by-idcard/${idCard}`)
-      .pipe(
-        timeout(OrganizerManagementAdmin.SEARCH_TIMEOUT_MS),
-        finalize(() => (this.isSearching = false)),
-      )
+      .get<UserSearchResult>(`/api/administrator/search-user-by-idcard/${idCard}`)
       .subscribe({
         next: (user) => {
           this.searchedUser = user;
@@ -179,11 +166,7 @@ export class OrganizerManagementAdmin implements OnInit {
     this.isUpdating = true;
 
     this.http
-      .post(
-        `http://localhost:5053/administrator/change-rol/to-organizer/${this.searchedUser.id}`,
-        {},
-      )
-      .pipe(finalize(() => (this.isUpdating = false)))
+      .post(`/api/administrator/change-rol/to-organizer/${this.searchedUser.id}`, {})
       .subscribe({
         next: () => {
           this.successMessage = 'El usuario ha sido promovido a organizador.';
@@ -205,8 +188,7 @@ export class OrganizerManagementAdmin implements OnInit {
     this.isUpdating = true;
 
     this.http
-      .post(`http://localhost:5053/administrator/change-rol/to-student/${this.searchedUser.id}`, {})
-      .pipe(finalize(() => (this.isUpdating = false)))
+      .post(`/api/administrator/change-rol/to-student/${this.searchedUser.id}`, {})
       .subscribe({
         next: () => {
           this.successMessage = 'El organizador ha sido removido y ahora es estudiante.';
@@ -228,8 +210,7 @@ export class OrganizerManagementAdmin implements OnInit {
     this.isUpdating = true;
 
     this.http
-      .post(`http://localhost:5053/administrator/set-active/${this.searchedUser.id}`, {})
-      .pipe(finalize(() => (this.isUpdating = false)))
+      .post(`/api/administrator/set-active/${this.searchedUser.id}`, {})
       .subscribe({
         next: () => {
           this.successMessage = 'El usuario ha sido activado.';
@@ -251,8 +232,7 @@ export class OrganizerManagementAdmin implements OnInit {
     this.isUpdating = true;
 
     this.http
-      .post(`http://localhost:5053/administrator/set-inactive/${this.searchedUser.id}`, {})
-      .pipe(finalize(() => (this.isUpdating = false)))
+      .post(`/api/administrator/set-inactive/${this.searchedUser.id}`, {})
       .subscribe({
         next: () => {
           this.successMessage = 'El usuario ha sido desactivado.';

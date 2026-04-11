@@ -16,7 +16,7 @@ public static class AdministratorUtilitiesEndpoint
     {
 
         //##############################################################################################################
-        app.MapGet("/administrator/search-user-by-name/{name}", async (string name, EventOrganizerContext db) =>
+        app.MapGet("/api/administrator/search-user-by-name/{name}", async (string name, EventOrganizerContext db) =>
         {
 
             var user = await db.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.UserName == name);
@@ -47,7 +47,7 @@ public static class AdministratorUtilitiesEndpoint
 
         });
         //##############################################################################################################
-        app.MapGet("/administrator/search-user-by-idcard/{idCard:int}", async (int idCard, EventOrganizerContext db) =>
+        app.MapGet("/api/administrator/search-user-by-idcard/{idCard:int}", async (int idCard, EventOrganizerContext db) =>
         {
 
             var user = await db.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.IdCard == idCard);
@@ -78,7 +78,7 @@ public static class AdministratorUtilitiesEndpoint
 
 
         //##############################################################################################################
-        app.MapGet("/administrator/users/grouped", async (EventOrganizerContext db) =>
+        app.MapGet("/api/administrator/users/grouped", async (EventOrganizerContext db) =>
         {
             var organizerRole = await db.Roles.FirstOrDefaultAsync(r => r.RolName == "Organizer");
             if (organizerRole == null)
@@ -126,7 +126,7 @@ public static class AdministratorUtilitiesEndpoint
         });
 
         //##############################################################################################################
-        app.MapPost("/administrator/change-rol/to-organizer/{id:int}", async (int id, EventOrganizerContext db) =>
+        app.MapPost("/api/administrator/change-rol/to-organizer/{id:int}", async (int id, EventOrganizerContext db) =>
         {
 
             var user = await db.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Id == id);
@@ -157,7 +157,7 @@ public static class AdministratorUtilitiesEndpoint
         });
 
         //##############################################################################################################
-        app.MapPost("/administrator/change-rol/to-student/{id:int}", async (int id, EventOrganizerContext db) =>
+        app.MapPost("/api/administrator/change-rol/to-student/{id:int}", async (int id, EventOrganizerContext db) =>
         {
 
             var user = await db.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Id == id);
@@ -185,7 +185,7 @@ public static class AdministratorUtilitiesEndpoint
         });
 
         //##############################################################################################################
-        app.MapPost("/administrator/set-active/{id:int}", async (int id, EventOrganizerContext db) =>
+        app.MapPost("/api/administrator/set-active/{id:int}", async (int id, EventOrganizerContext db) =>
         {
             var user = await db.Users.FirstOrDefaultAsync(u => u.Id == id);
 
@@ -202,7 +202,7 @@ public static class AdministratorUtilitiesEndpoint
         });
 
         //##############################################################################################################
-        app.MapPost("/administrator/set-inactive/{id:int}", async (int id, EventOrganizerContext db) =>
+        app.MapPost("/api/administrator/set-inactive/{id:int}", async (int id, EventOrganizerContext db) =>
         {
             var user = await db.Users.FirstOrDefaultAsync(u => u.Id == id);
 
@@ -219,7 +219,7 @@ public static class AdministratorUtilitiesEndpoint
         });
 
         //##############################################################################################################
-        app.MapPost("/administrator/generate-report", async (DtoReport dates, EventOrganizerContext db) =>
+        app.MapPost("/api/administrator/generate-report", async (DtoReport dates, EventOrganizerContext db) =>
         {
             var reportData = await db.Categories
                 .Select(c => new

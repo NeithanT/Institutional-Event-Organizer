@@ -32,14 +32,14 @@ public static class AdministratorEventEndpoint
     public static void mapAdministratorEndpoints(WebApplication app)
     {
         //Just in case you guys need to get all the events (event the denied and canceled ones) for some reason
-        app.MapGet("/administrator/events/all", async (EventOrganizerContext db) =>
+        app.MapGet("/api/administrator/events/all", async (EventOrganizerContext db) =>
         {
             return Results.Ok(await db.Events.ToListAsync());
         });
         //##################################################################################################################
 
         //Gets all the available event (Approved and "pending") (Doesnt fetch the already denied and canceled ones)
-        app.MapGet("/administrator/events", async (EventOrganizerContext db) =>
+        app.MapGet("/api/administrator/events", async (EventOrganizerContext db) =>
         {
             var evs = await db.Events
             .Where(e => !db.CanceledEvents.Any(c => c.EventId == e.Id))
@@ -49,7 +49,7 @@ public static class AdministratorEventEndpoint
 
         //##################################################################################################################
         //Gets event summaries for content moderation
-        app.MapGet("/administrator/events/moderation", async (EventOrganizerContext db) =>
+        app.MapGet("/api/administrator/events/moderation", async (EventOrganizerContext db) =>
         {
             var evs = await db.Events
                 .Where(e => !db.CanceledEvents.Any(c => c.EventId == e.Id))
@@ -70,7 +70,7 @@ public static class AdministratorEventEndpoint
 
         //##################################################################################################################
         //Get single event full details for admin
-        app.MapGet("/administrator/events/{id}", async (int id, EventOrganizerContext db) =>
+        app.MapGet("/api/administrator/events/{id}", async (int id, EventOrganizerContext db) =>
         {
             var ev = await db.Events
                 .Include(e => e.Category)
@@ -101,7 +101,7 @@ public static class AdministratorEventEndpoint
         });
 
         //###################################################################################################################
-        app.MapGet("/administrator/events/pending", async (EventOrganizerContext db) =>
+        app.MapGet("/api/administrator/events/pending", async (EventOrganizerContext db) =>
         {
             var evs = await db.Events
                 .Where(e => e.ApprovedState == false)
@@ -123,7 +123,7 @@ public static class AdministratorEventEndpoint
         });
         //##################################################################################################################
 
-        app.MapPost("/administrator/announcements", async (DtoAnnoucement dto, IEmailService mailService, EventOrganizerContext db) =>
+        app.MapPost("/api/administrator/announcements", async (DtoAnnoucement dto, IEmailService mailService, EventOrganizerContext db) =>
         {
             var writer = dto.WriterId > 0
                 ? await db.Users.FindAsync(dto.WriterId)
@@ -162,7 +162,7 @@ public static class AdministratorEventEndpoint
         //##################################################################################################################
 
         //Changes the status of an event to approved = true
-        app.MapPost("/administrator/{id:int}/approve", async (int id, EventOrganizerContext db) =>
+        app.MapPost("/api/administrator/{id:int}/approve", async (int id, EventOrganizerContext db) =>
         {
 
             Event? eventToApprove = await db.Events.FindAsync(id);
@@ -177,30 +177,7 @@ public static class AdministratorEventEndpoint
         });
 
         //##################################################################################################################
-
-        //Changes the status of an event to approved = true
-        app.MapPost("/administrator/{id:int}/reject", async (int id, RejectEventDto rejectDto,EventOrganizerContext db) =>
-        {
-
-            Event? eventToReject = await db.Events.FindAsync(id);
-            if (eventToReject == null) return Results.NotFound("Event not found");
-            if (eventToReject.ApprovedState == true) return Results.BadRequest("Event has already been approved");
-            if (await db.CanceledEvents.AnyAsync(e => e.EventId == id)) return Results.BadRequest("Event already been canceled by organizer");
-
-
-            eventToReject.ApprovedState = false;
-            CanceledEvent canceledEvent = new CanceledEvent
-            {
-                EventId = id,
-                Reason = rejectDto.Reason,
-            };
-            await db.CanceledEvents.AddAsync(canceledEvent);
-            await db.SaveChangesAsync();
-            return Results.Ok("Event has been rejected successfully");
-        });
-
-        //##################################################################################################################
-        app.MapPut("/administrator/events/{id:int}", async (int id, [FromBody] DtoEditEvent editEventDto, EventOrganizerContext db) =>
+        app.MapPut("/api/administrator/events/{id:int}", async (int id, [FromBody] DtoEditEvent editEventDto, EventOrganizerContext db) =>
         {
             if (id != editEventDto.IdEvent) return Results.BadRequest("Route id does not match payload id");
 
@@ -245,7 +222,7 @@ public static class AdministratorEventEndpoint
 
         //##################################################################################################################
         //Changes the status of an event to approved = false and add it to the canceled table
-        app.MapPost("/administrator/{id:int}/deny", async (DtoDenyEvent dtoDeny, int id, EventOrganizerContext db) =>
+        app.MapPost("/api/administrator/{id:int}/deny", async (DtoDenyEvent dtoDeny, int id, EventOrganizerContext db) =>
         {
 
             Event? eventToDeny = await db.Events.FindAsync(id);

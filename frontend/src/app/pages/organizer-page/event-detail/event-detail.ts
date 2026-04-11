@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; 
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -57,7 +57,7 @@ export class EventDetail implements OnInit {
     private route: ActivatedRoute,
     private auth: Authentication,
     private cdr: ChangeDetectorRef,
-    private router: Router 
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -69,7 +69,7 @@ export class EventDetail implements OnInit {
 
   loadEvent() {
     this.http.get<any>(
-      `http://localhost:5053/organizer/my-events/${this.eventId}?organizerId=${this.organizerId}`
+      `/api/organizer/my-events/${this.eventId}?organizerId=${this.organizerId}`
     ).subscribe({
       next: (data) => {
         this.event = { ...data };
@@ -125,7 +125,7 @@ filterParticipants() {
 
     if (this.filterStatus === 'attended') {
       matchesStatus = user.attended === true;
-    } 
+    }
     else if (this.filterStatus === 'not-attended') {
       matchesStatus = user.attended === false;
     }
@@ -138,7 +138,7 @@ filterParticipants() {
 loadParticipants() {
 
   this.http.get<any[]>(
-    `http://localhost:5053/organizer/events/${this.eventId}/check-list`
+    `/api/organizer/events/${this.eventId}/check-list`
   ).subscribe({
     next: (data) => {
 
@@ -177,11 +177,11 @@ saveAttendance() {
   this.participants.forEach(user => {
     if (user.attended) {
       this.http.post(
-        `http://localhost:5053/organizer/events/${this.eventId}/check-list/${user.userId}`, {}
+        `/api/organizer/events/${this.eventId}/check-list/${user.userId}`, {}
       ).subscribe();
     } else {
       this.http.delete(
-        `http://localhost:5053/organizer/events/${this.eventId}/check-list/${user.userId}`
+        `/api/organizer/events/${this.eventId}/check-list/${user.userId}`
       ).subscribe();
     }
   });
@@ -224,7 +224,7 @@ sendNotice() {
   this.cdr.detectChanges();
 
   this.http.post(
-    `http://localhost:5053/organizer/events/${this.eventId}/notice`,
+    `/api/organizer/events/${this.eventId}/notice`,
     body
   ).subscribe({
     next: () => {
@@ -238,7 +238,7 @@ sendNotice() {
   });
 }
 
-  // CANCELAR 
+  // CANCELAR
   openCancelModal() {
     this.cancelReason = '';
     this.showCancelModal = true;
@@ -273,7 +273,7 @@ confirmCancelEvent() {
   });
 
   this.http.post(
-    `http://localhost:5053/organizer/events/${this.eventId}/cancel`,
+    `/api/organizer/events/${this.eventId}/cancel`,
     body
   ).subscribe({
     next: () => {
@@ -303,7 +303,7 @@ confirmCancelEvent() {
 
   deleteEvent() {
     this.http.delete(
-      `http://localhost:5053/organizer/events/${this.eventId}?organizerId=${this.organizerId}`
+      `/api/organizer/events/${this.eventId}?organizerId=${this.organizerId}`
     ).subscribe({
       next: () => {
         this.closeDeleteModal();

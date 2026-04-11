@@ -8,7 +8,7 @@ public static class OrganizerEntityEndpoint
 {
     public static void mapOrganizerEntityEndpoints(WebApplication app)
     {
-        app.MapGet("/organizer/get-entities", async (EventOrganizerContext db) =>
+        app.MapGet("/api/organizer/get-entities", async (EventOrganizerContext db) =>
         {
             var entities = await db.OrganizerEntities.Select(e => new
             {
