@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Authentication } from '../../../services/authentication';
+import { EventService } from '../../../services/event.service';
 import { Sidebar } from '../../../components/sidebar/sidebar';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -57,7 +58,8 @@ export class EventDetail implements OnInit {
     private route: ActivatedRoute,
     private auth: Authentication,
     private cdr: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
+    public eventService: EventService
   ) {}
 
   ngOnInit() {

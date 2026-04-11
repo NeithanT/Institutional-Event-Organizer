@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Sidebar } from '../../../components/sidebar/sidebar';
 import { Authentication } from '../../../services/authentication';
+import { EventService } from '../../../services/event.service';
 import { RouterModule } from '@angular/router';
 interface Event {
   id: number;
@@ -42,7 +43,8 @@ export class OrganizerDashboard implements OnInit {
   constructor(
     private http: HttpClient,
     private auth: Authentication,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    public eventService: EventService
   ) {}
 
   ngOnInit() {
