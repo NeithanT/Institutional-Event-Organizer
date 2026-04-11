@@ -78,7 +78,10 @@ if (app.Environment.IsDevelopment())
 app.UseRouting();
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    RequestPath = "/api"
+});
 
 app.UseExceptionHandler(errorApp =>
 {

@@ -246,7 +246,7 @@ export class ContentModerationAdmin implements OnInit {
       next: (full) => {
         this.modifiedEvent = {
           ...full,
-          eventDate: this.toDateInputValue(full.eventDate),
+          eventDate: this.toDateTimeInputValue(full.eventDate),
         };
         this.modifiedOrganizerUserId = full.organizerId;
         this.modifiedOrganizerEntityId = full.organizerEntityId;
