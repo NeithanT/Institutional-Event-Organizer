@@ -9,7 +9,9 @@ public static class StudentAnnouncementEndpoint
     public static void mapStudentAnnouncementEndpoints(this WebApplication app)
     {
         app.MapGet("/api/anuncios", GetAnnouncements);
+        app.MapGet("/anuncios", GetAnnouncements);
         app.MapGet("/api/anuncios/{id:int}", GetAnnouncementById);
+        app.MapGet("/anuncios/{id:int}", GetAnnouncementById);
     }
 
     private static async Task<IResult> GetAnnouncements(

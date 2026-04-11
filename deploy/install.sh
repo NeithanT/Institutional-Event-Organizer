@@ -57,10 +57,44 @@ fi
 
 echo "==> Bringing up docker-compose stack"
 cd "$REPO_ROOT/deploy"
+
 if command -v docker-compose >/dev/null 2>&1; then
-  sudo docker-compose up -d --build
+  COMPOSE_CMD=(sudo docker-compose)
 else
-  sudo docker compose up -d --build
+  COMPOSE_CMD=(sudo docker compose)
+fi
+
+"${COMPOSE_CMD[@]}" up -d --build
+
+echo "==> Verifying database schema in running container"
+DB_CONTAINER_ID=$("${COMPOSE_CMD[@]}" ps -q db)
+if [ -z "$DB_CONTAINER_ID" ]; then
+  echo "Could not find db container ID."
+  exit 1
+fi
+
+USER_TABLE_EXISTS=$(sudo docker exec "$DB_CONTAINER_ID" psql -U postgres -d EventOrganizer -tAc "SELECT to_regclass('public.\"User\"') IS NOT NULL;")
+if [ "$USER_TABLE_EXISTS" != "t" ]; then
+  echo "User table not found. Applying DB initialization scripts..."
+
+  for sql in \
+    /docker-entrypoint-initdb.d/00_initdb.sql \
+    /docker-entrypoint-initdb.d/01_create_users.sql \
+    /docker-entrypoint-initdb.d/02_create_events.sql \
+    /docker-entrypoint-initdb.d/03_migrate_user_columns.sql \
+    /docker-entrypoint-initdb.d/04_migrate_event_images.sql \
+    /docker-entrypoint-initdb.d/05_migrate_inscription_columns.sql \
+    /docker-entrypoint-initdb.d/06_create_inscriptions.sql \
+    /docker-entrypoint-initdb.d/07_create_attendance.sql \
+    /docker-entrypoint-initdb.d/08_migrate_announcement_columns.sql \
+    /docker-entrypoint-initdb.d/09_create_announcements.sql; do
+    sudo docker exec "$DB_CONTAINER_ID" psql -U postgres -d EventOrganizer -v ON_ERROR_STOP=1 -f "$sql"
+  done
+
+  echo "Schema initialization completed. Restarting API..."
+  "${COMPOSE_CMD[@]}" restart api
+else
+  echo "Database schema already present."
 fi
 
 echo "==> Deployment complete."

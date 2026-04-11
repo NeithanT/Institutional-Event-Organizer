@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { BACKEND_BASE } from './event.service';
 
 export interface AnnouncementSummaryDto {
   id: number;
@@ -22,7 +23,7 @@ export interface AnnouncementDetailDto {
 
 @Injectable({ providedIn: 'root' })
 export class AnnouncementService {
-  private base = '/api';
+  private base = BACKEND_BASE;
 
   constructor(private http: HttpClient) {}
 
