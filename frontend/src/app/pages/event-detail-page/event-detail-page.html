@@ -18,20 +18,47 @@
   <main class="detail-content">
     <div class="event-card">
 
-      <!-- Líneas del contenido -->
-      @for (line of getLines(ev.content); track $index) {
-        @if (line.trim() === '') {
-          <br />
-        } @else if (line.startsWith('•')) {
-          <p class="bullet">{{ line }}</p>
-        } @else if ($index === 0) {
-          <h2 class="event-main-title">{{ line }}</h2>
-        } @else {
-          <p class="event-text">{{ line }}</p>
-        }
-      }
+      <!-- Imagen del evento -->
+      <img [src]="ev.imagen" [alt]="ev.title" class="event-banner" />
 
-      <p class="organizer">{{ ev.organizer }}</p>
+      <!-- Badges -->
+      <div class="event-badges">
+        <span class="badge badge-categoria">{{ ev.category }}</span>
+        <span class="badge badge-modalidad">{{ ev.modality }}</span>
+      </div>
+
+      <!-- Descripción -->
+      <div class="event-description">
+        @for (line of getLines(ev.content); track $index) {
+          @if (line.trim() === '') {
+            <br />
+          } @else if (line.startsWith('•')) {
+            <p class="bullet">{{ line }}</p>
+          } @else {
+            <p class="event-text">{{ line }}</p>
+          }
+        }
+      </div>
+
+      <!-- Información del evento -->
+      <div class="event-meta">
+        <div class="meta-item">
+          <span class="meta-label">Lugar</span>
+          <span class="meta-value">{{ ev.place }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Fecha</span>
+          <span class="meta-value">{{ formatFecha(ev.fecha) }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Unidad organizadora</span>
+          <span class="meta-value">{{ ev.organizerEntity }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Organizador</span>
+          <span class="meta-value">{{ ev.organizer }}</span>
+        </div>
+      </div>
 
       <!-- Footer del card -->
       <div class="card-footer">

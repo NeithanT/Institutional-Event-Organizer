@@ -12,8 +12,13 @@ interface EventDetail {
   title: string;
   content: string;
   organizer: string;
+  organizerEntity: string;
+  place: string;
+  category: string;
+  modality: string;
   cupos: number;
   fecha: string;
+  imagen: string;
   isPast: boolean;
   isInscribed: boolean;
   isCanceled: boolean;
@@ -51,16 +56,21 @@ export class EventDetailPage implements OnInit {
     forkJoin([this.eventService.getEvent(this.eventId), inscriptions$]).subscribe({
       next: ([dto, inscriptions]) => {
         this.event.set({
-          id:          dto.id,
-          title:       dto.title,
-          content:     dto.eventDescription,
-          organizer:   dto.organizerName,
-          cupos:       dto.availableEntries,
-          fecha:       dto.eventDate,
-          isPast:      new Date(dto.eventDate) < new Date(),
-          isInscribed: inscriptions.some(i => i.eventId === dto.id),
-          isCanceled:  dto.isCanceled,
-          cancelReason: dto.cancelReason ?? null,
+          id:              dto.id,
+          title:           dto.title,
+          content:         dto.eventDescription,
+          organizer:       dto.organizerName,
+          organizerEntity: dto.organizerEntity,
+          place:           dto.place,
+          category:        dto.category,
+          modality:        dto.isVirtual ? 'Virtual' : 'Presencial',
+          cupos:           dto.availableEntries,
+          fecha:           dto.eventDate,
+          imagen:          this.eventService.imageUrl(dto.imageFileEvent),
+          isPast:          new Date(dto.eventDate) < new Date(),
+          isInscribed:     inscriptions.some(i => i.eventId === dto.id),
+          isCanceled:      dto.isCanceled,
+          cancelReason:    dto.cancelReason ?? null,
         });
       }
     });
@@ -84,5 +94,9 @@ export class EventDetailPage implements OnInit {
 
   getLines(content: string): string[] {
     return content.split('\n');
+  }
+
+  formatFecha(fecha: string): string {
+    return new Date(fecha).toLocaleDateString('es-CR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
 }
