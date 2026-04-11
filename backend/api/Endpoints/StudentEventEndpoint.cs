@@ -9,9 +9,7 @@ public static class StudentEventEndpoint
     public static void mapStudentEventEndpoints(this WebApplication app)
     {
         app.MapGet("/api/events", GetEvents);
-        app.MapGet("/events", GetEvents);
         app.MapGet("/api/events/{id:int}", GetEventById);
-        app.MapGet("/events/{id:int}", GetEventById);
     }
 
     private static async Task<IResult> GetEvents(

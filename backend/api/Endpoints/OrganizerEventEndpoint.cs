@@ -25,7 +25,7 @@ public static class EventEndpoint
     public static void mapOrganizerEventEndpoints(WebApplication app)
     {
         //Get all the events from the Events Table (Doesnt fetch the Canceled Events)
-        app.MapGet("organizer/my-events/all", async ([FromQuery] int organizerId, EventOrganizerContext db) =>
+        app.MapGet("/api/organizer/my-events/all", async ([FromQuery] int organizerId, EventOrganizerContext db) =>
         {
             var events = await db.Events
                         .Where(e => e.OrganizerId == organizerId)
@@ -37,7 +37,7 @@ public static class EventEndpoint
         //##################################################################################
 
         //Get all the events from the Events Table (Doesnt fetch the Canceled Events)
-        app.MapGet("organizer/my-events", async ([FromQuery] int organizerId, EventOrganizerContext db) =>
+        app.MapGet("/api/organizer/my-events", async ([FromQuery] int organizerId, EventOrganizerContext db) =>
         {
             var availableEvents = await db.Events
                                 .Include(a => a.CanceledEvent)
@@ -54,7 +54,7 @@ public static class EventEndpoint
         //##################################################################################
 
         //Gets the information for an specific event from the Events Table
-        app.MapGet("organizer/my-events/{id}", async ([FromQuery] int organizerId, [FromRoute] int id, EventOrganizerContext db) =>
+        app.MapGet("/api/organizer/my-events/{id}", async ([FromQuery] int organizerId, [FromRoute] int id, EventOrganizerContext db) =>
         {
             Event? ev = await db.Events.FindAsync(id);
             if (ev == null) return Results.NotFound("Event not found");
@@ -65,7 +65,7 @@ public static class EventEndpoint
 
         //##################################################################################
         //Creates an event on the Events Table
-        app.MapPost("organizer/events", async ([FromForm] DtoCreateEvent createEventDto, IWebHostEnvironment env, EventOrganizerContext db) =>
+        app.MapPost("/api/organizer/events", async ([FromForm] DtoCreateEvent createEventDto, IWebHostEnvironment env, EventOrganizerContext db) =>
             {
                 string imagePath = "/Images/default.jpg";
 
@@ -112,11 +112,11 @@ public static class EventEndpoint
                 await db.Events.AddAsync(ev);
                 await db.SaveChangesAsync();
 
-                return Results.Created($"/events/{ev.Id}", ev);
+                return Results.Created($"/api/organizer/events/{ev.Id}", ev);
             }).DisableAntiforgery();
 
 
-        app.MapPut("organizer/events", async (DtoEditEvent editEventDto, EventOrganizerContext db) =>
+        app.MapPut("/api/organizer/events", async (DtoEditEvent editEventDto, EventOrganizerContext db) =>
         {
 
             Event? ev = await db.Events.FindAsync(editEventDto.IdEvent);
@@ -140,7 +140,7 @@ public static class EventEndpoint
 
         //##################################################################################
         //Cancels an event on the Events Table
-        app.MapPost("organizer/events/{id:int}/cancel", async (
+        app.MapPost("/api/organizer/events/{id:int}/cancel", async (
             [FromRoute] int id,
             [FromBody] DtoCanceledEvent dto,
             [FromServices] IEmailService mailService,
@@ -192,7 +192,7 @@ public static class EventEndpoint
             });
 
         //##################################################################################
-        app.MapPost("organizer/events/{id:int}/notice", async (
+        app.MapPost("/api/organizer/events/{id:int}/notice", async (
         [FromRoute] int id,
         [FromBody] DtoAnnoucement noticeData,
         [FromServices] IEmailService mailService,
@@ -233,7 +233,7 @@ public static class EventEndpoint
 
         //##################################################################################
         //Deletes an event from the Events Table
-        app.MapDelete("organizer/events/{id}", async (
+        app.MapDelete("/api/organizer/events/{id}", async (
             [FromRoute] int id,
             [FromQuery] int organizerId,
             [FromServices] EventOrganizerContext db) =>

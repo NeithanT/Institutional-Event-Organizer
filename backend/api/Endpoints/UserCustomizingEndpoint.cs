@@ -11,9 +11,9 @@ public static class UserCustomizingEndpoint
 {
     public static void mapUserCustomizingEndpoints(this WebApplication app)
     {
-        app.MapGet("/user/{id:int}", GetUserAsync);
-        app.MapPut("/user/customize/{id:int}", UpdateUserCustomizationAsync);
-        app.MapPost("/user/{id:int}/photo", UploadUserPhotoAsync).DisableAntiforgery();
+        app.MapGet("/api/user/{id:int}", GetUserAsync);
+        app.MapPut("/api/user/customize/{id:int}", UpdateUserCustomizationAsync);
+        app.MapPost("/api/user/{id:int}/photo", UploadUserPhotoAsync).DisableAntiforgery();
     }
 
     private static async Task<IResult> GetUserAsync(int id, EventOrganizerContext db)

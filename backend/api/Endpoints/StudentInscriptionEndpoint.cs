@@ -8,11 +8,8 @@ public static class StudentInscriptionEndpoint
     public static void mapStudentInscriptionEndpoints(this WebApplication app)
     {
         app.MapGet("/api/inscripciones", GetUserInscriptions);
-        app.MapGet("/inscripciones", GetUserInscriptions);
         app.MapPost("/api/inscripciones", CreateInscription);
-        app.MapPost("/inscripciones", CreateInscription);
         app.MapDelete("/api/inscripciones/{eventId:int}", DeleteInscription);
-        app.MapDelete("/inscripciones/{eventId:int}", DeleteInscription);
     }
 
     private static async Task<IResult> GetUserInscriptions(

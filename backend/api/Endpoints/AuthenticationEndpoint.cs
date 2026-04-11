@@ -78,7 +78,7 @@ public static class AuthenticationEndpoint
     //######################################################################################################
     public static void mapAuthenticationEndpoints(WebApplication app)
     {
-        app.MapPost("/user/auth", async (DtoAuthentication auth, EventOrganizerContext db, ILoggerFactory loggerFactory) =>
+        app.MapPost("/api/user/auth", async (DtoAuthentication auth, EventOrganizerContext db, ILoggerFactory loggerFactory) =>
         {
 
             var logger = loggerFactory.CreateLogger("AuthenticationEndpoint");
@@ -127,7 +127,7 @@ public static class AuthenticationEndpoint
         });
 
         //######################################################################################################
-        app.MapPost("/user/register", async (DtoRegisterUser register, EventOrganizerContext db) =>
+        app.MapPost("/api/user/register", async (DtoRegisterUser register, EventOrganizerContext db) =>
         {
 
             string name = register.Name?.Trim() ?? string.Empty;
@@ -178,7 +178,7 @@ public static class AuthenticationEndpoint
                 return Results.Problem($"Error agregando al usuario: {ex.Message}", statusCode: 500);
             }
 
-            return Results.Created($"/student/{user.Id}", new
+            return Results.Created($"/api/user/{user.Id}", new
             {
                 user.Id,
                 user.UserName,

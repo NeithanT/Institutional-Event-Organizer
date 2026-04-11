@@ -8,7 +8,7 @@ public static class OrganizerCategoriesEndpoint
 {
     public static void mapOrganizerCategoriesEndpoint(WebApplication app)
     {
-        app.MapGet("/organizer/get-events-categories", async (EventOrganizerContext db) =>
+        app.MapGet("/api/organizer/get-events-categories", async (EventOrganizerContext db) =>
         {
             var categories = await db.Categories
             .Select(c => new
