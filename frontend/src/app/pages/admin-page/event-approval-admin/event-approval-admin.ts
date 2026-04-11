@@ -48,7 +48,7 @@ export class EventApprovalAdmin implements OnInit {
 
   openDetail(event: PendingEvent) {
 
-    this.http.get<any>(`http://localhost:5053/administrator/events/${event.id}`)
+    this.http.get<any>(`/api/administrator/events/${event.id}`)
       .subscribe({
         next: (dto) => {
           this.selectedEvent = {
@@ -115,7 +115,7 @@ export class EventApprovalAdmin implements OnInit {
       return;
     }
 
-    this.http.post(`http://localhost:5053/administrator/${eventId}/reject`, { Reason: this.rejectReason })
+    this.http.post(`/api/administrator/${eventId}/deny`, { Reason: this.rejectReason })
       .subscribe({
         next: () => {
           // Reset rejection state, close detail, refresh list and run change detection
