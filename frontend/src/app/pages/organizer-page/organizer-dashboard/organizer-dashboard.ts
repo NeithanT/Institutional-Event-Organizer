@@ -1,8 +1,9 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; 
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Sidebar } from '../../../components/sidebar/sidebar';
 import { Authentication } from '../../../services/authentication';
+import { EventService } from '../../../services/event.service';
 import { RouterModule } from '@angular/router';
 interface Event {
   id: number;
@@ -42,7 +43,8 @@ export class OrganizerDashboard implements OnInit {
   constructor(
     private http: HttpClient,
     private auth: Authentication,
-    private cdr: ChangeDetectorRef   
+    private cdr: ChangeDetectorRef,
+    public eventService: EventService
   ) {}
 
   ngOnInit() {
@@ -58,14 +60,14 @@ export class OrganizerDashboard implements OnInit {
 
   loadEvents() {
     this.http.get<Event[]>(
-      `http://localhost:5053/organizer/my-events?organizerId=${this.organizerId}`
+      `/api/organizer/my-events?organizerId=${this.organizerId}`
     )
     .subscribe({
       next: (data) => {
-        this.events = [...data];    
+        this.events = [...data];
         this.calculateStats();
-        this.updatePagination();  
-        this.cdr.detectChanges();  
+        this.updatePagination();
+        this.cdr.detectChanges();
       },
       error: (err) => console.error("Error cargando eventos:", err)
     });

@@ -51,7 +51,7 @@ export class AnnouncementSystemAdmin {
       body: this.form.content,
     };
 
-    this.http.post('http://localhost:5053/administrator/announcements', payload)
+      this.http.post('/api/administrator/announcements', payload)
       .subscribe({
         next: () => {
           this.form = { title: '', about: '', content: '' };

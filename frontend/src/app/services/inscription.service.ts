@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { BACKEND_BASE } from './event.service';
 
 export interface InscriptionSummaryDto {
   eventId: number;
@@ -16,7 +17,7 @@ export interface InscriptionSummaryDto {
 
 @Injectable({ providedIn: 'root' })
 export class InscriptionService {
-  private base = 'http://localhost:5053/api';
+  private base = BACKEND_BASE;
 
   constructor(private http: HttpClient) {}
 

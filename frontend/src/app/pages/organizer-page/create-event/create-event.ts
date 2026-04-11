@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; 
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -67,16 +67,16 @@ export class CreateEvent implements OnInit {
     this.modalTitle = title;
     this.modalMessage = message;
     this.showModal = true;
-    this.cdr.detectChanges(); 
+    this.cdr.detectChanges();
   }
 
   closeModal() {
     this.showModal = false;
-    this.cdr.detectChanges(); 
+    this.cdr.detectChanges();
   }
 
   loadOrganizerEntities() {
-    this.http.get<OrganizerEntity[]>('http://localhost:5053/organizer/get-entities')
+    this.http.get<OrganizerEntity[]>('/api/organizer/get-entities')
       .subscribe({
         next: (data) => { this.organizerEntities = data; },
         error: () => { this.openModal(false, '¡Error!', 'No se pudieron cargar las unidades organizadoras'); }
@@ -84,7 +84,7 @@ export class CreateEvent implements OnInit {
   }
 
   loadCategories() {
-    this.http.get<Category[]>('http://localhost:5053/organizer/get-events-categories')
+    this.http.get<Category[]>('/api/organizer/get-events-categories')
       .subscribe({
         next: (data) => { this.categories = data; },
         error: () => { this.openModal(false, '¡Error!', 'No se pudieron cargar las categorías'); }
@@ -144,7 +144,7 @@ export class CreateEvent implements OnInit {
     formData.append('OrganizerEntityId', this.organizerEntityId.toString());
     if (this.selectedFile) formData.append('ImageFileEvent', this.selectedFile);
 
-    this.http.post('http://localhost:5053/organizer/events', formData)
+    this.http.post('/api/organizer/events', formData)
       .subscribe({
         next: () => {
           this.openModal(true, '¡Éxito!', 'El evento fue creado correctamente y está pendiente de aprobación');

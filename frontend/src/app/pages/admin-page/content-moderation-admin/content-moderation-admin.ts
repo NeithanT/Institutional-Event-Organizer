@@ -193,11 +193,9 @@ export class ContentModerationAdmin implements OnInit {
     this.errorMessage = '';
     this.isLoading = true;
 
-    this.http
-      .get<ModerationEventRow[]>('http://localhost:5053/administrator/events/moderation')
-      .subscribe({
-        next: (data) => {
-          this.events = data ?? [];
+    this.http.get<ModerationEventRow[]>('/api/administrator/events/moderation').subscribe({
+      next: (data) => {
+        this.events = data ?? [];
 
           if (this.currentPage > this.totalPages) {
             this.currentPage = this.totalPages;
@@ -221,7 +219,7 @@ export class ContentModerationAdmin implements OnInit {
     this.errorMessage = '';
 
     this.http
-      .post(`http://localhost:5053/administrator/${eventId}/deny`, {
+      .post(`/api/administrator/${eventId}/deny`, {
         reason: 'El evento fue removido por moderación.',
       })
       .subscribe({
@@ -244,46 +242,39 @@ export class ContentModerationAdmin implements OnInit {
   modifyEvent(event: ModerationEventRow): void {
     this.errorMessage = '';
 
-    this.http
-      .get<EditEventDto>(`http://localhost:5053/administrator/events/${event.id}`)
-      .subscribe({
-        next: (full) => {
-          this.modifiedEvent = {
-            ...full,
-            eventDate: this.toDateTimeInputValue(full.eventDate),
-          };
-          this.modifiedOrganizerUserId = full.organizerId;
-          this.modifiedOrganizerEntityId = full.organizerEntityId;
-          this.modifiedCategoryId = full.categoryId;
-          this.modifying = true;
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          this.errorMessage = this.getErrorMessage(
-            err,
-            'No se pudo cargar el evento completo para editar.',
-          );
-          this.cdr.detectChanges();
-        },
-      });
+    this.http.get<EditEventDto>(`/api/administrator/events/${event.id}`).subscribe({
+      next: (full) => {
+        this.modifiedEvent = {
+          ...full,
+          eventDate: this.toDateTimeInputValue(full.eventDate),
+        };
+        this.modifiedOrganizerUserId = full.organizerId;
+        this.modifiedOrganizerEntityId = full.organizerEntityId;
+        this.modifiedCategoryId = full.categoryId;
+        this.modifying = true;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.errorMessage = this.getErrorMessage(err, 'No se pudo cargar el evento completo para editar.');
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   loadCategories(): void {
-    this.http
-      .get<CategoryOption[]>('http://localhost:5053/organizer/get-events-categories')
-      .subscribe({
-        next: (data) => {
-          this.categories = data ?? [];
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          console.error('Error loading categories', err);
-        },
-      });
+    this.http.get<CategoryOption[]>('/api/organizer/get-events-categories').subscribe({
+      next: (data) => {
+        this.categories = data ?? [];
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error loading categories', err);
+      },
+    });
   }
 
   loadOrganizers(): void {
-    this.http.get<OrganizerOption[]>('http://localhost:5053/organizer/get-entities').subscribe({
+    this.http.get<OrganizerOption[]>('/api/organizer/get-entities').subscribe({
       next: (data) => {
         this.organizers = data ?? [];
         this.cdr.detectChanges();
@@ -349,29 +340,23 @@ export class ContentModerationAdmin implements OnInit {
       eventDate: eventDate.toISOString(),
     };
 
-    this.http
-      .put(`http://localhost:5053/administrator/events/${payload.idEvent}`, payload)
-      .subscribe({
-        next: () => {
-          const idx = this.events.findIndex((event) => event.id === payload.idEvent);
-          if (idx !== -1) {
-            const organizerName = this.organizers.find(
-              (organizer) => organizer.id === payload.organizerEntityId,
-            )?.entityName;
-            const categoryName = this.categories.find(
-              (category) => category.id === payload.categoryId,
-            )?.nameCategory;
+    this.http.put(`/api/administrator/events/${payload.idEvent}`, payload).subscribe({
+      next: () => {
+        const idx = this.events.findIndex((event) => event.id === payload.idEvent);
+        if (idx !== -1) {
+          const organizerName = this.organizers.find((organizer) => organizer.id === payload.organizerEntityId)?.entityName;
+          const categoryName = this.categories.find((category) => category.id === payload.categoryId)?.nameCategory;
 
-            this.events[idx] = {
-              ...this.events[idx],
-              title,
-              date: eventDate.toISOString(),
-              location: place,
-              category: categoryName ?? this.events[idx].category,
-              organizer: organizerName ?? this.events[idx].organizer,
-              approved: payload.approvedState,
-            };
-          }
+          this.events[idx] = {
+            ...this.events[idx],
+            title,
+            date: this.modifiedEvent.eventDate,
+            location: place,
+            category: categoryName ?? this.events[idx].category,
+            organizer: organizerName ?? this.events[idx].organizer,
+            approved: payload.approvedState,
+          };
+        }
 
           this.cancelModify();
           this.openModal(true, '¡Éxito!', 'El evento fue modificado correctamente.');

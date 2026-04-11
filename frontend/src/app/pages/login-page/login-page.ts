@@ -58,7 +58,7 @@ export class LoginPage {
     this.loginError = '';
 
     try {
-      const response = await fetch('http://localhost:5053/user/auth', {
+      const response = await fetch('/api/user/auth', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -117,7 +117,7 @@ export class LoginPage {
     };
 
     try {
-      const response = await fetch('http://localhost:5053/user/register', {
+      const response = await fetch('/api/user/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

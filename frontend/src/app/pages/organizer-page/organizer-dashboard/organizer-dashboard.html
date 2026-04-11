@@ -40,10 +40,8 @@
      class="event-card d-flex align-items-center mb-4 p-4 w-100">
 
         <!-- IMAGEN -->
-        <img 
-          [src]="event.imageFileEvent 
-            ? 'http://localhost:5053' + event.imageFileEvent 
-            : 'assets/default.jpg'" 
+        <img
+          [src]="eventService.imageUrl(event.imageFileEvent)"
           class="event-img">
 
         <!-- INFO -->
@@ -54,24 +52,24 @@
         <!-- ESTADO -->
         <div class="text-end">
 
-          <span *ngIf="getEventStatus(event) === 'pending'" 
+          <span *ngIf="getEventStatus(event) === 'pending'"
                 class="badge bg-warning mb-2 d-flex align-items-center justify-content-center">
             Pendiente
           </span>
 
-          <span *ngIf="getEventStatus(event) === 'approved'" 
+          <span *ngIf="getEventStatus(event) === 'approved'"
                 class="badge bg-success mb-2 d-flex align-items-center justify-content-center">
             Aprobado
           </span>
 
-          <span *ngIf="getEventStatus(event) === 'finished'" 
+          <span *ngIf="getEventStatus(event) === 'finished'"
                 class="badge bg-primary mb-2 d-flex align-items-center justify-content-center">
             Concluido
           </span>
 
           <br>
           <!-- BOTÓN -->
-          <button 
+          <button
             class="btn btn-dark btn-sm mt-4"
             [routerLink]="['/detail-event', event.id]">
             Ver más

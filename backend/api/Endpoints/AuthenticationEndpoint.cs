@@ -79,8 +79,10 @@ public static class AuthenticationEndpoint
     //######################################################################################################
     public static void mapAuthenticationEndpoints(WebApplication app)
     {
-        app.MapPost("/user/auth", async (DtoAuthentication auth, EventOrganizerContext db) =>
+        app.MapPost("/api/user/auth", async (DtoAuthentication auth, EventOrganizerContext db, ILoggerFactory loggerFactory) =>
         {
+
+            var logger = loggerFactory.CreateLogger("AuthenticationEndpoint");
 
             var email = auth.Email?.Trim() ?? string.Empty;
             var password = auth.Password?.Trim() ?? string.Empty;
@@ -118,14 +120,15 @@ public static class AuthenticationEndpoint
                     RoleName = role.RolName
                 });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                logger.LogError(ex, "Error during authentication for email {Email}", email);
                 return Results.Problem(detail: "Error durante autenticación", statusCode: 500);
             }
         });
 
         //######################################################################################################
-        app.MapPost("/user/register", async (DtoRegisterUser register, IEmailService mailService, EventOrganizerContext db) =>
+        app.MapPost("api/user/register", async (DtoRegisterUser register, IEmailService mailService,EventOrganizerContext db) =>
         {
 
             string name = register.Name?.Trim() ?? string.Empty;
@@ -191,7 +194,7 @@ public static class AuthenticationEndpoint
                 return Results.Problem($"Error agregando al usuario: {ex.Message}", statusCode: 500);
             }
 
-            return Results.Created($"/student/{user.Id}", new
+            return Results.Created($"/api/user/{user.Id}", new
             {
                 user.Id,
                 user.UserName,
