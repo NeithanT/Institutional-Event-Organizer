@@ -64,7 +64,8 @@ public class InscriptionService : IInscriptionService
         var inscription = new Inscription
         {
             EventId = dto.EventId,
-            UserId = dto.UserId
+            UserId = dto.UserId,
+            InscriptionDate = DateTime.Now
         };
 
         ev.AvalaibleEntries -= 1;
@@ -78,14 +79,15 @@ public class InscriptionService : IInscriptionService
             if (user is not null)
             {
                 var eventDate = ev.EventDate.ToString("dd 'de' MMMM 'de' yyyy, HH:mm", new System.Globalization.CultureInfo("es-CR"));
+                var inscriptionDate = inscription.InscriptionDate.ToString("dd 'de' MMMM 'de' yyyy, HH:mm", new System.Globalization.CultureInfo("es-CR"));
                 await _mailService.SendEmailAsync(
                     user.Email,
                     $"Confirmación de inscripción: {ev.Title}",
-                    $"Hola {user.UserName},\n\n" +
-                    $"Te has inscrito exitosamente al evento \"{ev.Title}\".\n\n" +
-                    $"Fecha: {eventDate}\n" +
-                    $"Lugar: {ev.Place}\n\n" +
-                    $"¡Te esperamos!"
+                    $"<p>Hola {user.UserName},</p>" +
+                    $"<p>Te has inscrito exitosamente al evento <strong>{ev.Title}</strong>.</p>" +
+                    "<p><strong>Detalle de la inscripción:</strong></p>" +
+                    $"<ul><li>Fecha de inscripción: {inscriptionDate}</li><li>Fecha del evento: {eventDate}</li><li>Lugar: {ev.Place}</li><li>ID del evento: {ev.Id}</li></ul>" +
+                    "<p>¡Te esperamos!</p>"
                 );
             }
         }

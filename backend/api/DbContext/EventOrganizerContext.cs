@@ -25,9 +25,13 @@ public partial class EventOrganizerContext : DbContext
 
     public virtual DbSet<Event> Events { get; set; }
 
+    public virtual DbSet<EventReminderLog> EventReminderLogs { get; set; }
+
     public virtual DbSet<Inscription> Inscriptions { get; set; }
 
     public virtual DbSet<Mail> Mail { get; set; }
+
+    public virtual DbSet<ModerationActionLog> ModerationActionLogs { get; set; }
 
     public virtual DbSet<OrganizerEntity> OrganizerEntities { get; set; }
 
@@ -145,6 +149,32 @@ public partial class EventOrganizerContext : DbContext
                 .HasConstraintName("FK_Event_Organizer");
         });
 
+        modelBuilder.Entity<EventReminderLog>(entity =>
+        {
+            entity.ToTable("EventReminderLog");
+
+            entity.HasIndex(e => new { e.EventId, e.UserId, e.ReminderType }, "UQ_EventReminderLog_Event_User_Type")
+                .IsUnique();
+
+            entity.Property(e => e.ReminderType)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+
+            entity.Property(e => e.SentAt).HasColumnType("timestamp without time zone");
+
+            entity.HasOne(d => d.Event)
+                .WithMany()
+                .HasForeignKey(d => d.EventId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_EventReminderLog_Event");
+
+            entity.HasOne(d => d.User)
+                .WithMany()
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_EventReminderLog_User");
+        });
+
         modelBuilder.Entity<Inscription>(entity =>
         {
             entity.HasIndex(e => new { e.EventId, e.UserId }, "UQ_Inscriptions_Event_User").IsUnique();
@@ -181,6 +211,33 @@ public partial class EventOrganizerContext : DbContext
                 .HasForeignKey(d => d.WriterId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Mail_User");
+        });
+
+        modelBuilder.Entity<ModerationActionLog>(entity =>
+        {
+            entity.ToTable("ModerationActionLog");
+
+            entity.Property(e => e.Action)
+                .HasMaxLength(30)
+                .IsUnicode(false);
+
+            entity.Property(e => e.Reason)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+
+            entity.Property(e => e.ActionDate).HasColumnType("timestamp without time zone");
+
+            entity.HasOne(d => d.Event)
+                .WithMany()
+                .HasForeignKey(d => d.EventId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ModerationActionLog_Event");
+
+            entity.HasOne(d => d.ModeratorUser)
+                .WithMany()
+                .HasForeignKey(d => d.ModeratorUserId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_ModerationActionLog_User");
         });
 
         modelBuilder.Entity<OrganizerEntity>(entity =>

@@ -11,6 +11,11 @@ namespace api.Endpoints;
 
 public static class EventEndpoint
 {
+    private static async Task<bool> IsActiveUser(EventOrganizerContext db, int userId)
+    {
+        return await db.Users.AnyAsync(u => u.Id == userId && u.Active);
+    }
+
     private static bool IsValidData(DtoEditEvent d)
     {
         return !(
@@ -27,6 +32,9 @@ public static class EventEndpoint
         //Get all the events from the Events Table (Doesnt fetch the Canceled Events)
         app.MapGet("/api/organizer/my-events/all", async ([FromQuery] int organizerId, EventOrganizerContext db) =>
         {
+            if (!await IsActiveUser(db, organizerId))
+                return Results.BadRequest("Organizer is inactive");
+
             var events = await db.Events
                         .Where(e => e.OrganizerId == organizerId)
                         .ToListAsync();
@@ -39,6 +47,9 @@ public static class EventEndpoint
         //Get all the events from the Events Table (Doesnt fetch the Canceled Events)
         app.MapGet("/api/organizer/my-events", async ([FromQuery] int organizerId, EventOrganizerContext db) =>
         {
+            if (!await IsActiveUser(db, organizerId))
+                return Results.BadRequest("Organizer is inactive");
+
             var availableEvents = await db.Events
                                 .Include(a => a.CanceledEvent)
                                 .Where(ev =>
@@ -56,6 +67,9 @@ public static class EventEndpoint
         //Gets the information for an specific event from the Events Table
         app.MapGet("/api/organizer/my-events/{id}", async ([FromQuery] int organizerId, [FromRoute] int id, EventOrganizerContext db) =>
         {
+            if (!await IsActiveUser(db, organizerId))
+                return Results.BadRequest("Organizer is inactive");
+
             Event? ev = await db.Events.FindAsync(id);
             if (ev == null) return Results.NotFound("Event not found");
             if (ev.OrganizerId != organizerId) return Results.Unauthorized();
@@ -67,7 +81,10 @@ public static class EventEndpoint
         //Creates an event on the Events Table
         app.MapPost("/api/organizer/events", async ([FromForm] DtoCreateEvent createEventDto, IWebHostEnvironment env, EventOrganizerContext db) =>
             {
+                if (!await IsActiveUser(db, createEventDto.OrganizerId))
+                    return Results.BadRequest("Organizer is inactive");
                 string imagePath = "/images/default.jpg";
+
 
 
                 if (createEventDto.ImageFileEvent != null
@@ -116,8 +133,11 @@ public static class EventEndpoint
             }).DisableAntiforgery();
 
 
-        app.MapPut("/api/organizer/events", async (DtoEditEvent editEventDto, EventOrganizerContext db) =>
+        app.MapPut("/api/organizer/events", async (DtoEditEvent editEventDto, IEmailService mailService, EventOrganizerContext db) =>
         {
+
+            if (!await IsActiveUser(db, editEventDto.OrganizerId))
+                return Results.BadRequest("Organizer is inactive");
 
             Event? ev = await db.Events.FindAsync(editEventDto.IdEvent);
             if (ev == null) return Results.NotFound("Event not found to update");
@@ -126,13 +146,51 @@ public static class EventEndpoint
 
             if (!IsValidData(editEventDto)) return Results.BadRequest("Invalid data to update");
 
+            var previousDate = ev.EventDate;
+            var previousPlace = ev.Place;
+            var hasDateChanged = previousDate != editEventDto.EventDate;
+            var hasPlaceChanged = !string.Equals(previousPlace?.Trim(), editEventDto.Place?.Trim(), StringComparison.Ordinal);
+            var hasDateOrPlaceChanged = hasDateChanged || hasPlaceChanged;
+
             ev.Title = editEventDto.Title;
             ev.EventDescription = editEventDto.EventDescription;
             ev.EventDate = editEventDto.EventDate;
-            ev.Place = editEventDto.Place;
+            ev.Place = editEventDto.Place ?? string.Empty;
             ev.IsVirtual = editEventDto.IsVirtual;
 
             await db.SaveChangesAsync();
+
+            if (hasDateOrPlaceChanged)
+            {
+                var enrolledUsers = await db.Inscriptions
+                    .Where(ins => ins.EventId == ev.Id)
+                    .Where(ins => ins.User.Active)
+                    .Select(ins => ins.User)
+                    .ToListAsync();
+
+                var oldDate = previousDate.ToString("dd 'de' MMMM 'de' yyyy, HH:mm", new System.Globalization.CultureInfo("es-CR"));
+                var newDate = ev.EventDate.ToString("dd 'de' MMMM 'de' yyyy, HH:mm", new System.Globalization.CultureInfo("es-CR"));
+
+                var mailTasks = enrolledUsers.Select(user =>
+                    mailService.SendEmailAsync(
+                        user.Email,
+                        $"Actualización de evento inscrito: {ev.Title}",
+                        $"<p>Hola {user.UserName},</p>" +
+                        $"<p>El evento <strong>{ev.Title}</strong> tuvo cambios en fecha, hora o lugar.</p>" +
+                        "<p><strong>Detalle del cambio:</strong></p>" +
+                        $"<ul><li>Fecha/hora anterior: {oldDate}</li><li>Fecha/hora nueva: {newDate}</li><li>Lugar anterior: {previousPlace}</li><li>Lugar nuevo: {ev.Place}</li></ul>"
+                    )
+                );
+
+                try
+                {
+                    await Task.WhenAll(mailTasks);
+                }
+                catch
+                {
+                    // El email es best-effort; no cancela la edición del evento.
+                }
+            }
 
             return Results.Ok($"Event updated succesfully");
         });
@@ -148,6 +206,9 @@ public static class EventEndpoint
            ) =>
 
             {
+                if (!await IsActiveUser(db, dto.OrganizerId))
+                    return Results.BadRequest("Organizer is inactive");
+
                 //Basic validations
                 Event? ev = await db.Events.FindAsync(id);
 
@@ -200,6 +261,9 @@ public static class EventEndpoint
         ) =>
 
         {
+            if (!await IsActiveUser(db, noticeData.WriterId))
+                return Results.BadRequest("Organizer is inactive");
+
             Event? ev = await db.Events.FindAsync(id);
             if (ev == null) return Results.NotFound();
             if (ev.OrganizerId != noticeData.WriterId)
@@ -238,6 +302,9 @@ public static class EventEndpoint
             [FromQuery] int organizerId,
             [FromServices] EventOrganizerContext db) =>
         {
+            if (!await IsActiveUser(db, organizerId))
+                return Results.BadRequest("Organizer is inactive");
+
             Event? ev = await db.Events.FindAsync(id);
             if (ev == null) return Results.NotFound();
             if (ev.OrganizerId != organizerId) return Results.Unauthorized();

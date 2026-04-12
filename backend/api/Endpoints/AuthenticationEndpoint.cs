@@ -2,6 +2,7 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using api.DTOs;
+using api.Interfaces;
 using api.Models;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -127,7 +128,7 @@ public static class AuthenticationEndpoint
         });
 
         //######################################################################################################
-        app.MapPost("/api/user/register", async (DtoRegisterUser register, EventOrganizerContext db) =>
+        app.MapPost("api/user/register", async (DtoRegisterUser register, IEmailService mailService,EventOrganizerContext db) =>
         {
 
             string name = register.Name?.Trim() ?? string.Empty;
@@ -172,6 +173,21 @@ public static class AuthenticationEndpoint
             {
                 await db.Users.AddAsync(user);
                 await db.SaveChangesAsync();
+
+                try
+                {
+                    await mailService.SendEmailAsync(
+                        user.Email,
+                        "Bienvenido a Institutional Event Organizer",
+                        $"<p>Hola {user.UserName},</p>" +
+                        "<p>Tu cuenta fue creada correctamente.</p>" +
+                        "<p><strong>Resumen de tus datos:</strong></p>" +
+                        $"<ul><li>Correo: {user.Email}</li><li>Carné: {user.IdCard}</li><li>Rol inicial: Student</li><li>Idioma preferido: {user.PreferredLanguage ?? "No especificado"}</li></ul>" +
+                        "<p><strong>Políticas de uso:</strong></p>" +
+                        "<ul><li>Usa únicamente correo institucional válido.</li><li>No publiques contenido ofensivo o fraudulento.</li><li>Respeta fechas, cupos y lineamientos de cada evento.</li><li>El uso indebido puede implicar desactivación de cuenta.</li></ul>"
+                    );
+                }
+                catch { /* El email es best-effort; no cancela el registro */ }
             }
             catch (Exception ex)
             {

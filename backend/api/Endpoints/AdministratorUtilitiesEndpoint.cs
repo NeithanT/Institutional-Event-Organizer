@@ -234,8 +234,12 @@ public static class AdministratorUtilitiesEndpoint
                     Category = x.Category,
                     EventsCount = x.FilteredEvents.Count(),
                     TotalAttendees = x.FilteredEvents.SelectMany(e => e.Attendances).Count(),
-                    Average = x.FilteredEvents.Any()
+                    TotalCapacity = x.FilteredEvents.Sum(e => e.AvalaibleEntries + e.Inscriptions.Count()),
+                    AverageAttendees = x.FilteredEvents.Any()
                               ? (double)x.FilteredEvents.SelectMany(e => e.Attendances).Count() / x.FilteredEvents.Count()
+                              : 0,
+                    OccupancyPercentage = x.FilteredEvents.Sum(e => e.AvalaibleEntries + e.Inscriptions.Count()) > 0
+                              ? (double)x.FilteredEvents.SelectMany(e => e.Attendances).Count() * 100.0 / x.FilteredEvents.Sum(e => e.AvalaibleEntries + e.Inscriptions.Count())
                               : 0
                 })
                 .OrderByDescending(x => x.TotalAttendees)
@@ -259,6 +263,7 @@ public static class AdministratorUtilitiesEndpoint
                             columns.RelativeColumn(1); // Eventos
                             columns.RelativeColumn(2); // Total
                             columns.RelativeColumn(2); // Promedio
+                            columns.RelativeColumn(2); // Ocupación
                         });
 
                         table.Header(header =>
@@ -267,7 +272,8 @@ public static class AdministratorUtilitiesEndpoint
                             header.Cell().Element(Style).Text("Categoría").SemiBold();
                             header.Cell().Element(Style).AlignRight().Text("Eventos").SemiBold();
                             header.Cell().Element(Style).AlignRight().Text("Total").SemiBold();
-                            header.Cell().Element(Style).AlignRight().Text("Promedio").SemiBold();
+                            header.Cell().Element(Style).AlignRight().Text("Promedio Asist.").SemiBold();
+                            header.Cell().Element(Style).AlignRight().Text("% Ocupación").SemiBold();
                         });
 
                         foreach (var item in reportData)
@@ -277,7 +283,8 @@ public static class AdministratorUtilitiesEndpoint
                             table.Cell().Element(CellStyle).Text(item.Category);
                             table.Cell().Element(CellStyle).AlignRight().Text(item.EventsCount.ToString());
                             table.Cell().Element(CellStyle).AlignRight().Text(item.TotalAttendees.ToString("N0"));
-                            table.Cell().Element(CellStyle).AlignRight().Text(item.Average.ToString("F2"));
+                            table.Cell().Element(CellStyle).AlignRight().Text(item.AverageAttendees.ToString("F2"));
+                            table.Cell().Element(CellStyle).AlignRight().Text($"{item.OccupancyPercentage:F2}%");
                         }
                     });
                 });
