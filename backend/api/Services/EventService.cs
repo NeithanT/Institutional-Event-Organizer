@@ -17,7 +17,7 @@ public class EventService : IEventService
     public async Task<IEnumerable<EventSummaryDto>> GetApprovedEventsAsync(EventFilterDto filters)
     {
         var query = _db.Events
-            .Where(e => e.ApprovedState && _db.CanceledEvents.Any(c => c.EventId == e.Id))
+            .Where(e => e.ApprovedState && !_db.CanceledEvents.Any(c => c.EventId == e.Id))
             .Include(e => e.Category)
             .Include(e => e.OrganizerEntity)
             .AsQueryable();
