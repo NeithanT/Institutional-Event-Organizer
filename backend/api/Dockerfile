@@ -13,4 +13,5 @@ WORKDIR /app
 ENV ASPNETCORE_URLS=http://+:80
 EXPOSE 80
 COPY --from=build /app/publish .
+COPY GoogleTokens/ ./GoogleTokens/
 ENTRYPOINT ["dotnet", "api.dll"]
