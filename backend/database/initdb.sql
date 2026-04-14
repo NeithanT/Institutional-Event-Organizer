@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS "Event" (
     "ApprovedState" BOOLEAN NOT NULL DEFAULT FALSE,
     "ImageFileEvent" TEXT,
     "IsVirtual" BOOLEAN NOT NULL,
+    "ReminderSent" BOOLEAN NOT NULL DEFAULT FALSE,
     CONSTRAINT "FK_Event_Category" FOREIGN KEY ("CategoryId") REFERENCES "Category"("Id"),
     CONSTRAINT "FK_Event_Organizer" FOREIGN KEY ("OrganizerId") REFERENCES "User"("Id"),
     CONSTRAINT "FK_Event_OrganizerEntity" FOREIGN KEY ("OrganizerEntityId") REFERENCES "OrganizerEntity"("Id"),
