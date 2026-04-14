@@ -17,6 +17,7 @@
 client_secrets.json
 GoogleTokens/
 deploy/docker-compose.yml
+docker-compose.yml
 .env
 
 .vscode/it 
