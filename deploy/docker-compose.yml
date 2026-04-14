@@ -18,6 +18,7 @@ services:
       - ../backend/database/create_attendance.sql:/docker-entrypoint-initdb.d/07_create_attendance.sql:ro
       - ../backend/database/migrate_announcement_columns.sql:/docker-entrypoint-initdb.d/08_migrate_announcement_columns.sql:ro
       - ../backend/database/create_announcements.sql:/docker-entrypoint-initdb.d/09_create_announcements.sql:ro
+      - ../backend/database/migrate_reminder_sent.sql:/docker-entrypoint-initdb.d/10_migrate_reminder_sent.sql:ro
     ports:
       - "5432:5432"
     healthcheck:
