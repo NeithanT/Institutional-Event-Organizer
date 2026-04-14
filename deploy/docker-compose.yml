@@ -34,7 +34,11 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=EventOrganizer;Username=postgres;Password=postgres123"
-      
+      GmailSettings__ClientId: ${GMAIL_CLIENT_ID}
+      GmailSettings__ClientSecret: ${GMAIL_CLIENT_SECRET}
+      GmailSettings__TokenPath: /app/GoogleTokens
+    volumes:
+      - gmail_tokens:/app/GoogleTokens
     ports:
       - "5053:80"
     depends_on:
@@ -54,3 +58,4 @@ services:
 
 volumes:
   postgres_data:
+  gmail_tokens:
