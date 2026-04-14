@@ -25,6 +25,7 @@ public partial class Event
 
     public bool ApprovedState { get; set; }
     public bool IsVirtual { get; set; }
+    public bool ReminderSent { get; set; }
 
     public string? ImageFileEvent { get; set; }
 

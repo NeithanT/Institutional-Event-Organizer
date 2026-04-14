@@ -16,6 +16,7 @@
 
 client_secrets.json
 Tokens.Gmail/
+GoogleTokens/
 .env
 
 .vscode/it 

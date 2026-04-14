@@ -70,13 +70,14 @@ public class GmailApiService : IEmailService
             ClientSecret = clientSecret
         };
 
+        var tokenPath = _config["GmailSettings:TokenPath"] ?? "/app/GoogleTokens";
         // Autorizamos usando los strings, no el archivo físico
         return await GoogleWebAuthorizationBroker.AuthorizeAsync(
             secrets,
             Scopes,
             "user",
             CancellationToken.None,
-            new FileDataStore("Tokens.Gmail")); // Esto guarda el token resultante
+            new FileDataStore(tokenPath, fullPath: true)); // Esto guarda el token resultante
     }
 
     private string Base64UrlEncode(string input)
