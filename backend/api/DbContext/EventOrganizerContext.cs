@@ -119,6 +119,7 @@ public partial class EventOrganizerContext : DbContext
             entity.ToTable("Event");
 
             entity.Property(e => e.EventDate).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.ReminderSent).HasDefaultValue(false);
             entity.Property(e => e.EventDescription)
                 .HasMaxLength(300)
                 .IsUnicode(false);

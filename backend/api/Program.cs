@@ -30,6 +30,7 @@ builder.Services.AddScoped<IEmailService, GmailApiService>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IInscriptionService, InscriptionService>();
 builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
+builder.Services.AddHostedService<EventReminderService>();
 
 // CORS: allow everything (use only in development / local testing)
 var corsPolicyName = "AllowAll";
