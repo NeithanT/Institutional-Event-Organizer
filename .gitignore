@@ -15,7 +15,8 @@
 /backend/api/obj/
 
 client_secrets.json
-Tokens.Gmail/
+GoogleTokens/
+deploy/docker-compose.yml
 .env
 
 .vscode/it 
