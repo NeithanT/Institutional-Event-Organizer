@@ -54,6 +54,7 @@ services:
     volumes:
       - ./nginx/html:/usr/share/nginx/html:ro
       - ./nginx/institutionaleventorganizer.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - api
 
