@@ -148,14 +148,13 @@ public static class AdministratorEventEndpoint
                 .Where(u => u.Active)
                 .ToListAsync();
 
-            foreach (var user in recipients)
-            {
-                await mailService.SendEmailAsync(
+            _ = Task.WhenAll(recipients.Select(user =>
+                mailService.SendEmailAsync(
                     user.Email,
                     $"ANUNCIO: {announcement.Title}",
                     $"<p>{announcement.Body}</p><p><strong>Categoría:</strong> {announcement.About}</p>"
-                );
-            }
+                ).ContinueWith(t => { /* best-effort, ignorar fallos individuales */ })
+            ));
 
             return Results.Ok("Announcement sent correctly");
         });
