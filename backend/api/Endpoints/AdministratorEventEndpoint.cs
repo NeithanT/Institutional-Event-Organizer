@@ -221,7 +221,7 @@ public static class AdministratorEventEndpoint
 
         //##################################################################################################################
         //Changes the status of an event to approved = false and add it to the canceled table
-        app.MapPost("/api/administrator/{id:int}/deny", async (DtoDenyEvent dtoDeny, int id, EventOrganizerContext db) =>
+        app.MapPost("/api/administrator/{id:int}/deny", async (DtoDenyEvent dtoDeny, int id, EventOrganizerContext db, IEmailService mailService) =>
         {
 
             Event? eventToDeny = await db.Events.FindAsync(id);
@@ -233,7 +233,6 @@ public static class AdministratorEventEndpoint
             if (await db.CanceledEvents.AnyAsync(e => e.EventId == id))
                 return Results.BadRequest("Event already been denied");
 
-
             eventToDeny.ApprovedState = false;
 
             CanceledEvent canceledEvent = new CanceledEvent
@@ -243,8 +242,25 @@ public static class AdministratorEventEndpoint
             };
 
             await db.CanceledEvents.AddAsync(canceledEvent);
-
             await db.SaveChangesAsync();
+
+            try
+            {
+                var organizer = await db.Users.FindAsync(eventToDeny.OrganizerId);
+                if (organizer != null)
+                {
+                    await mailService.SendEmailAsync(
+                        organizer.Email,
+                        $"Evento rechazado: {eventToDeny.Title}",
+                        $"Hola {organizer.UserName},\n\n" +
+                        $"Tu evento \"{eventToDeny.Title}\" ha sido rechazado por un administrador.\n\n" +
+                        $"Motivo: {dtoDeny.reason}\n\n" +
+                        $"Si tienes dudas, comunícate con la administración del TEC."
+                    );
+                }
+            }
+            catch { /* El correo es best-effort; no afecta el rechazo */ }
+
             return Results.Ok("Event has been denied successfully");
         });
     }
