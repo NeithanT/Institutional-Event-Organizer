@@ -151,7 +151,7 @@ loadParticipants() {
       fullName: p.userName,
       studentId: p.idCard,
       email: p.email,
-      inscriptionDate: p.inscriptionDate,
+      inscriptionDate: new Date(p.inscriptionDate),
       attended: p.assisted
     }));
 

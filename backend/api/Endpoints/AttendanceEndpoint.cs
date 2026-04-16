@@ -9,6 +9,10 @@ namespace api.Endpoints;
 
 public static class AttendanceEndpoint
 {
+    private static DateTimeOffset GetCostaRicaNow()
+    {
+        return DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(-6));
+    }
 
     public static void mapAttendancesEndpoints(WebApplication app)
     {
@@ -35,8 +39,8 @@ public static class AttendanceEndpoint
                 guest.User.IdCard,
                 guest.User.Email,
                 InscriptionDate = guest.InscriptionDate == DateTime.MinValue
-                    ? DateTime.Now
-                    : guest.InscriptionDate,
+                    ? GetCostaRicaNow()
+                    : new DateTimeOffset(DateTime.SpecifyKind(guest.InscriptionDate, DateTimeKind.Unspecified), TimeSpan.FromHours(-6)),
 
                 assisted = attendedUserIds.Contains(guest.UserId)
             })

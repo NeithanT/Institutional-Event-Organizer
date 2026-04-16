@@ -10,6 +10,11 @@ public class InscriptionService : IInscriptionService
     private readonly EventOrganizerContext _db;
     private readonly IEmailService _mailService;
 
+    private static DateTime GetCostaRicaNow()
+    {
+        return DateTime.SpecifyKind(DateTime.UtcNow.AddHours(-6), DateTimeKind.Unspecified);
+    }
+
     public InscriptionService(EventOrganizerContext db, IEmailService mailService)
     {
         _db = db;
@@ -18,7 +23,7 @@ public class InscriptionService : IInscriptionService
 
     public async Task<IEnumerable<InscriptionSummaryDto>> GetUserInscriptionsAsync(int userId)
     {
-        var now = DateTime.Now;
+        var now = GetCostaRicaNow();
 
         return await _db.Inscriptions
             .Where(i => i.UserId == userId)
@@ -65,7 +70,7 @@ public class InscriptionService : IInscriptionService
         {
             EventId = dto.EventId,
             UserId = dto.UserId,
-            InscriptionDate = DateTime.Now
+            InscriptionDate = GetCostaRicaNow()
         };
 
         ev.AvalaibleEntries -= 1;
