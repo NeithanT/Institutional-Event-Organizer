@@ -40,6 +40,8 @@ services:
       GmailSettings__TokenPath: /app/GoogleTokens
     volumes:
       - gmail_tokens:/app/GoogleTokens
+      - uploads_data:/app/wwwroot/uploads
+      - profile_photos_data:/app/wwwroot/profile-photos
     ports:
       - "5053:80"
     depends_on:
@@ -61,3 +63,5 @@ services:
 volumes:
   postgres_data:
   gmail_tokens:
+  uploads_data:
+  profile_photos_data:
