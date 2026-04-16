@@ -225,18 +225,27 @@ public static class AdministratorUtilitiesEndpoint
                 .Select(c => new
                 {
                     Category = c.NameCategory,
-
                     FilteredEvents = c.Events.Where(e => e.EventDate >= dates.DateStart && e.EventDate <= dates.DateEnd)
                 })
-                .Where(x => x.FilteredEvents.Any()) // Solo categorías con eventos
+                .Where(x => x.FilteredEvents.Any())
                 .Select(x => new
                 {
                     Category = x.Category,
                     EventsCount = x.FilteredEvents.Count(),
                     TotalAttendees = x.FilteredEvents.SelectMany(e => e.Attendances).Count(),
-                    Average = x.FilteredEvents.Any()
-                              ? (double)x.FilteredEvents.SelectMany(e => e.Attendances).Count() / x.FilteredEvents.Count()
-                              : 0
+                    TotalCapacity = x.FilteredEvents.Sum(e => e.AvalaibleEntries + e.Inscriptions.Count())
+                })
+                .Select(x => new
+                {
+                    x.Category,
+                    x.EventsCount,
+                    x.TotalAttendees,
+                    AverageAttendance = x.EventsCount > 0
+                        ? (double)x.TotalAttendees / x.EventsCount
+                        : 0,
+                    UsedSpacesPercentage = x.TotalCapacity > 0
+                        ? (double)x.TotalAttendees / x.TotalCapacity * 100
+                        : 0
                 })
                 .OrderByDescending(x => x.TotalAttendees)
                 .ToListAsync();
@@ -257,8 +266,9 @@ public static class AdministratorUtilitiesEndpoint
                         {
                             columns.RelativeColumn(3); // Categoría
                             columns.RelativeColumn(1); // Eventos
-                            columns.RelativeColumn(2); // Total
-                            columns.RelativeColumn(2); // Promedio
+                            columns.RelativeColumn(2); // Asistentes
+                            columns.RelativeColumn(2); // Promedio asistencia
+                            columns.RelativeColumn(2); // % cupos usados
                         });
 
                         table.Header(header =>
@@ -266,8 +276,9 @@ public static class AdministratorUtilitiesEndpoint
                             static IContainer Style(IContainer c) => c.BorderBottom(1).Padding(5);
                             header.Cell().Element(Style).Text("Categoría").SemiBold();
                             header.Cell().Element(Style).AlignRight().Text("Eventos").SemiBold();
-                            header.Cell().Element(Style).AlignRight().Text("Total").SemiBold();
-                            header.Cell().Element(Style).AlignRight().Text("Promedio").SemiBold();
+                            header.Cell().Element(Style).AlignRight().Text("Asistentes").SemiBold();
+                            header.Cell().Element(Style).AlignRight().Text("Promedio asistencia").SemiBold();
+                            header.Cell().Element(Style).AlignRight().Text("% cupos usados").SemiBold();
                         });
 
                         foreach (var item in reportData)
@@ -277,7 +288,8 @@ public static class AdministratorUtilitiesEndpoint
                             table.Cell().Element(CellStyle).Text(item.Category);
                             table.Cell().Element(CellStyle).AlignRight().Text(item.EventsCount.ToString());
                             table.Cell().Element(CellStyle).AlignRight().Text(item.TotalAttendees.ToString("N0"));
-                            table.Cell().Element(CellStyle).AlignRight().Text(item.Average.ToString("F2"));
+                            table.Cell().Element(CellStyle).AlignRight().Text(item.AverageAttendance.ToString("F2"));
+                            table.Cell().Element(CellStyle).AlignRight().Text($"{item.UsedSpacesPercentage.ToString("F2")}%");
                         }
                     });
                 });
