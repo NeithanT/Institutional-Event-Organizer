@@ -148,6 +148,8 @@ public partial class EventOrganizerContext : DbContext
 
         modelBuilder.Entity<Inscription>(entity =>
         {
+            entity.Property(e => e.InscriptionDate).HasColumnType("timestamp without time zone");
+
             entity.HasIndex(e => new { e.EventId, e.UserId }, "UQ_Inscriptions_Event_User").IsUnique();
 
             entity.HasOne(d => d.Event).WithMany(p => p.Inscriptions)
