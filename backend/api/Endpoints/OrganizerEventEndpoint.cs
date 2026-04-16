@@ -11,12 +11,19 @@ namespace api.Endpoints;
 
 public static class EventEndpoint
 {
+    private static DateTime GetCostaRicaNow()
+    {
+        return DateTime.SpecifyKind(DateTime.UtcNow.AddHours(-6), DateTimeKind.Unspecified);
+    }
+
     private static bool IsValidData(DtoEditEvent d)
     {
+        var now = GetCostaRicaNow();
+
         return !(
             d.IdEvent < 0
         || string.IsNullOrEmpty(d.EventDate.ToString())
-        || d.EventDate < DateTime.Now
+        || d.EventDate < now
         || string.IsNullOrEmpty(d.EventDescription)
         || string.IsNullOrEmpty(d.Place)
         || string.IsNullOrEmpty(d.Title));
@@ -91,7 +98,10 @@ public static class EventEndpoint
                     imagePath = "/uploads/" + uniqueFileName;
                 }
 
-                if (createEventDto.EventDate < DateTime.UtcNow)
+                var eventDate = DateTime.SpecifyKind(createEventDto.EventDate, DateTimeKind.Unspecified);
+                var now = GetCostaRicaNow();
+
+                if (eventDate < now)
                     return Results.BadRequest("Cannot create an event in the past");
 
                 Event ev = new Event
@@ -99,7 +109,7 @@ public static class EventEndpoint
                     Title = createEventDto.Title,
                     ImageFileEvent = imagePath,
                     EventDescription = createEventDto.EventDescription,
-                    EventDate = createEventDto.EventDate,
+                    EventDate = eventDate,
                     Place = createEventDto.Place,
                     CategoryId = createEventDto.CategoryId,
                     OrganizerId = createEventDto.OrganizerId,
@@ -128,7 +138,7 @@ public static class EventEndpoint
 
             ev.Title = editEventDto.Title;
             ev.EventDescription = editEventDto.EventDescription;
-            ev.EventDate = editEventDto.EventDate;
+            ev.EventDate = DateTime.SpecifyKind(editEventDto.EventDate, DateTimeKind.Unspecified);
             ev.Place = editEventDto.Place;
             ev.IsVirtual = editEventDto.IsVirtual;
 

@@ -133,7 +133,7 @@ export class CreateEvent implements OnInit {
 
     const formData = new FormData();
     formData.append('Title', this.title);
-    formData.append('EventDate', new Date(this.date).toISOString());
+    formData.append('EventDate', this.date);
     formData.append('Place', this.place);
     formData.append('EventDescription', this.description);
     formData.append('AvalaibleEntries', this.capacity.toString());

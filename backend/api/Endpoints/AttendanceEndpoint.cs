@@ -9,6 +9,10 @@ namespace api.Endpoints;
 
 public static class AttendanceEndpoint
 {
+    private static DateTimeOffset GetCostaRicaNow()
+    {
+        return DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(-6));
+    }
 
     public static void mapAttendancesEndpoints(WebApplication app)
     {
@@ -18,24 +22,30 @@ public static class AttendanceEndpoint
             if (ev == null) return Results.NotFound();
 
 
-            var subscriptions = await db.Inscriptions
-            .Include(inscription => inscription.User)
-            .Where(inscription => inscription.EventId == id)
-            .Select(guest => new
+            var inscriptions = await db.Inscriptions
+                .Include(inscription => inscription.User)
+                .Where(inscription => inscription.EventId == id)
+                .ToListAsync();
+
+            var attendedUserIds = await db.Attendances
+                .Where(a => a.EventId == id)
+                .Select(a => a.UserId)
+                .ToListAsync();
+
+            var subscriptions = inscriptions.Select(guest => new
             {
                 guest.UserId,
                 guest.User.UserName,
                 guest.User.IdCard,
                 guest.User.Email,
-                guest.InscriptionDate,
+                InscriptionDate = guest.InscriptionDate == DateTime.MinValue
+                    ? GetCostaRicaNow()
+                    : new DateTimeOffset(DateTime.SpecifyKind(guest.InscriptionDate, DateTimeKind.Unspecified), TimeSpan.FromHours(-6)),
 
-                assisted = db.Attendances.Any(
-                    a => a.EventId == guest.EventId
-                    &&
-                    a.UserId == guest.UserId
-                )
+                assisted = attendedUserIds.Contains(guest.UserId)
             })
-            .ToListAsync();
+            .ToList();
+
             return Results.Ok(subscriptions);
         });
 
