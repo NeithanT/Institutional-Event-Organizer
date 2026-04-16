@@ -2,6 +2,7 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using api.DTOs;
+using api.Interfaces;
 using api.Models;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -127,7 +128,7 @@ public static class AuthenticationEndpoint
         });
 
         //######################################################################################################
-        app.MapPost("/api/user/register", async (DtoRegisterUser register, EventOrganizerContext db) =>
+        app.MapPost("/api/user/register", async (DtoRegisterUser register, EventOrganizerContext db, IEmailService mailService) =>
         {
 
             string name = register.Name?.Trim() ?? string.Empty;
@@ -177,6 +178,49 @@ public static class AuthenticationEndpoint
             {
                 return Results.Problem($"Error agregando al usuario: {ex.Message}", statusCode: 500);
             }
+
+            try
+            {
+                await mailService.SendEmailAsync(
+                    user.Email,
+                    "Bienvenido al Sistema de Gestión de Eventos — TEC",
+                    $"""
+                    Hola {user.UserName},
+
+                    ¡Bienvenido al Sistema de Gestión de Eventos del Instituto Tecnológico de Costa Rica!
+
+                    Tu cuenta ha sido creada exitosamente. Aquí está el resumen de tus datos:
+
+                    - Nombre: {user.UserName}
+                    - Correo: {user.Email}
+                    - Cédula: {user.IdCard}
+
+                    
+                    Política de Uso — Sistema de Gestión de Eventos
+                    
+
+                    Al registrarse en esta plataforma, usted acepta los siguientes términos:
+
+                    1. Uso permitido: La plataforma es de uso exclusivo para la comunidad del Instituto Tecnológico de Costa Rica (estudiantes, docentes y personal administrativo).
+
+                    2. Registro: Usted es responsable de mantener la confidencialidad de su contraseña y de toda actividad realizada desde su cuenta.
+
+                    3. Inscripciones: Al inscribirse a un evento, se compromete a asistir. Si no puede asistir, deberá cancelar su inscripción con anticipación para liberar el cupo.
+
+                    4. Conducta: Se espera un comportamiento respetuoso en todos los eventos. El incumplimiento puede resultar en la suspensión de su cuenta.
+
+                    5. Datos personales: La información registrada será utilizada únicamente para la gestión de eventos institucionales y comunicaciones relacionadas.
+
+                    6. Organizadores: Los organizadores son responsables de la veracidad de la información publicada en sus eventos.
+
+                    7. Modificaciones: El TEC se reserva el derecho de modificar estas políticas. Los cambios serán notificados por correo electrónico.
+
+                    
+                    Sistema de Gestión de Eventos — TEC
+                    """
+                );
+            }
+            catch { /* El correo es best-effort; no cancela el registro */ }
 
             return Results.Created($"/api/user/{user.Id}", new
             {
