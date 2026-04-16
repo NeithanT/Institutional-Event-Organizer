@@ -64,7 +64,8 @@ public class InscriptionService : IInscriptionService
         var inscription = new Inscription
         {
             EventId = dto.EventId,
-            UserId = dto.UserId
+            UserId = dto.UserId,
+            InscriptionDate = DateTime.Now
         };
 
         ev.AvalaibleEntries -= 1;
