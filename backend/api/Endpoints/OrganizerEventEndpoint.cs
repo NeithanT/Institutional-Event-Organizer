@@ -126,23 +126,53 @@ public static class EventEndpoint
             }).DisableAntiforgery();
 
 
-        app.MapPut("/api/organizer/events", async (DtoEditEvent editEventDto, EventOrganizerContext db) =>
+        app.MapPut("/api/organizer/events", async (DtoEditEvent editEventDto, EventOrganizerContext db, IEmailService mailService) =>
         {
 
             Event? ev = await db.Events.FindAsync(editEventDto.IdEvent);
             if (ev == null) return Results.NotFound("Event not found to update");
             if (ev.OrganizerId != editEventDto.OrganizerId) return Results.Unauthorized();
 
-
             if (!IsValidData(editEventDto)) return Results.BadRequest("Invalid data to update");
+
+            var newDate = DateTime.SpecifyKind(editEventDto.EventDate, DateTimeKind.Unspecified);
+            var culture = new System.Globalization.CultureInfo("es-CR");
+
+            var changedFields = new List<string>();
+            if (ev.EventDate != newDate)
+                changedFields.Add($"Fecha: {newDate.ToString("dd 'de' MMMM 'de' yyyy, HH:mm", culture)}");
+            if (ev.Place != editEventDto.Place)
+                changedFields.Add($"Lugar: {editEventDto.Place}");
 
             ev.Title = editEventDto.Title;
             ev.EventDescription = editEventDto.EventDescription;
-            ev.EventDate = DateTime.SpecifyKind(editEventDto.EventDate, DateTimeKind.Unspecified);
+            ev.EventDate = newDate;
             ev.Place = editEventDto.Place;
             ev.IsVirtual = editEventDto.IsVirtual;
 
             await db.SaveChangesAsync();
+
+            if (changedFields.Count > 0)
+            {
+                var inscribed = await db.Inscriptions
+                    .Include(i => i.User)
+                    .Where(i => i.EventId == ev.Id)
+                    .ToListAsync();
+
+                var cambios = string.Join("\n", changedFields);
+
+                _ = Task.WhenAll(inscribed.Select(i =>
+                    mailService.SendEmailAsync(
+                        i.User.Email,
+                        $"Cambios en el evento: {ev.Title}",
+                        $"Hola {i.User.UserName},\n\n" +
+                        $"El evento \"{ev.Title}\" al que estás inscrito ha tenido cambios:\n\n" +
+                        $"{cambios}\n\n" +
+                        $"Por favor toma nota de los nuevos detalles.\n\n" +
+                        $"Sistema de Gestión de Eventos — TEC"
+                    ).ContinueWith(t => { })
+                ));
+            }
 
             return Results.Ok($"Event updated succesfully");
         });

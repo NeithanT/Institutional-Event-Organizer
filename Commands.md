@@ -88,3 +88,9 @@ Instanlese node js :)
 
 ahora en el localhost que se pone lo abriran en un navegador como 
 http://localhost:<port>/
+
+
+# Para produccion
+cd ~/Institutional-Event-Organizer/deploy
+git pull
+docker-compose up -d --build api
