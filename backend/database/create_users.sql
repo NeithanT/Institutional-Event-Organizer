@@ -50,6 +50,6 @@ SELECT
     TRUE,
     r."Id",
     2000000000 + gs
-FROM generate_series(1, 200) AS gs
+FROM generate_series(1, 5) AS gs
 JOIN "Role" r ON r."RolName" = 'Student'
 ON CONFLICT ("Email") DO NOTHING;
