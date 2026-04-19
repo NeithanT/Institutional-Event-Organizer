@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { forkJoin } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Authentication } from '../../../services/authentication';
@@ -30,6 +31,7 @@ export class EventDetail implements OnInit {
   //Asistencia
   showAttendanceModal: boolean = false;
   participants: any[] = [];
+  originalAttendanceState: Record<number, boolean> = {};
 
   //Filtrado
   searchTerm: string = '';
@@ -155,6 +157,10 @@ loadParticipants() {
       attended: p.assisted
     }));
 
+      this.originalAttendanceState = Object.fromEntries(
+        this.participants.map(participant => [participant.userId, participant.attended])
+      );
+
       this.filteredParticipants = [...this.participants];
       this.cdr.detectChanges();
     },
@@ -176,20 +182,41 @@ saveAttendance() {
     return;
   }
 
-  this.participants.forEach(user => {
+  const changes = this.participants.filter(user =>
+    this.originalAttendanceState[user.userId] !== user.attended
+  );
+
+  if (changes.length === 0) {
+    this.openModal(true, 'Sin cambios', 'No hubo modificaciones en la asistencia');
+    return;
+  }
+
+  const requests = changes.map(user => {
     if (user.attended) {
-      this.http.post(
-        `/api/organizer/events/${this.eventId}/check-list/${user.userId}`, {}
-      ).subscribe();
-    } else {
-      this.http.delete(
-        `/api/organizer/events/${this.eventId}/check-list/${user.userId}`
-      ).subscribe();
+      return this.http.post(
+        `/api/organizer/events/${this.eventId}/check-list/${user.userId}`,
+        {}
+      );
     }
+
+    return this.http.delete(
+      `/api/organizer/events/${this.eventId}/check-list/${user.userId}`
+    );
   });
 
-  this.openModal(true, '¡Éxito!', 'Asistencia actualizada correctamente');
-  this.closeAttendanceModal();
+  forkJoin(requests).subscribe({
+    next: () => {
+      this.originalAttendanceState = Object.fromEntries(
+        this.participants.map(participant => [participant.userId, participant.attended])
+      );
+      this.openModal(true, '¡Éxito!', 'Asistencia actualizada correctamente');
+      this.closeAttendanceModal();
+    },
+    error: (err) => {
+      console.error('ERROR guardando asistencia:', err);
+      this.openModal(false, '¡Error!', 'No se pudo actualizar la asistencia');
+    }
+  });
 }
 
   // ── COMUNICADO ──────────────────────────────
