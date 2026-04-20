@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -17,7 +17,6 @@ interface UserSearchResult {
 @Component({
   selector: 'app-organizer-management-admin',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule],
   templateUrl: './organizer-management-admin.html',
   styleUrl: './organizer-management-admin.css',
@@ -84,14 +83,17 @@ export class OrganizerManagementAdmin implements OnInit {
   clearMessages(): void {
     this.errorMessage = '';
     this.successMessage = '';
-    this.ref.markForCheck();
   }
 
   loadCurrentUsers(): void {
     this.clearMessages();
     this.http
       .get<{ organizers: UserSearchResult[]; students: UserSearchResult[] }>('/api/administrator/users/grouped')
-      .pipe(finalize(() => this.ref.markForCheck()))
+      .pipe(
+        finalize(() => {
+          this.ref.markForCheck();
+        })
+      )
       .subscribe({
         next: (data) => {
           this.currentOrganizers = data.organizers;
@@ -109,20 +111,20 @@ export class OrganizerManagementAdmin implements OnInit {
 
     if (!this.searchName.trim()) {
       this.errorMessage = 'Ingrese un nombre de usuario para buscar.';
-      this.ref.markForCheck();
       return;
     }
 
     this.isSearching = true;
     this.searchedUser = null;
-    this.ref.markForCheck();
 
     this.http
       .get<UserSearchResult>(`/api/administrator/search-user-by-name/${encodeURIComponent(this.searchName.trim())}`)
-      .pipe(finalize(() => {
-        this.isSearching = false;
-        this.ref.markForCheck();
-      }))
+      .pipe(
+        finalize(() => {
+          this.isSearching = false;
+          this.ref.markForCheck();
+        })
+      )
       .subscribe({
         next: (user) => {
           this.searchedUser = user;
@@ -143,20 +145,20 @@ export class OrganizerManagementAdmin implements OnInit {
     const idCard = Number(this.searchIdCard);
     if (!Number.isInteger(idCard) || idCard <= 0) {
       this.errorMessage = 'Ingrese un número de cédula válido.';
-      this.ref.markForCheck();
       return;
     }
 
     this.isSearching = true;
     this.searchedUser = null;
-    this.ref.markForCheck();
 
     this.http
       .get<UserSearchResult>(`/api/administrator/search-user-by-idcard/${idCard}`)
-      .pipe(finalize(() => {
-        this.isSearching = false;
-        this.ref.markForCheck();
-      }))
+      .pipe(
+        finalize(() => {
+          this.isSearching = false;
+          this.ref.markForCheck();
+        })
+      )
       .subscribe({
         next: (user) => {
           this.searchedUser = user;
@@ -178,14 +180,15 @@ export class OrganizerManagementAdmin implements OnInit {
 
     this.clearMessages();
     this.isUpdating = true;
-    this.ref.markForCheck();
 
     this.http
       .post(`/api/administrator/change-rol/to-organizer/${this.searchedUser.id}`, {})
-      .pipe(finalize(() => {
-        this.isUpdating = false;
-        this.ref.markForCheck();
-      }))
+      .pipe(
+        finalize(() => {
+          this.isUpdating = false;
+          this.ref.markForCheck();
+        })
+      )
       .subscribe({
         next: () => {
           this.successMessage = 'El usuario ha sido promovido a organizador.';
@@ -205,14 +208,15 @@ export class OrganizerManagementAdmin implements OnInit {
 
     this.clearMessages();
     this.isUpdating = true;
-    this.ref.markForCheck();
 
     this.http
       .post(`/api/administrator/change-rol/to-student/${this.searchedUser.id}`, {})
-      .pipe(finalize(() => {
-        this.isUpdating = false;
-        this.ref.markForCheck();
-      }))
+      .pipe(
+        finalize(() => {
+          this.isUpdating = false;
+          this.ref.markForCheck();
+        })
+      )
       .subscribe({
         next: () => {
           this.successMessage = 'El organizador ha sido removido y ahora es estudiante.';
@@ -232,14 +236,15 @@ export class OrganizerManagementAdmin implements OnInit {
 
     this.clearMessages();
     this.isUpdating = true;
-    this.ref.markForCheck();
 
     this.http
       .post(`/api/administrator/set-active/${this.searchedUser.id}`, {})
-      .pipe(finalize(() => {
-        this.isUpdating = false;
-        this.ref.markForCheck();
-      }))
+      .pipe(
+        finalize(() => {
+          this.isUpdating = false;
+          this.ref.markForCheck();
+        })
+      )
       .subscribe({
         next: () => {
           this.successMessage = 'El usuario ha sido activado.';
@@ -259,14 +264,15 @@ export class OrganizerManagementAdmin implements OnInit {
 
     this.clearMessages();
     this.isUpdating = true;
-    this.ref.markForCheck();
 
     this.http
       .post(`/api/administrator/set-inactive/${this.searchedUser.id}`, {})
-      .pipe(finalize(() => {
-        this.isUpdating = false;
-        this.ref.markForCheck();
-      }))
+      .pipe(
+        finalize(() => {
+          this.isUpdating = false;
+          this.ref.markForCheck();
+        })
+      )
       .subscribe({
         next: () => {
           this.successMessage = 'El usuario ha sido desactivado.';
@@ -282,14 +288,12 @@ export class OrganizerManagementAdmin implements OnInit {
   previousOrganizerPage(): void {
     if (this.organizerPage > 0) {
       this.organizerPage -= 1;
-      this.ref.markForCheck();
     }
   }
 
   nextOrganizerPage(): void {
     if (this.organizerPage + 1 < this.organizerPageCount) {
       this.organizerPage += 1;
-      this.ref.markForCheck();
     }
   }
 }
